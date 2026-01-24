@@ -119,12 +119,14 @@
 @use 'components/Input.scss';
 @use 'components/InstallScreenBackupImportStep.scss';
 @use 'components/InstallScreenCaptchaStep.scss';
+@use 'components/InstallScreenCreatingAccountStep.scss';
 @use 'components/InstallScreenErrorStep.scss';
 @use 'components/InstallScreenLinkInProgressStep.scss';
 @use 'components/InstallScreenPhoneNumberStep.scss';
 @use 'components/InstallScreenQrCodeNotScannedStep.scss';
 @use 'components/InstallScreenSignalLogo.scss';
 @use 'components/InstallScreenUpdateDialog.scss';
+@use 'components/InstallScreenVerificationCodeStep.scss';
 @use 'components/LeftPaneBanner.scss';
 @use 'components/LeftPaneDialog.scss';
 @use 'components/LeftPaneFindByPhoneNumberHelper.scss';

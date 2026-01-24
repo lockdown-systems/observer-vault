@@ -98,61 +98,65 @@ export function InstallScreenVerificationCodeStep({
 
       <InstallScreenSignalLogo />
 
-      <h1>Enter verification code</h1>
-      <p className="module-InstallScreenVerificationCodeStep__description">
-        We sent a code to {phoneNumber}
-      </p>
-
-      {error && (
-        <div className="module-InstallScreenVerificationCodeStep__error">
-          {error}
-        </div>
-      )}
-
-      <div
-        className="module-InstallScreenVerificationCodeStep__code-inputs"
-        onPaste={handlePaste}
-      >
-        {Array.from({ length: CODE_LENGTH }).map((_, index) => (
-          <input
-            key={index}
-            ref={el => {
-              inputRefs.current[index] = el;
-            }}
-            type="text"
-            inputMode="numeric"
-            maxLength={1}
-            className="module-InstallScreenVerificationCodeStep__code-input"
-            value={code[index] || ''}
-            onChange={e => handleChange(index, e.target.value)}
-            onKeyDown={e => handleKeyDown(index, e)}
-            disabled={isSubmitting}
-          />
-        ))}
-      </div>
-
-      <div className="module-InstallScreenVerificationCodeStep__buttons">
-        <Button
-          onClick={onResendCode}
-          variant={ButtonVariant.Secondary}
-          disabled={isSubmitting}
-        >
-          Resend code
-        </Button>
-        <Button
-          onClick={onBack}
-          variant={ButtonVariant.Secondary}
-          disabled={isSubmitting}
-        >
-          Back
-        </Button>
-      </div>
-
-      {isSubmitting && (
-        <p className="module-InstallScreenVerificationCodeStep__status">
-          Verifying...
+      <div className="module-InstallScreenVerificationCodeStep__card">
+        <h1 className="module-InstallScreenVerificationCodeStep__title">
+          Enter verification code
+        </h1>
+        <p className="module-InstallScreenVerificationCodeStep__description">
+          We sent a code to <strong>{phoneNumber}</strong>
         </p>
-      )}
+
+        {error && (
+          <div className="module-InstallScreenVerificationCodeStep__error">
+            {error}
+          </div>
+        )}
+
+        <div
+          className="module-InstallScreenVerificationCodeStep__code-inputs"
+          onPaste={handlePaste}
+        >
+          {Array.from({ length: CODE_LENGTH }).map((_, index) => (
+            <input
+              key={index}
+              ref={el => {
+                inputRefs.current[index] = el;
+              }}
+              type="text"
+              inputMode="numeric"
+              maxLength={1}
+              className="module-InstallScreenVerificationCodeStep__code-input"
+              value={code[index] || ''}
+              onChange={e => handleChange(index, e.target.value)}
+              onKeyDown={e => handleKeyDown(index, e)}
+              disabled={isSubmitting}
+            />
+          ))}
+        </div>
+
+        <div className="module-InstallScreenVerificationCodeStep__buttons">
+          <Button
+            onClick={onResendCode}
+            variant={ButtonVariant.Secondary}
+            disabled={isSubmitting}
+          >
+            Resend code
+          </Button>
+          <Button
+            onClick={onBack}
+            variant={ButtonVariant.Secondary}
+            disabled={isSubmitting}
+          >
+            Back
+          </Button>
+        </div>
+
+        {isSubmitting && (
+          <p className="module-InstallScreenVerificationCodeStep__status">
+            Verifying...
+          </p>
+        )}
+      </div>
     </div>
   );
 }

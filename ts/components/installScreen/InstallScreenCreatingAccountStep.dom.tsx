@@ -20,18 +20,22 @@ export function InstallScreenCreatingAccountStep({
 
       <InstallScreenSignalLogo />
 
-      <h1>Creating your account</h1>
-      <p className="module-InstallScreenCreatingAccountStep__description">
-        Setting up Video Stash for {phoneNumber}...
-      </p>
+      <div className="module-InstallScreenCreatingAccountStep__card">
+        <h1 className="module-InstallScreenCreatingAccountStep__title">
+          Creating your account
+        </h1>
+        <p className="module-InstallScreenCreatingAccountStep__description">
+          Setting up Video Stash for <strong>{phoneNumber}</strong>
+        </p>
 
-      <div className="module-InstallScreenCreatingAccountStep__spinner">
-        <Spinner svgSize="normal" />
+        <div className="module-InstallScreenCreatingAccountStep__spinner">
+          <Spinner size="48px" svgSize="normal" />
+        </div>
+
+        <p className="module-InstallScreenCreatingAccountStep__status">
+          Generating encryption keys and registering with Signal...
+        </p>
       </div>
-
-      <p className="module-InstallScreenCreatingAccountStep__status">
-        Generating encryption keys and registering with Signal...
-      </p>
     </div>
   );
 }
