@@ -14,6 +14,7 @@ config/local-*
 release/
 /dev-app-update.yml
 .nyc_output/
+PLAN.md
 
 /sql/
 /start.sh
