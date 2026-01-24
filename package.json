@@ -1,11 +1,11 @@
 {
   "$schema": "./package.schema.json",
   "packageManager": "pnpm@10.18.1",
-  "name": "signal-desktop",
-  "productName": "Signal",
-  "description": "Private messaging from your desktop",
-  "desktopName": "signal.desktop",
-  "repository": "https://github.com/signalapp/Signal-Desktop.git",
+  "name": "video-stash",
+  "productName": "Video Stash",
+  "description": "Signal video call recorder",
+  "desktopName": "videostash.desktop",
+  "repository": "https://github.com/micahflee/video-stash.git",
   "version": "7.86.0",
   "license": "AGPL-3.0-only",
   "author": {
@@ -430,7 +430,7 @@
     "node": "22.21.1"
   },
   "build": {
-    "appId": "org.whispersystems.signal-desktop",
+    "appId": "org.videostash.video-stash",
     "nativeRebuilder": "parallel",
     "mac": {
       "artifactName": "${name}-mac-${arch}-${version}.${ext}",
@@ -523,11 +523,11 @@
       }
     },
     "linux": {
-      "executableName": "signal-desktop",
+      "executableName": "video-stash",
       "category": "Network;InstantMessaging;Chat",
       "desktop": {
         "entry": {
-          "StartupWMClass": "signal"
+          "StartupWMClass": "videostash"
         }
       },
       "artifactName": "${name}_${version}_${arch}.${ext}",
