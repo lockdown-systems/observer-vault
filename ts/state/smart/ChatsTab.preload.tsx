@@ -10,13 +10,11 @@ import { SmartConversationView } from './ConversationView.preload.js';
 import { SmartMiniPlayer } from './MiniPlayer.preload.js';
 import { SmartLeftPane } from './LeftPane.preload.js';
 import type { NavTabPanelProps } from '../../components/NavTabs.dom.js';
-import { useGlobalModalActions } from '../ducks/globalModals.preload.js';
 import { getIntl } from '../selectors/user.std.js';
 import { usePrevious } from '../../hooks/usePrevious.std.js';
 import { TargetedMessageSource } from '../ducks/conversationsEnums.std.js';
 import { useConversationsActions } from '../ducks/conversations.preload.js';
 import { useToastActions } from '../ducks/toast.preload.js';
-import { isStagingServer } from '../../util/isStagingServer.dom.js';
 import { ToastType } from '../../types/Toast.dom.js';
 import { getNavTabsCollapsed } from '../selectors/items.dom.js';
 import { useItemsActions } from '../ducks/items.preload.js';
@@ -59,7 +57,6 @@ export const SmartChatsTab = memo(function SmartChatsTab() {
     scrollToMessage,
     showConversation,
   } = useConversationsActions();
-  const { showWhatsNewModal } = useGlobalModalActions();
   const { toggleNavTabsCollapse } = useItemsActions();
   const { showToast } = useToastActions();
 
@@ -144,7 +141,6 @@ export const SmartChatsTab = memo(function SmartChatsTab() {
     <ChatsTab
       otherTabsUnreadStats={otherTabsUnreadStats}
       i18n={i18n}
-      isStaging={isStagingServer()}
       hasFailedStorySends={hasFailedStorySends}
       hasPendingUpdate={hasPendingUpdate}
       navTabsCollapsed={navTabsCollapsed}
@@ -153,7 +149,6 @@ export const SmartChatsTab = memo(function SmartChatsTab() {
       renderLeftPane={renderLeftPane}
       renderMiniPlayer={renderMiniPlayer}
       selectedConversationId={selectedConversationId}
-      showWhatsNewModal={showWhatsNewModal}
     />
   );
 });

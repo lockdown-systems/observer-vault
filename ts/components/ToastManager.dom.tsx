@@ -953,8 +953,9 @@ export function renderMegaphone({
     return null;
   }
 
+  // Username onboarding megaphone disabled for Video Stash
   if (megaphone.type === MegaphoneType.UsernameOnboarding) {
-    return <UsernameMegaphone i18n={i18n} {...megaphone} />;
+    return null;
   }
 
   if (megaphone.type === MegaphoneType.Remote) {

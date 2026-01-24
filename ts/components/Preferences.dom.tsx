@@ -595,12 +595,13 @@ export function Preferences({
     setSettingsLocation({ page: SettingsPage.General });
   }
 
-  let maybeUpdateDialog: React.JSX.Element | undefined;
-  if (shouldShowUpdateDialog) {
-    maybeUpdateDialog = renderUpdateDialog({
-      containerWidthBreakpoint: WidthBreakpoint.Wide,
-    });
-  }
+  // Update dialog - disabled for Video Stash
+  const maybeUpdateDialog: React.JSX.Element | undefined = undefined;
+  // if (shouldShowUpdateDialog) {
+  //   maybeUpdateDialog = renderUpdateDialog({
+  //     containerWidthBreakpoint: WidthBreakpoint.Wide,
+  //   });
+  // }
 
   const onZoomSelectChange = useCallback(
     (value: string) => {

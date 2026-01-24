@@ -669,11 +669,11 @@ export function LeftPane({
     maybeYellowDialog = maybeServerAlert;
   }
 
-  // Update dialog
-  let maybeUpdateDialog: React.JSX.Element | undefined;
-  if (hasUpdateDialog && (!hasNetworkDialog || isUpdateDownloaded)) {
-    maybeUpdateDialog = renderUpdateDialog(commonDialogProps);
-  }
+  // Update dialog - disabled for Video Stash
+  const maybeUpdateDialog: React.JSX.Element | undefined = undefined;
+  // if (hasUpdateDialog && (!hasNetworkDialog || isUpdateDownloaded)) {
+  //   maybeUpdateDialog = renderUpdateDialog(commonDialogProps);
+  // }
 
   // Red dialogs
   let maybeRedDialog: React.JSX.Element | undefined;

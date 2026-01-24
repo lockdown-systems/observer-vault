@@ -78,7 +78,6 @@ import * as userConfig from './user_config.main.js';
 import * as attachments from './attachments.node.js';
 import * as attachmentChannel from './attachment_channel.main.js';
 import * as bounce from '../ts/services/bounce.main.js';
-import * as updater from '../ts/updater/index.main.js';
 import { updateDefaultSession } from './updateDefaultSession.main.js';
 import { PreventDisplaySleepService } from './PreventDisplaySleepService.std.js';
 import {
@@ -1170,39 +1169,13 @@ async function readyForUpdates() {
   // Discard value even if we don't handle a saved URL.
   macInitialOpenUrlRoute = undefined;
 
-  // Second, start checking for app updates
-  try {
-    strictAssert(
-      settingsChannel !== undefined,
-      'SettingsChannel must be initialized'
-    );
-    await updater.start({
-      canRunSilently: () => {
-        return (
-          systemTrayService?.isVisible() === true &&
-          mainWindow?.isVisible() !== true &&
-          !preventDisplaySleepService.isEnabled()
-        );
-      },
-      getMainWindow,
-      logger: updaterLog,
-      sql,
-    });
-  } catch (error) {
-    updaterLog.error(
-      'Error starting update checks:',
-      Errors.toLogFormat(error)
-    );
-  }
+  // Updates are disabled for Video Stash
+  log.info('Automatic updates are disabled');
 }
 
 async function forceUpdate() {
-  try {
-    updaterLog.info('starting force update');
-    await updater.force();
-  } catch (error) {
-    updaterLog.error('Error during force update:', Errors.toLogFormat(error));
-  }
+  // Updates are disabled for Video Stash
+  log.info('Force update is disabled');
 }
 
 ipc.once('ready-for-updates', readyForUpdates);

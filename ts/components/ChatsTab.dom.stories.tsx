@@ -22,7 +22,6 @@ export default {
       unreadMentionsCount: 0,
       readChatsMarkedUnreadCount: 0,
     },
-    isStaging: false,
     hasPendingUpdate: false,
     hasFailedStorySends: false,
     navTabsCollapsed: false,
@@ -31,7 +30,6 @@ export default {
     renderLeftPane: () => <>{null}</>,
     renderMiniPlayer: () => <>{null}</>,
     selectedConversationId: undefined,
-    showWhatsNewModal: action('showWhatsNewModal'),
   },
 } satisfies ComponentMeta<ChatsTabProps>;
 

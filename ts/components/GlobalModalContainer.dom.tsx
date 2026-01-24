@@ -399,13 +399,15 @@ export function GlobalModalContainer({
     return renderStoriesSettings();
   }
 
-  if (isWhatsNewVisible) {
-    return <WhatsNewModal hideWhatsNewModal={hideWhatsNewModal} i18n={i18n} />;
-  }
+  // WhatsNewModal is disabled for Video Stash
+  // if (isWhatsNewVisible) {
+  //   return <WhatsNewModal hideWhatsNewModal={hideWhatsNewModal} i18n={i18n} />;
+  // }
 
-  if (usernameOnboardingState === UsernameOnboardingState.Open) {
-    return renderUsernameOnboarding();
-  }
+  // UsernameOnboarding is disabled for Video Stash
+  // if (usernameOnboardingState === UsernameOnboardingState.Open) {
+  //   return renderUsernameOnboarding();
+  // }
 
   if (stickerPackPreviewId) {
     return renderStickerPreviewModal();

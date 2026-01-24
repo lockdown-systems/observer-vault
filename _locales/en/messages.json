@@ -1080,7 +1080,7 @@
     "description": "Shown when search could be a valid phone number, with one sub-item that will kick off the search"
   },
   "icu:welcomeToSignal": {
-    "messageformat": "Welcome to Signal"
+    "messageformat": "Welcome to Video Stash"
   },
   "icu:whatsNew": {
     "messageformat": "See {whatsNew} in this update",
