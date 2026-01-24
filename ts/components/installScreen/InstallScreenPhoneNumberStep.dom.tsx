@@ -4,13 +4,11 @@
 import React, { type ReactElement, useState, useCallback } from 'react';
 import { parsePhoneNumber, isValidPhoneNumber } from 'libphonenumber-js';
 
-import type { LocalizerType } from '../../types/Util.std.js';
 import { Button } from '../Button.dom.js';
 import { TitlebarDragArea } from '../TitlebarDragArea.dom.js';
 import { InstallScreenSignalLogo } from './InstallScreenSignalLogo.dom.js';
 
 export type Props = Readonly<{
-  i18n: LocalizerType;
   onSubmitPhoneNumber: (phoneNumber: string) => void;
   isSubmitting: boolean;
   error?: string;
@@ -60,38 +58,47 @@ export function InstallScreenPhoneNumberStep({
 
       <InstallScreenSignalLogo />
 
-      <h1>Register your phone number</h1>
-      <p className="module-InstallScreenPhoneNumberStep__description">
-        Enter your phone number to register this device with Signal. Include
-        your country code (e.g., +1 for US).
-      </p>
+      <div className="module-InstallScreenPhoneNumberStep__card">
+        <h1 className="module-InstallScreenPhoneNumberStep__title">
+          Enter a phone number that isn't already registered with Signal
+        </h1>
+        <p className="module-InstallScreenPhoneNumberStep__description">
+          Use a different number than your existing Signal account — registering
+          here will take over that number.
+        </p>
 
-      <form
-        onSubmit={handleSubmit}
-        className="module-InstallScreenPhoneNumberStep__form"
-      >
-        <input
-          type="tel"
-          className="module-InstallScreenPhoneNumberStep__input"
-          placeholder="+1 555 123 4567"
-          value={phoneNumber}
-          onChange={e => setPhoneNumber(e.target.value)}
-          disabled={isSubmitting}
-          autoFocus
-        />
-
-        {displayError && (
-          <div className="module-InstallScreenPhoneNumberStep__error">
-            {displayError}
+        <form
+          onSubmit={handleSubmit}
+          className="module-InstallScreenPhoneNumberStep__form"
+        >
+          <div className="module-InstallScreenPhoneNumberStep__input-wrapper">
+            <input
+              type="tel"
+              className="module-InstallScreenPhoneNumberStep__input"
+              placeholder="+1 (555) 123-4567"
+              value={phoneNumber}
+              onChange={e => setPhoneNumber(e.target.value)}
+              disabled={isSubmitting}
+              autoFocus
+            />
           </div>
-        )}
 
-        <div className="module-InstallScreenPhoneNumberStep__buttons">
-          <Button type="submit" disabled={isSubmitting || !phoneNumber.trim()}>
-            {isSubmitting ? 'Sending code...' : 'Continue'}
-          </Button>
-        </div>
-      </form>
+          {displayError && (
+            <div className="module-InstallScreenPhoneNumberStep__error">
+              {displayError}
+            </div>
+          )}
+
+          <div className="module-InstallScreenPhoneNumberStep__button">
+            <Button
+              type="submit"
+              disabled={isSubmitting || !phoneNumber.trim()}
+            >
+              {isSubmitting ? 'Sending code...' : 'Continue'}
+            </Button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

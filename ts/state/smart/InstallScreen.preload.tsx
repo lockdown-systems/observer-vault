@@ -5,7 +5,6 @@ import type { ComponentProps } from 'react';
 import React, { memo } from 'react';
 import { useSelector } from 'react-redux';
 
-import { getIntl } from '../selectors/user.std.js';
 import { getInstallerState } from '../selectors/installer.std.js';
 import { useInstallerActions } from '../ducks/installer.preload.js';
 import { missingCaseError } from '../../util/missingCaseError.std.js';
@@ -20,7 +19,6 @@ const log = createLogger('InstallScreen');
 type PropsType = ComponentProps<typeof InstallScreen>;
 
 export const SmartInstallScreen = memo(function SmartInstallScreen() {
-  const i18n = useSelector(getIntl);
   const installerState = useSelector(getInstallerState);
   const {
     startRegistration,
@@ -42,7 +40,6 @@ export const SmartInstallScreen = memo(function SmartInstallScreen() {
       props = {
         step: InstallScreenStep.PhoneNumberEntry,
         screenSpecificProps: {
-          i18n,
           onSubmitPhoneNumber: submitPhoneNumber,
           isSubmitting: installerState.isSubmitting,
           error: installerState.error,
@@ -54,7 +51,6 @@ export const SmartInstallScreen = memo(function SmartInstallScreen() {
       props = {
         step: InstallScreenStep.CaptchaChallenge,
         screenSpecificProps: {
-          i18n,
           phoneNumber: installerState.phoneNumber,
           onCaptchaComplete: submitCaptcha,
           onBack: goBack,

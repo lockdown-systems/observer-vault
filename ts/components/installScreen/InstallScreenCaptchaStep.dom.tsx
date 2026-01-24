@@ -3,7 +3,6 @@
 
 import React, { type ReactElement, useEffect, useRef } from 'react';
 
-import type { LocalizerType } from '../../types/Util.std.js';
 import { Button, ButtonVariant } from '../Button.dom.js';
 import { TitlebarDragArea } from '../TitlebarDragArea.dom.js';
 import { InstallScreenSignalLogo } from './InstallScreenSignalLogo.dom.js';
@@ -12,7 +11,6 @@ import { InstallScreenSignalLogo } from './InstallScreenSignalLogo.dom.js';
 const CAPTCHA_URL = 'https://signalcaptchas.org/registration/generate.html';
 
 export type Props = Readonly<{
-  i18n: LocalizerType;
   phoneNumber: string;
   onCaptchaComplete: (token: string) => void;
   onBack: () => void;

@@ -1,0 +1,162 @@
+// Copyright 2024 Signal Messenger, LLC
+// SPDX-License-Identifier: AGPL-3.0-only
+
+@use '../mixins';
+@use '../variables';
+
+.module-InstallScreenPhoneNumberStep {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+  justify-content: center;
+  line-height: 30px;
+  user-select: none;
+  padding: 40px;
+
+  @include mixins.light-theme {
+    background: variables.$color-gray-02;
+    color: variables.$color-black;
+  }
+
+  @include mixins.dark-theme {
+    background: variables.$color-gray-95;
+    color: variables.$color-white;
+  }
+
+  &__card {
+    background: variables.$color-white;
+    border-radius: 16px;
+    padding: 48px;
+    max-width: 420px;
+    width: 100%;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+    text-align: center;
+
+    @include mixins.dark-theme {
+      background: variables.$color-gray-80;
+    }
+  }
+
+  &__title {
+    @include mixins.font-title-1;
+    color: variables.$color-black;
+    margin: 0 0 12px;
+
+    @include mixins.dark-theme {
+      color: variables.$color-white;
+    }
+  }
+
+  &__description {
+    @include mixins.font-body-1;
+    color: variables.$color-gray-60;
+    margin: 0 0 32px;
+    line-height: 1.5;
+
+    @include mixins.dark-theme {
+      color: variables.$color-gray-25;
+    }
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  &__input-wrapper {
+    position: relative;
+  }
+
+  &__input {
+    @include mixins.font-body-1;
+    width: 100%;
+    padding: 16px 20px;
+    border: 2px solid variables.$color-gray-15;
+    border-radius: 12px;
+    font-size: 18px;
+    text-align: center;
+    letter-spacing: 1px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    background: variables.$color-white;
+    color: variables.$color-black;
+    box-sizing: border-box;
+
+    &::placeholder {
+      color: variables.$color-gray-45;
+      letter-spacing: normal;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: variables.$color-ultramarine;
+      box-shadow: 0 0 0 3px rgba(variables.$color-ultramarine, 0.2);
+    }
+
+    &:disabled {
+      background: variables.$color-gray-05;
+      cursor: not-allowed;
+    }
+
+    @include mixins.dark-theme {
+      background: variables.$color-gray-75;
+      border-color: variables.$color-gray-60;
+      color: variables.$color-white;
+
+      &::placeholder {
+        color: variables.$color-gray-45;
+      }
+
+      &:focus {
+        border-color: variables.$color-ultramarine-light;
+        box-shadow: 0 0 0 3px rgba(variables.$color-ultramarine-light, 0.3);
+      }
+
+      &:disabled {
+        background: variables.$color-gray-80;
+      }
+    }
+  }
+
+  &__error {
+    @include mixins.font-body-2;
+    color: variables.$color-accent-red;
+    padding: 12px 16px;
+    background: rgba(variables.$color-accent-red, 0.1);
+    border-radius: 8px;
+    text-align: center;
+  }
+
+  &__button {
+    margin-top: 8px;
+
+    .module-Button {
+      width: 100%;
+      padding: 14px 24px;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 12px;
+    }
+  }
+
+  &__hint {
+    @include mixins.font-body-2;
+    color: variables.$color-gray-45;
+    margin-top: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    &__icon {
+      width: 16px;
+      height: 16px;
+      @include mixins.color-svg(
+        '../images/icons/v3/lock/lock.svg',
+        variables.$color-gray-45
+      );
+    }
+  }
+}
