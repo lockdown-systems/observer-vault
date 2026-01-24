@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import type { ComponentProps } from 'react';
-import React, { memo } from 'react';
+import React, { memo, useCallback, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 
 import { getInstallerState } from '../selectors/installer.std.js';
@@ -13,6 +13,8 @@ import { WidthBreakpoint } from '../../components/_util.std.js';
 import { InstallScreenStep } from '../../types/InstallScreen.std.js';
 import { createLogger } from '../../logging/log.std.js';
 import { SmartToastManager } from './ToastManager.preload.js';
+import { challengeHandler } from '../../services/challengeHandler.preload.js';
+import type { IPCResponse } from '../../challenge.dom.js';
 
 const log = createLogger('InstallScreen');
 
@@ -28,6 +30,27 @@ export const SmartInstallScreen = memo(function SmartInstallScreen() {
     resendVerificationCode,
     goBack,
   } = useInstallerActions();
+
+  // Set up the challenge response listener for captcha during install
+  useEffect(() => {
+    const handleChallengeResponse = (response: IPCResponse) => {
+      log.info('Received challenge response during install');
+      challengeHandler.onResponse(response);
+    };
+
+    window.Whisper.events.on('challengeResponse', handleChallengeResponse);
+
+    return () => {
+      window.Whisper.events.off('challengeResponse', handleChallengeResponse);
+    };
+  }, []);
+
+  // Function to request captcha token - waits for the signalcaptcha:// URL response
+  const requestCaptcha = useCallback(async (): Promise<string> => {
+    return challengeHandler.requestCaptcha({
+      reason: 'registration',
+    });
+  }, []);
 
   let props: PropsType;
 
@@ -56,6 +79,7 @@ export const SmartInstallScreen = memo(function SmartInstallScreen() {
           onBack: goBack,
           isSubmitting: installerState.isSubmitting,
           error: installerState.error,
+          requestCaptcha,
         },
       };
       break;

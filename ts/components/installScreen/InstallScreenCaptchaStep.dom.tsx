@@ -1,11 +1,12 @@
 // Copyright 2024 Signal Messenger, LLC
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import React, { type ReactElement, useEffect, useRef } from 'react';
+import React, { type ReactElement, useState, useCallback } from 'react';
 
 import { Button, ButtonVariant } from '../Button.dom.js';
 import { TitlebarDragArea } from '../TitlebarDragArea.dom.js';
 import { InstallScreenSignalLogo } from './InstallScreenSignalLogo.dom.js';
+import { Spinner } from '../Spinner.dom.js';
 
 // Get the captcha URL from config (staging vs production)
 const CAPTCHA_URL = window.SignalContext.config.registrationChallengeUrl;
@@ -16,6 +17,7 @@ export type Props = Readonly<{
   onBack: () => void;
   isSubmitting: boolean;
   error?: string;
+  requestCaptcha: () => Promise<string>;
 }>;
 
 export function InstallScreenCaptchaStep({
@@ -24,50 +26,28 @@ export function InstallScreenCaptchaStep({
   onBack,
   isSubmitting,
   error,
+  requestCaptcha,
 }: Props): ReactElement {
-  const webviewRef = useRef<HTMLWebViewElement>(null);
+  const [isWaitingForCaptcha, setIsWaitingForCaptcha] = useState(false);
+  const [captchaError, setCaptchaError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const webview = webviewRef.current;
-    if (!webview) {
-      return;
+  const handleOpenCaptcha = useCallback(async () => {
+    setIsWaitingForCaptcha(true);
+    setCaptchaError(null);
+
+    // Open the captcha URL in external browser
+    // This will be intercepted by Electron's will-navigate handler
+    document.location.href = CAPTCHA_URL;
+
+    try {
+      // Wait for the captcha token to come back via the signalcaptcha:// URL
+      const token = await requestCaptcha();
+      onCaptchaComplete(token);
+    } catch (err) {
+      setCaptchaError('Failed to complete captcha. Please try again.');
+      setIsWaitingForCaptcha(false);
     }
-
-    // Listen for messages from the captcha webview
-    const handleMessage = (event: Event) => {
-      const customEvent = event as CustomEvent<{
-        channel: string;
-        args: unknown[];
-      }>;
-      if (customEvent.detail?.channel === 'signal-captcha') {
-        const token = customEvent.detail.args[0] as string;
-        if (token) {
-          onCaptchaComplete(token);
-        }
-      }
-    };
-
-    // For Electron webview, listen to ipc-message
-    const handleIpcMessage = (event: Electron.IpcMessageEvent) => {
-      if (event.channel === 'signal-captcha') {
-        const token = event.args[0] as string;
-        if (token) {
-          onCaptchaComplete(token);
-        }
-      }
-    };
-
-    webview.addEventListener('ipc-message', handleIpcMessage as EventListener);
-    webview.addEventListener('message', handleMessage);
-
-    return () => {
-      webview.removeEventListener(
-        'ipc-message',
-        handleIpcMessage as EventListener
-      );
-      webview.removeEventListener('message', handleMessage);
-    };
-  }, [onCaptchaComplete]);
+  }, [requestCaptcha, onCaptchaComplete]);
 
   return (
     <div className="module-InstallScreenCaptchaStep">
@@ -75,36 +55,51 @@ export function InstallScreenCaptchaStep({
 
       <InstallScreenSignalLogo />
 
-      <h1>Verify you're human</h1>
-      <p className="module-InstallScreenCaptchaStep__description">
-        Complete the captcha to continue registration for {phoneNumber}
-      </p>
+      <div className="module-InstallScreenCaptchaStep__card">
+        <h1 className="module-InstallScreenCaptchaStep__title">
+          Verify you're human
+        </h1>
+        <p className="module-InstallScreenCaptchaStep__description">
+          Complete a captcha challenge to continue registration for{' '}
+          <strong>{phoneNumber}</strong>
+        </p>
 
-      {error && (
-        <div className="module-InstallScreenCaptchaStep__error">{error}</div>
-      )}
+        {(error || captchaError) && (
+          <div className="module-InstallScreenCaptchaStep__error">
+            {error || captchaError}
+          </div>
+        )}
 
-      <div className="module-InstallScreenCaptchaStep__webview-container">
-        {/* Using an iframe for captcha - in production this would be an Electron webview */}
-        <webview
-          ref={webviewRef as React.RefObject<HTMLWebViewElement>}
-          src={CAPTCHA_URL}
-          className="module-InstallScreenCaptchaStep__webview"
-          partition="captcha"
-          // @ts-expect-error - Electron webview attributes
-          nodeintegration="false"
-          contextIsolation="true"
-        />
-      </div>
+        {isWaitingForCaptcha ? (
+          <div className="module-InstallScreenCaptchaStep__waiting">
+            <Spinner size="36px" svgSize="normal" />
+            <span className="module-InstallScreenCaptchaStep__waiting-text">
+              Complete the captcha in your browser, then click "Open Signal"
+            </span>
+          </div>
+        ) : null}
 
-      <div className="module-InstallScreenCaptchaStep__buttons">
-        <Button
-          onClick={onBack}
-          variant={ButtonVariant.Secondary}
-          disabled={isSubmitting}
-        >
-          Back
-        </Button>
+        <div className="module-InstallScreenCaptchaStep__buttons">
+          <Button
+            onClick={handleOpenCaptcha}
+            variant={ButtonVariant.Primary}
+            disabled={isSubmitting || isWaitingForCaptcha}
+          >
+            {isWaitingForCaptcha ? 'Waiting for captcha...' : 'Open Captcha'}
+          </Button>
+          <Button
+            onClick={onBack}
+            variant={ButtonVariant.Secondary}
+            disabled={isSubmitting}
+          >
+            Back
+          </Button>
+        </div>
+
+        <p className="module-InstallScreenCaptchaStep__hint">
+          After completing the captcha, click the "Open Signal" link to return
+          here.
+        </p>
       </div>
     </div>
   );
