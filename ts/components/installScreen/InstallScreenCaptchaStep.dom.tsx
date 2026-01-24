@@ -7,8 +7,8 @@ import { Button, ButtonVariant } from '../Button.dom.js';
 import { TitlebarDragArea } from '../TitlebarDragArea.dom.js';
 import { InstallScreenSignalLogo } from './InstallScreenSignalLogo.dom.js';
 
-// The captcha URL for Signal registration
-const CAPTCHA_URL = 'https://signalcaptchas.org/registration/generate.html';
+// Get the captcha URL from config (staging vs production)
+const CAPTCHA_URL = window.SignalContext.config.registrationChallengeUrl;
 
 export type Props = Readonly<{
   phoneNumber: string;
