@@ -399,12 +399,12 @@ export function GlobalModalContainer({
     return renderStoriesSettings();
   }
 
-  // WhatsNewModal is disabled for Video Stash
+  // WhatsNewModal is disabled for Observer Vault
   // if (isWhatsNewVisible) {
   //   return <WhatsNewModal hideWhatsNewModal={hideWhatsNewModal} i18n={i18n} />;
   // }
 
-  // UsernameOnboarding is disabled for Video Stash
+  // UsernameOnboarding is disabled for Observer Vault
   // if (usernameOnboardingState === UsernameOnboardingState.Open) {
   //   return renderUsernameOnboarding();
   // }

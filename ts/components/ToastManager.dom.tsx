@@ -953,7 +953,7 @@ export function renderMegaphone({
     return null;
   }
 
-  // Username onboarding megaphone disabled for Video Stash
+  // Username onboarding megaphone disabled for Observer Vault
   if (megaphone.type === MegaphoneType.UsernameOnboarding) {
     return null;
   }

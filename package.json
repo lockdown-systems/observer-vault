@@ -1,11 +1,11 @@
 {
   "$schema": "./package.schema.json",
   "packageManager": "pnpm@10.18.1",
-  "name": "video-stash",
-  "productName": "Video Stash",
-  "description": "Signal video call recorder",
-  "desktopName": "videostash.desktop",
-  "repository": "https://github.com/micahflee/video-stash.git",
+  "name": "observer-vault",
+  "productName": "Observer Vault",
+  "description": "Secure video call recorder for community observers",
+  "desktopName": "observervault.desktop",
+  "repository": "https://github.com/micahflee/observer-vault.git",
   "version": "7.86.0",
   "license": "AGPL-3.0-only",
   "author": {
@@ -431,7 +431,7 @@
     "node": "22.21.1"
   },
   "build": {
-    "appId": "org.videostash.video-stash",
+    "appId": "org.observervault.observer-vault",
     "nativeRebuilder": "parallel",
     "mac": {
       "artifactName": "${name}-mac-${arch}-${version}.${ext}",
@@ -524,11 +524,11 @@
       }
     },
     "linux": {
-      "executableName": "video-stash",
+      "executableName": "observer-vault",
       "category": "Network;InstantMessaging;Chat",
       "desktop": {
         "entry": {
-          "StartupWMClass": "videostash"
+          "StartupWMClass": "observervault"
         }
       },
       "artifactName": "${name}_${version}_${arch}.${ext}",

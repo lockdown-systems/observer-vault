@@ -595,7 +595,7 @@ export function Preferences({
     setSettingsLocation({ page: SettingsPage.General });
   }
 
-  // Update dialog - disabled for Video Stash
+  // Update dialog - disabled for Observer Vault
   const maybeUpdateDialog: React.JSX.Element | undefined = undefined;
   // if (shouldShowUpdateDialog) {
   //   maybeUpdateDialog = renderUpdateDialog({

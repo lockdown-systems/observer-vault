@@ -669,7 +669,7 @@ export function LeftPane({
     maybeYellowDialog = maybeServerAlert;
   }
 
-  // Update dialog - disabled for Video Stash
+  // Update dialog - disabled for Observer Vault
   const maybeUpdateDialog: React.JSX.Element | undefined = undefined;
   // if (hasUpdateDialog && (!hasNetworkDialog || isUpdateDownloaded)) {
   //   maybeUpdateDialog = renderUpdateDialog(commonDialogProps);

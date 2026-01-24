@@ -25,7 +25,7 @@ export function InstallScreenCreatingAccountStep({
           Creating your account
         </h1>
         <p className="module-InstallScreenCreatingAccountStep__description">
-          Setting up Video Stash for <strong>{phoneNumber}</strong>
+          Setting up Observer Vault for <strong>{phoneNumber}</strong>
         </p>
 
         <div className="module-InstallScreenCreatingAccountStep__spinner">

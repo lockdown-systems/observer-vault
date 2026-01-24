@@ -1169,12 +1169,12 @@ async function readyForUpdates() {
   // Discard value even if we don't handle a saved URL.
   macInitialOpenUrlRoute = undefined;
 
-  // Updates are disabled for Video Stash
+  // Updates are disabled for Observer Vault
   log.info('Automatic updates are disabled');
 }
 
 async function forceUpdate() {
-  // Updates are disabled for Video Stash
+  // Updates are disabled for Observer Vault
   log.info('Force update is disabled');
 }
 

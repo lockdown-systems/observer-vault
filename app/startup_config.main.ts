@@ -15,7 +15,7 @@ GlobalErrors.addHandler();
 // set such that only we have read access to our files
 process.umask(0o077);
 
-export const AUMID = `org.videostash.${name}`;
+export const AUMID = `org.observervault.${name}`;
 log.info('Set Windows Application User Model ID (AUMID)', {
   AUMID,
 });
