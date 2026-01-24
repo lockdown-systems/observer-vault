@@ -178,6 +178,7 @@
     "humanize-duration": "3.27.1",
     "intl-tel-input": "24.7.0",
     "js-yaml": "4.1.0",
+    "libphonenumber-js": "^1.12.34",
     "linkify-it": "5.0.0",
     "lodash": "4.17.21",
     "long": "5.2.3",

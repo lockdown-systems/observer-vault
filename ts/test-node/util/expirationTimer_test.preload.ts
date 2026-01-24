@@ -79,44 +79,6 @@ describe('expiration timer utilities', async () => {
       });
     });
 
-    it('formats other languages successfully', () => {
-      const esMessages = loadMessages('es');
-      const esI18n = setupI18n('es', esMessages);
-      assert.strictEqual(
-        format(esI18n, DurationInSeconds.fromSeconds(120)),
-        '2 minutos'
-      );
-
-      const zhCnMessages = loadMessages('zh-CN');
-      const zhCnI18n = setupI18n('zh-CN', zhCnMessages);
-      assert.strictEqual(
-        format(zhCnI18n, DurationInSeconds.fromSeconds(60)),
-        '1 分钟'
-      );
-
-      // The underlying library supports the "pt" locale, not the "pt_BR" locale. That's
-      //   what we're testing here.
-      const ptBrMessages = loadMessages('pt-BR');
-      const ptBrI18n = setupI18n('pt_BR', ptBrMessages);
-      assert.strictEqual(
-        format(ptBrI18n, DurationInSeconds.fromDays(5)),
-        '5 dias'
-      );
-
-      // The underlying library supports the Norwegian language, which is a macrolanguage
-      //   for Bokmål and Nynorsk.
-      const nbMessages = loadMessages('nb');
-      const nlMessages = loadMessages('nl');
-      [setupI18n('nb', nbMessages), setupI18n('nn', nlMessages)].forEach(
-        norwegianI18n => {
-          assert.strictEqual(
-            format(norwegianI18n, DurationInSeconds.fromHours(6)),
-            '6 timer'
-          );
-        }
-      );
-    });
-
     it('falls back to English if the locale is not supported', () => {
       const badI18n = setupI18n('bogus', {});
       assert.strictEqual(

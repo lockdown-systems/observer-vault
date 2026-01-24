@@ -6,98 +6,109 @@ import type { ReadonlyDeep } from 'type-fest';
 
 import type { StateType as RootStateType } from '../reducer.preload.js';
 import {
-  type InstallScreenBackupError,
-  InstallScreenBackupStep,
   InstallScreenStep,
   InstallScreenError,
-  InstallScreenQRCodeError,
+  InstallScreenBackupStep,
+  InstallScreenBackupError,
 } from '../../types/InstallScreen.std.js';
 import * as Errors from '../../types/errors.std.js';
-import { type Loadable, LoadingState } from '../../util/loadable.std.js';
-import { isRecord } from '../../util/isRecord.std.js';
 import { strictAssert } from '../../util/assert.std.js';
-import * as Registration from '../../util/registration.preload.js';
-import { missingCaseError } from '../../util/missingCaseError.std.js';
 import { HTTPError } from '../../types/HTTPError.std.js';
-import {
-  Provisioner,
-  EventKind as ProvisionEventKind,
-  type EnvelopeType as ProvisionEnvelopeType,
-} from '../../textsecure/Provisioner.preload.js';
+import { requestVerification } from '../../textsecure/WebAPI.preload.js';
+import { VerificationTransport } from '../../types/VerificationTransport.std.js';
 import { accountManager } from '../../textsecure/AccountManager.preload.js';
-import { getProvisioningResource } from '../../textsecure/WebAPI.preload.js';
 import type { BoundActionCreatorsMapObject } from '../../hooks/useBoundActions.std.js';
 import { useBoundActions } from '../../hooks/useBoundActions.std.js';
 import { createLogger } from '../../logging/log.std.js';
-import { backupsService } from '../../services/backups/index.preload.js';
-import OS from '../../util/os/osMain.node.js';
-import { signalProtocolStore } from '../../SignalProtocolStore.preload.js';
 
 const log = createLogger('installer');
 
-export type BatonType = ReadonlyDeep<{ __installer_baton: never }>;
-
-const cancelByBaton = new WeakMap<BatonType, () => void>();
-let provisioner: Provisioner | undefined;
+// Backup import support - kept for compatibility
+export type RetryBackupImportValue = ReadonlyDeep<'retry' | 'cancel'>;
 
 export type InstallerStateType = ReadonlyDeep<
   | {
       step: InstallScreenStep.NotStarted;
     }
   | {
-      step: InstallScreenStep.QrCodeNotScanned;
-      provisioningUrl: Loadable<string, InstallScreenQRCodeError>;
-      baton: BatonType;
+      step: InstallScreenStep.PhoneNumberEntry;
+      isSubmitting: boolean;
+      error?: string;
+    }
+  | {
+      step: InstallScreenStep.CaptchaChallenge;
+      phoneNumber: string;
+      isSubmitting: boolean;
+      error?: string;
+    }
+  | {
+      step: InstallScreenStep.VerificationCodeEntry;
+      phoneNumber: string;
+      sessionId: string;
+      isSubmitting: boolean;
+      error?: string;
+    }
+  | {
+      step: InstallScreenStep.CreatingAccount;
+      phoneNumber: string;
+      sessionId: string;
+      verificationCode: string;
+    }
+  | {
+      step: InstallScreenStep.BackupImport;
+      backupStep: InstallScreenBackupStep;
+      currentBytes: number;
+      totalBytes: number;
+      error?: InstallScreenBackupError;
     }
   | {
       step: InstallScreenStep.Error;
       error: InstallScreenError;
     }
-  | {
-      step: InstallScreenStep.LinkInProgress;
-    }
-  | ({
-      step: InstallScreenStep.BackupImport;
-      backupStep: InstallScreenBackupStep;
-      error?: InstallScreenBackupError;
-    } & (
-      | {
-          backupStep:
-            | InstallScreenBackupStep.Download
-            | InstallScreenBackupStep.Process;
-          currentBytes: number;
-          totalBytes: number;
-        }
-      | {
-          backupStep: InstallScreenBackupStep.WaitForBackup;
-        }
-    ))
 >;
 
-export type RetryBackupImportValue = ReadonlyDeep<'retry' | 'cancel'>;
-
-export const START_INSTALLER = 'installer/START_INSTALLER';
-const SET_PROVISIONING_URL = 'installer/SET_PROVISIONING_URL';
-const SET_QR_CODE_ERROR = 'installer/SET_QR_CODE_ERROR';
+// Action types
+export const START_REGISTRATION = 'installer/START_REGISTRATION';
+const SET_SUBMITTING = 'installer/SET_SUBMITTING';
+const SET_STEP_ERROR = 'installer/SET_STEP_ERROR';
+const SHOW_CAPTCHA = 'installer/SHOW_CAPTCHA';
+const SHOW_VERIFICATION_CODE = 'installer/SHOW_VERIFICATION_CODE';
+const SHOW_CREATING_ACCOUNT = 'installer/SHOW_CREATING_ACCOUNT';
 const SET_ERROR = 'installer/SET_ERROR';
-const RETRY_BACKUP_IMPORT = 'installer/RETRY_BACKUP_IMPORT';
-const SHOW_LINK_IN_PROGRESS = 'installer/SHOW_LINK_IN_PROGRESS';
+const RESET_TO_PHONE_NUMBER = 'installer/RESET_TO_PHONE_NUMBER';
+
+// Backup import action types - kept for compatibility
 export const SHOW_BACKUP_IMPORT = 'installer/SHOW_BACKUP_IMPORT';
 const UPDATE_BACKUP_IMPORT_PROGRESS = 'installer/UPDATE_BACKUP_IMPORT_PROGRESS';
+const RETRY_BACKUP_IMPORT = 'installer/RETRY_BACKUP_IMPORT';
 
-export type StartInstallerActionType = ReadonlyDeep<{
-  type: typeof START_INSTALLER;
-  payload: BatonType;
+export type StartRegistrationActionType = ReadonlyDeep<{
+  type: typeof START_REGISTRATION;
 }>;
 
-type SetProvisioningUrlActionType = ReadonlyDeep<{
-  type: typeof SET_PROVISIONING_URL;
+type SetSubmittingActionType = ReadonlyDeep<{
+  type: typeof SET_SUBMITTING;
+  payload: boolean;
+}>;
+
+type SetStepErrorActionType = ReadonlyDeep<{
+  type: typeof SET_STEP_ERROR;
   payload: string;
 }>;
 
-type SetQRCodeErrorActionType = ReadonlyDeep<{
-  type: typeof SET_QR_CODE_ERROR;
-  payload: InstallScreenQRCodeError;
+type ShowCaptchaActionType = ReadonlyDeep<{
+  type: typeof SHOW_CAPTCHA;
+  payload: { phoneNumber: string };
+}>;
+
+type ShowVerificationCodeActionType = ReadonlyDeep<{
+  type: typeof SHOW_VERIFICATION_CODE;
+  payload: { phoneNumber: string; sessionId: string };
+}>;
+
+type ShowCreatingAccountActionType = ReadonlyDeep<{
+  type: typeof SHOW_CREATING_ACCOUNT;
+  payload: { phoneNumber: string; sessionId: string; verificationCode: string };
 }>;
 
 type SetErrorActionType = ReadonlyDeep<{
@@ -105,14 +116,11 @@ type SetErrorActionType = ReadonlyDeep<{
   payload: InstallScreenError;
 }>;
 
-type RetryBackupImportActionType = ReadonlyDeep<{
-  type: typeof RETRY_BACKUP_IMPORT;
+type ResetToPhoneNumberActionType = ReadonlyDeep<{
+  type: typeof RESET_TO_PHONE_NUMBER;
 }>;
 
-type ShowLinkInProgressActionType = ReadonlyDeep<{
-  type: typeof SHOW_LINK_IN_PROGRESS;
-}>;
-
+// Backup import action type definitions - kept for compatibility
 export type ShowBackupImportActionType = ReadonlyDeep<{
   type: typeof SHOW_BACKUP_IMPORT;
 }>;
@@ -130,23 +138,34 @@ type UpdateBackupImportProgressActionType = ReadonlyDeep<{
       };
 }>;
 
+type RetryBackupImportActionType = ReadonlyDeep<{
+  type: typeof RETRY_BACKUP_IMPORT;
+}>;
+
 export type InstallerActionType = ReadonlyDeep<
-  | StartInstallerActionType
-  | SetProvisioningUrlActionType
-  | SetQRCodeErrorActionType
+  | StartRegistrationActionType
+  | SetSubmittingActionType
+  | SetStepErrorActionType
+  | ShowCaptchaActionType
+  | ShowVerificationCodeActionType
+  | ShowCreatingAccountActionType
   | SetErrorActionType
-  | RetryBackupImportActionType
-  | ShowLinkInProgressActionType
+  | ResetToPhoneNumberActionType
   | ShowBackupImportActionType
   | UpdateBackupImportProgressActionType
+  | RetryBackupImportActionType
 >;
 
 export const actions = {
-  startInstaller,
-  finishInstall,
-  updateBackupImportProgress,
-  retryBackupImport,
+  startRegistration,
+  submitPhoneNumber,
+  submitCaptcha,
+  submitVerificationCode,
+  resendVerificationCode,
+  goBack,
+  // Backup import actions - kept for compatibility
   showBackupImport,
+  updateBackupImportProgress,
   handleMissingBackup,
 };
 
@@ -154,259 +173,238 @@ export const useInstallerActions = (): BoundActionCreatorsMapObject<
   typeof actions
 > => useBoundActions(actions);
 
-function startInstaller(): ThunkAction<
+function startRegistration(): ThunkAction<
+  void,
+  RootStateType,
+  unknown,
+  InstallerActionType
+> {
+  return async dispatch => {
+    log.info('Starting registration flow');
+    window.IPC.addSetupMenuItems();
+
+    dispatch({
+      type: START_REGISTRATION,
+    });
+  };
+}
+
+function submitPhoneNumber(
+  phoneNumber: string
+): ThunkAction<void, RootStateType, unknown, InstallerActionType> {
+  return async dispatch => {
+    log.info('Submitting phone number for registration');
+
+    dispatch({ type: SET_SUBMITTING, payload: true });
+
+    // For now, we always require captcha, so just move to captcha step
+    // In the future, we could check if captcha is required via the API
+    dispatch({
+      type: SHOW_CAPTCHA,
+      payload: { phoneNumber },
+    });
+  };
+}
+
+function submitCaptcha(
+  captchaToken: string
+): ThunkAction<void, RootStateType, unknown, InstallerActionType> {
+  return async (dispatch, getState) => {
+    const state = getState();
+    strictAssert(
+      state.installer.step === InstallScreenStep.CaptchaChallenge,
+      'Wrong step for captcha submission'
+    );
+
+    const { phoneNumber } = state.installer;
+    log.info('Submitting captcha and requesting verification code');
+
+    dispatch({ type: SET_SUBMITTING, payload: true });
+
+    try {
+      // Request verification via SMS
+      const result = await requestVerification(
+        phoneNumber,
+        captchaToken,
+        VerificationTransport.SMS
+      );
+
+      dispatch({
+        type: SHOW_VERIFICATION_CODE,
+        payload: {
+          phoneNumber,
+          sessionId: result.sessionId,
+        },
+      });
+    } catch (error) {
+      log.error('Failed to request verification:', Errors.toLogFormat(error));
+
+      if (error instanceof HTTPError) {
+        if (error.code === 429) {
+          dispatch({
+            type: SET_ERROR,
+            payload: InstallScreenError.RateLimited,
+          });
+          return;
+        }
+      }
+
+      dispatch({
+        type: SET_STEP_ERROR,
+        payload: 'Failed to send verification code. Please try again.',
+      });
+    }
+  };
+}
+
+function submitVerificationCode(
+  code: string
+): ThunkAction<void, RootStateType, unknown, InstallerActionType> {
+  return async (dispatch, getState) => {
+    const state = getState();
+    strictAssert(
+      state.installer.step === InstallScreenStep.VerificationCodeEntry,
+      'Wrong step for code submission'
+    );
+
+    const { phoneNumber, sessionId } = state.installer;
+    log.info('Submitting verification code');
+
+    dispatch({ type: SET_SUBMITTING, payload: true });
+    dispatch({
+      type: SHOW_CREATING_ACCOUNT,
+      payload: { phoneNumber, sessionId, verificationCode: code },
+    });
+
+    try {
+      // Register the account as a primary device
+      await accountManager.registerSingleDevice(phoneNumber, code, sessionId);
+
+      log.info('Registration successful!');
+      window.IPC.removeSetupMenuItems();
+
+      // The app will automatically reload after registration completes
+    } catch (error) {
+      log.error('Registration failed:', Errors.toLogFormat(error));
+
+      if (error instanceof HTTPError) {
+        if (error.code === 403) {
+          // Invalid verification code
+          dispatch({
+            type: SET_ERROR,
+            payload: InstallScreenError.VerificationCodeIncorrect,
+          });
+          return;
+        }
+        if (error.code === 429) {
+          dispatch({
+            type: SET_ERROR,
+            payload: InstallScreenError.RateLimited,
+          });
+          return;
+        }
+      }
+
+      dispatch({
+        type: SET_ERROR,
+        payload: InstallScreenError.RegistrationFailed,
+      });
+    }
+  };
+}
+
+function resendVerificationCode(): ThunkAction<
   void,
   RootStateType,
   unknown,
   InstallerActionType
 > {
   return async (dispatch, getState) => {
-    // WeakMap key
-    const baton = {} as BatonType;
-
-    window.IPC.addSetupMenuItems();
-
-    dispatch({
-      type: START_INSTALLER,
-      payload: baton,
-    });
-    const { installer: state } = getState();
+    const state = getState();
     strictAssert(
-      state.step === InstallScreenStep.QrCodeNotScanned,
-      'Unexpected step after START_INSTALLER'
+      state.installer.step === InstallScreenStep.VerificationCodeEntry,
+      'Wrong step for resending code'
     );
 
-    if (!provisioner) {
-      provisioner = new Provisioner({
-        server: {
-          getProvisioningResource,
-        },
-      });
-    }
+    const { phoneNumber } = state.installer;
+    log.info('Resending verification code');
 
-    const cancel = provisioner.subscribe(event => {
-      if (event.kind === ProvisionEventKind.MaxRotationsError) {
-        log.warn('InstallScreen/getQRCode: max rotations reached');
-        dispatch({
-          type: SET_QR_CODE_ERROR,
-          payload: InstallScreenQRCodeError.MaxRotations,
-        });
-      } else if (event.kind === ProvisionEventKind.TimeoutError) {
-        if (event.canRetry) {
-          log.warn('InstallScreen/getQRCode: timed out');
-          dispatch({
-            type: SET_QR_CODE_ERROR,
-            payload: InstallScreenQRCodeError.Timeout,
-          });
-        } else {
-          log.error('InstallScreen/getQRCode: too many tries');
-          dispatch({
-            type: SET_ERROR,
-            payload: InstallScreenError.QRCodeFailed,
-          });
-        }
-      } else if (event.kind === ProvisionEventKind.ConnectError) {
-        const { error } = event;
-
-        log.error(
-          'got an error while waiting for QR code',
-          Errors.toLogFormat(error)
-        );
-
-        if (
-          error instanceof HTTPError &&
-          error.code === -1 &&
-          isRecord(error.cause) &&
-          error.cause.code === 'SELF_SIGNED_CERT_IN_CHAIN'
-        ) {
-          dispatch({
-            type: SET_QR_CODE_ERROR,
-            payload: InstallScreenQRCodeError.NetworkIssue,
-          });
-          return;
-        }
-
-        dispatch({
-          type: SET_ERROR,
-          payload: InstallScreenError.ConnectionFailed,
-        });
-      } else if (event.kind === ProvisionEventKind.EnvelopeError) {
-        log.error(
-          'got an error while waiting for envelope',
-          Errors.toLogFormat(event.error)
-        );
-
-        dispatch({
-          type: SET_QR_CODE_ERROR,
-          payload: InstallScreenQRCodeError.Unknown,
-        });
-      } else if (event.kind === ProvisionEventKind.URL) {
-        window.SignalCI?.setProvisioningURL(event.url);
-        dispatch({
-          type: SET_PROVISIONING_URL,
-          payload: event.url,
-        });
-      } else if (event.kind === ProvisionEventKind.Envelope) {
-        const { envelope } = event;
-        const defaultDeviceName = OS.getName() || 'Signal Desktop';
-
-        if (event.isLinkAndSync) {
-          dispatch(
-            finishInstall({
-              envelope,
-              deviceName: defaultDeviceName,
-              isLinkAndSync: true,
-            })
-          );
-        } else {
-          const { SignalCI } = window;
-          const deviceName =
-            SignalCI != null ? SignalCI.deviceName : defaultDeviceName;
-          dispatch(
-            finishInstall({
-              envelope,
-              deviceName,
-              isLinkAndSync: false,
-            })
-          );
-        }
-      } else {
-        throw missingCaseError(event);
-      }
+    // Go back to captcha to get a new code
+    dispatch({
+      type: SHOW_CAPTCHA,
+      payload: { phoneNumber },
     });
-
-    cancelByBaton.set(baton, cancel);
   };
 }
 
-type FinishInstallOptionsType = ReadonlyDeep<{
-  isLinkAndSync: boolean;
-  deviceName: string;
-  envelope?: ProvisionEnvelopeType;
-}>;
-
-function finishInstall({
-  isLinkAndSync,
-  envelope: providedEnvelope,
-  deviceName,
-}: FinishInstallOptionsType): ThunkAction<
+function goBack(): ThunkAction<
   void,
   RootStateType,
   unknown,
-  | SetQRCodeErrorActionType
-  | SetErrorActionType
-  | ShowLinkInProgressActionType
-  | ShowBackupImportActionType
+  InstallerActionType
 > {
   return async (dispatch, getState) => {
     const state = getState();
-    strictAssert(
-      provisioner != null,
-      'Provisioner is not waiting for device info'
-    );
 
-    let envelope: ProvisionEnvelopeType;
-    if (state.installer.step === InstallScreenStep.QrCodeNotScanned) {
-      strictAssert(
-        providedEnvelope != null,
-        'finishInstall: missing required envelope'
-      );
-      envelope = providedEnvelope;
-    } else {
-      throw new Error('Wrong step');
-    }
-
-    // Cleanup
-    const { baton } = state.installer;
-    cancelByBaton.get(baton)?.();
-    cancelByBaton.delete(baton);
-
-    if (isLinkAndSync) {
-      dispatch({ type: SHOW_BACKUP_IMPORT });
-    } else {
-      dispatch({ type: SHOW_LINK_IN_PROGRESS });
-    }
-
-    try {
-      await accountManager.registerSecondDevice(
-        Provisioner.prepareLinkData({
-          envelope,
-          deviceName,
-        })
-      );
-      window.IPC.removeSetupMenuItems();
-    } catch (error) {
-      if (error instanceof HTTPError) {
-        switch (error.code) {
-          case 409:
-            dispatch({
-              type: SET_ERROR,
-              payload: InstallScreenError.TooOld,
-            });
-            return;
-          case 411:
-            dispatch({
-              type: SET_ERROR,
-              payload: InstallScreenError.TooManyDevices,
-            });
-            return;
-          default:
-            break;
-        }
-      }
-
-      dispatch({
-        type: SET_QR_CODE_ERROR,
-        payload: InstallScreenQRCodeError.Unknown,
-      });
-      return;
-    }
-
-    // Delete all data from the database unless we're in the middle of a re-link.
-    //   Without this, the app restarts at certain times and can cause weird things to
-    //   happen, like data from a previous light import showing up after a new install.
-    const shouldRetainData = Registration.everDone();
-    if (!shouldRetainData) {
-      try {
-        await signalProtocolStore.removeAllData();
-      } catch (error) {
-        log.error(
-          'finishInstall: error clearing database',
-          Errors.toLogFormat(error)
-        );
-      }
+    switch (state.installer.step) {
+      case InstallScreenStep.CaptchaChallenge:
+      case InstallScreenStep.VerificationCodeEntry:
+      case InstallScreenStep.Error:
+        dispatch({ type: RESET_TO_PHONE_NUMBER });
+        break;
+      default:
+        log.warn('Cannot go back from step:', state.installer.step);
     }
   };
 }
 
-function showBackupImport(): ShowBackupImportActionType {
-  return { type: SHOW_BACKUP_IMPORT };
-}
-
-function handleMissingBackup(): ShowLinkInProgressActionType {
-  // If backup is missing, go to normal link-in-progress view
-  return { type: SHOW_LINK_IN_PROGRESS };
-}
-
-function updateBackupImportProgress(
-  payload: UpdateBackupImportProgressActionType['payload']
-): UpdateBackupImportProgressActionType {
-  return { type: UPDATE_BACKUP_IMPORT_PROGRESS, payload };
-}
-
-function retryBackupImport(): ThunkAction<
+// Backup import stub functions - kept for compatibility with backups service
+function showBackupImport(): ThunkAction<
   void,
   RootStateType,
   unknown,
-  RetryBackupImportActionType
+  InstallerActionType
 > {
-  return dispatch => {
-    dispatch({ type: RETRY_BACKUP_IMPORT });
-    backupsService.retryDownload();
+  return async dispatch => {
+    log.info('showBackupImport called (stub)');
+    dispatch({
+      type: SHOW_BACKUP_IMPORT,
+    });
   };
 }
 
-// Reducer
+function updateBackupImportProgress(
+  payload:
+    | {
+        backupStep: InstallScreenBackupStep;
+        currentBytes: number;
+        totalBytes: number;
+      }
+    | {
+        error: InstallScreenBackupError;
+      }
+): ThunkAction<void, RootStateType, unknown, InstallerActionType> {
+  return async dispatch => {
+    log.info('updateBackupImportProgress called', payload);
+    dispatch({
+      type: UPDATE_BACKUP_IMPORT_PROGRESS,
+      payload,
+    });
+  };
+}
+
+function handleMissingBackup(): ThunkAction<
+  void,
+  RootStateType,
+  unknown,
+  InstallerActionType
+> {
+  return async dispatch => {
+    log.info('handleMissingBackup called (stub)');
+    // Just continue without backup
+    dispatch({ type: RESET_TO_PHONE_NUMBER });
+  };
+}
 
 export function getEmptyState(): InstallerStateType {
   return {
@@ -418,64 +416,66 @@ export function reducer(
   state: Readonly<InstallerStateType> = getEmptyState(),
   action: Readonly<InstallerActionType>
 ): InstallerStateType {
-  if (action.type === START_INSTALLER) {
-    // Abort previous install
-    if (state.step === InstallScreenStep.QrCodeNotScanned) {
-      const cancel = cancelByBaton.get(state.baton);
-      cancel?.();
-    } else {
-      // Reset qr code fetch attempt count when starting from scratch
-      provisioner?.reset();
-    }
-
+  if (action.type === START_REGISTRATION) {
     return {
-      step: InstallScreenStep.QrCodeNotScanned,
-      provisioningUrl: {
-        loadingState: LoadingState.Loading,
-      },
-      baton: action.payload,
+      step: InstallScreenStep.PhoneNumberEntry,
+      isSubmitting: false,
     };
   }
 
-  if (action.type === SET_PROVISIONING_URL) {
+  if (action.type === SET_SUBMITTING) {
     if (
-      state.step !== InstallScreenStep.QrCodeNotScanned ||
-      (state.provisioningUrl.loadingState !== LoadingState.Loading &&
-        // Rotating
-        state.provisioningUrl.loadingState !== LoadingState.Loaded)
+      state.step === InstallScreenStep.PhoneNumberEntry ||
+      state.step === InstallScreenStep.CaptchaChallenge ||
+      state.step === InstallScreenStep.VerificationCodeEntry
     ) {
-      log.warn('ducks/installer: not setting provisioning url', state.step);
-      return state;
+      return {
+        ...state,
+        isSubmitting: action.payload,
+        error: undefined,
+      };
     }
-
-    return {
-      ...state,
-      provisioningUrl: {
-        loadingState: LoadingState.Loaded,
-        value: action.payload,
-      },
-    };
+    return state;
   }
 
-  if (action.type === SET_QR_CODE_ERROR) {
+  if (action.type === SET_STEP_ERROR) {
     if (
-      state.step !== InstallScreenStep.QrCodeNotScanned ||
-      !(
-        state.provisioningUrl.loadingState === LoadingState.Loading ||
-        // Rotating
-        state.provisioningUrl.loadingState === LoadingState.Loaded
-      )
+      state.step === InstallScreenStep.PhoneNumberEntry ||
+      state.step === InstallScreenStep.CaptchaChallenge ||
+      state.step === InstallScreenStep.VerificationCodeEntry
     ) {
-      log.warn('ducks/installer: not setting qr code error', state.step);
-      return state;
-    }
-
-    return {
-      ...state,
-      provisioningUrl: {
-        loadingState: LoadingState.LoadFailed,
+      return {
+        ...state,
+        isSubmitting: false,
         error: action.payload,
-      },
+      };
+    }
+    return state;
+  }
+
+  if (action.type === SHOW_CAPTCHA) {
+    return {
+      step: InstallScreenStep.CaptchaChallenge,
+      phoneNumber: action.payload.phoneNumber,
+      isSubmitting: false,
+    };
+  }
+
+  if (action.type === SHOW_VERIFICATION_CODE) {
+    return {
+      step: InstallScreenStep.VerificationCodeEntry,
+      phoneNumber: action.payload.phoneNumber,
+      sessionId: action.payload.sessionId,
+      isSubmitting: false,
+    };
+  }
+
+  if (action.type === SHOW_CREATING_ACCOUNT) {
+    return {
+      step: InstallScreenStep.CreatingAccount,
+      phoneNumber: action.payload.phoneNumber,
+      sessionId: action.payload.sessionId,
+      verificationCode: action.payload.verificationCode,
     };
   }
 
@@ -486,75 +486,38 @@ export function reducer(
     };
   }
 
-  if (action.type === SHOW_LINK_IN_PROGRESS) {
-    if (
-      // Classic linking
-      state.step !== InstallScreenStep.QrCodeNotScanned &&
-      // No backup available
-      state.step !== InstallScreenStep.BackupImport
-    ) {
-      log.warn('ducks/installer: not setting link in progress', state.step);
-      return state;
-    }
-
+  if (action.type === RESET_TO_PHONE_NUMBER) {
     return {
-      step: InstallScreenStep.LinkInProgress,
+      step: InstallScreenStep.PhoneNumberEntry,
+      isSubmitting: false,
     };
   }
 
+  // Backup import reducers - kept for compatibility
   if (action.type === SHOW_BACKUP_IMPORT) {
-    if (
-      // Downloading backup after linking
-      state.step !== InstallScreenStep.QrCodeNotScanned &&
-      // Restarting backup download on startup
-      state.step !== InstallScreenStep.NotStarted
-    ) {
-      log.warn('ducks/installer: not setting backup import', state.step);
-      return state;
-    }
-
     return {
       step: InstallScreenStep.BackupImport,
       backupStep: InstallScreenBackupStep.WaitForBackup,
+      currentBytes: 0,
+      totalBytes: 0,
     };
   }
 
   if (action.type === UPDATE_BACKUP_IMPORT_PROGRESS) {
     if (state.step !== InstallScreenStep.BackupImport) {
-      log.warn(
-        'ducks/installer: not updating backup import progress',
-        state.step
-      );
       return state;
     }
-
     if ('error' in action.payload) {
       return {
         ...state,
         error: action.payload.error,
       };
     }
-
     return {
       ...state,
       backupStep: action.payload.backupStep,
       currentBytes: action.payload.currentBytes,
       totalBytes: action.payload.totalBytes,
-    };
-  }
-
-  if (action.type === RETRY_BACKUP_IMPORT) {
-    if (state.step !== InstallScreenStep.BackupImport) {
-      log.warn(
-        'ducks/installer: wrong step, not retrying backup import',
-        state.step
-      );
-      return state;
-    }
-
-    return {
-      ...state,
-      error: undefined,
     };
   }
 

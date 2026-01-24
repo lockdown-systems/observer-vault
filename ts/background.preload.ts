@@ -1248,7 +1248,7 @@ export async function startApp(): Promise<void> {
 
   window.Whisper.events.on('setupAsNewDevice', () => {
     window.IPC.readyForUpdates();
-    window.reduxActions.installer.startInstaller();
+    window.reduxActions.installer.startRegistration();
   });
 
   window.Whisper.events.on('setupAsStandalone', () => {
@@ -1481,7 +1481,7 @@ export async function startApp(): Promise<void> {
           try {
             await window.IPC.whenWindowVisible();
           } finally {
-            window.reduxActions.installer.startInstaller();
+            window.reduxActions.installer.startRegistration();
           }
         })()
       );
@@ -1567,7 +1567,7 @@ export async function startApp(): Promise<void> {
       if (hasAppEverBeenRegistered) {
         const state = window.reduxStore.getState();
         if (state.app.appView === AppViewType.Installer) {
-          if (state.installer.step === InstallScreenStep.LinkInProgress) {
+          if (state.installer.step === InstallScreenStep.CreatingAccount) {
             log.info(
               'offline, but app has been registered before; opening inbox'
             );

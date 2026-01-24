@@ -3,58 +3,64 @@
 
 import React, { type ReactElement, useCallback } from 'react';
 
-import type { LocalizerType } from '../../types/Util.std.js';
-import { missingCaseError } from '../../util/missingCaseError.std.js';
-import { openLinkInWebBrowser } from '../../util/openLinkInWebBrowser.dom.js';
 import { Button, ButtonVariant } from '../Button.dom.js';
 import { TitlebarDragArea } from '../TitlebarDragArea.dom.js';
 import { InstallScreenSignalLogo } from './InstallScreenSignalLogo.dom.js';
-import { LINK_SIGNAL_DESKTOP } from '../../types/support.std.js';
 import { InstallScreenError } from '../../types/InstallScreen.std.js';
 
 export type Props = Readonly<{
   error: InstallScreenError;
-  i18n: LocalizerType;
   quit: () => unknown;
   tryAgain: () => unknown;
 }>;
 
 export function InstallScreenErrorStep({
   error,
-  i18n,
   quit,
   tryAgain,
 }: Props): ReactElement {
   let errorMessage: string;
-  let buttonText = i18n('icu:installTryAgain');
-  let onClickButton = useCallback(() => tryAgain(), [tryAgain]);
-  let shouldShowQuitButton = false;
+  const buttonText = 'Try Again';
+  const onClickButton = useCallback(() => tryAgain(), [tryAgain]);
+  const shouldShowQuitButton = true;
 
   switch (error) {
+    case InstallScreenError.ConnectionFailed:
+      errorMessage =
+        'Connection failed. Please check your internet connection.';
+      break;
+    case InstallScreenError.InvalidPhoneNumber:
+      errorMessage = 'The phone number you entered is not valid.';
+      break;
+    case InstallScreenError.CaptchaFailed:
+      errorMessage = 'Captcha verification failed. Please try again.';
+      break;
+    case InstallScreenError.VerificationCodeExpired:
+      errorMessage =
+        'Your verification code has expired. Please request a new one.';
+      break;
+    case InstallScreenError.VerificationCodeIncorrect:
+      errorMessage = 'The verification code you entered is incorrect.';
+      break;
+    case InstallScreenError.RateLimited:
+      errorMessage =
+        'Too many attempts. Please wait a few minutes and try again.';
+      break;
+    case InstallScreenError.RegistrationFailed:
+      errorMessage = 'Registration failed. Please try again later.';
+      break;
+    // Legacy errors for compatibility
     case InstallScreenError.TooManyDevices:
-      errorMessage = i18n('icu:installTooManyDevices');
+      errorMessage = 'Too many devices are linked to this account.';
       break;
     case InstallScreenError.TooOld:
-      errorMessage = i18n('icu:installTooOld');
-      buttonText = i18n('icu:upgrade');
-      onClickButton = () => {
-        openLinkInWebBrowser('https://signal.org/download');
-      };
-      shouldShowQuitButton = true;
-      break;
-    case InstallScreenError.ConnectionFailed:
-      errorMessage = i18n('icu:installConnectionFailed');
+      errorMessage = 'This version of the app is too old.';
       break;
     case InstallScreenError.QRCodeFailed:
-      buttonText = i18n('icu:Install__learn-more');
-      errorMessage = i18n('icu:installUnknownError');
-      onClickButton = () => {
-        openLinkInWebBrowser(LINK_SIGNAL_DESKTOP);
-      };
-      shouldShowQuitButton = true;
+      errorMessage = 'QR code scanning failed.';
       break;
     default:
-      throw missingCaseError(error);
+      errorMessage = 'An unknown error occurred.';
   }
 
   return (
@@ -63,14 +69,14 @@ export function InstallScreenErrorStep({
 
       <InstallScreenSignalLogo />
 
-      <h1>{i18n('icu:installErrorHeader')}</h1>
+      <h1>Registration Error</h1>
       <h2>{errorMessage}</h2>
 
       <div className="module-InstallScreenErrorStep__buttons">
         <Button onClick={onClickButton}>{buttonText}</Button>
         {shouldShowQuitButton && (
           <Button onClick={() => quit()} variant={ButtonVariant.Secondary}>
-            {i18n('icu:quit')}
+            Quit
           </Button>
         )}
       </div>

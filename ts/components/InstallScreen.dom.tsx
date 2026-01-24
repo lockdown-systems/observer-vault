@@ -7,29 +7,34 @@ import React from 'react';
 import { missingCaseError } from '../util/missingCaseError.std.js';
 import { InstallScreenStep } from '../types/InstallScreen.std.js';
 import { InstallScreenErrorStep } from './installScreen/InstallScreenErrorStep.dom.js';
-import { InstallScreenLinkInProgressStep } from './installScreen/InstallScreenLinkInProgressStep.dom.js';
-import { InstallScreenQrCodeNotScannedStep } from './installScreen/InstallScreenQrCodeNotScannedStep.dom.js';
-import { InstallScreenBackupImportStep } from './installScreen/InstallScreenBackupImportStep.dom.js';
+import { InstallScreenPhoneNumberStep } from './installScreen/InstallScreenPhoneNumberStep.dom.js';
+import { InstallScreenCaptchaStep } from './installScreen/InstallScreenCaptchaStep.dom.js';
+import { InstallScreenVerificationCodeStep } from './installScreen/InstallScreenVerificationCodeStep.dom.js';
+import { InstallScreenCreatingAccountStep } from './installScreen/InstallScreenCreatingAccountStep.dom.js';
 
 // We can't always use destructuring assignment because of the complexity of this props
 //   type.
 
 type PropsType =
   | {
-      step: InstallScreenStep.QrCodeNotScanned;
+      step: InstallScreenStep.PhoneNumberEntry;
+      screenSpecificProps: ComponentProps<typeof InstallScreenPhoneNumberStep>;
+    }
+  | {
+      step: InstallScreenStep.CaptchaChallenge;
+      screenSpecificProps: ComponentProps<typeof InstallScreenCaptchaStep>;
+    }
+  | {
+      step: InstallScreenStep.VerificationCodeEntry;
       screenSpecificProps: ComponentProps<
-        typeof InstallScreenQrCodeNotScannedStep
+        typeof InstallScreenVerificationCodeStep
       >;
     }
   | {
-      step: InstallScreenStep.LinkInProgress;
+      step: InstallScreenStep.CreatingAccount;
       screenSpecificProps: ComponentProps<
-        typeof InstallScreenLinkInProgressStep
+        typeof InstallScreenCreatingAccountStep
       >;
-    }
-  | {
-      step: InstallScreenStep.BackupImport;
-      screenSpecificProps: ComponentProps<typeof InstallScreenBackupImportStep>;
     }
   | {
       step: InstallScreenStep.Error;
@@ -40,14 +45,18 @@ export function InstallScreen(props: Readonly<PropsType>): ReactElement {
   switch (props.step) {
     case InstallScreenStep.Error:
       return <InstallScreenErrorStep {...props.screenSpecificProps} />;
-    case InstallScreenStep.QrCodeNotScanned:
+    case InstallScreenStep.PhoneNumberEntry:
+      return <InstallScreenPhoneNumberStep {...props.screenSpecificProps} />;
+    case InstallScreenStep.CaptchaChallenge:
+      return <InstallScreenCaptchaStep {...props.screenSpecificProps} />;
+    case InstallScreenStep.VerificationCodeEntry:
       return (
-        <InstallScreenQrCodeNotScannedStep {...props.screenSpecificProps} />
+        <InstallScreenVerificationCodeStep {...props.screenSpecificProps} />
       );
-    case InstallScreenStep.LinkInProgress:
-      return <InstallScreenLinkInProgressStep {...props.screenSpecificProps} />;
-    case InstallScreenStep.BackupImport:
-      return <InstallScreenBackupImportStep {...props.screenSpecificProps} />;
+    case InstallScreenStep.CreatingAccount:
+      return (
+        <InstallScreenCreatingAccountStep {...props.screenSpecificProps} />
+      );
     default:
       throw missingCaseError(props);
   }

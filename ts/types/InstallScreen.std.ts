@@ -3,12 +3,21 @@
 
 export enum InstallScreenStep {
   NotStarted = 'NotStarted',
-  QrCodeNotScanned = 'QrCodeNotScanned',
-  Error = 'Error',
 
-  // Either of these two is the final state
+  // Registration flow (primary device)
+  PhoneNumberEntry = 'PhoneNumberEntry',
+  CaptchaChallenge = 'CaptchaChallenge',
+  VerificationCodeEntry = 'VerificationCodeEntry',
+  CreatingAccount = 'CreatingAccount',
+
+  // Legacy - kept for compatibility with existing components
+  QrCodeNotScanned = 'QrCodeNotScanned',
   LinkInProgress = 'LinkInProgress',
+
+  // Backup import (kept for compatibility)
   BackupImport = 'BackupImport',
+
+  Error = 'Error',
 }
 
 export enum InstallScreenBackupStep {
@@ -25,9 +34,16 @@ export enum InstallScreenBackupError {
 }
 
 export enum InstallScreenError {
+  ConnectionFailed = 'ConnectionFailed',
+  InvalidPhoneNumber = 'InvalidPhoneNumber',
+  CaptchaFailed = 'CaptchaFailed',
+  VerificationCodeExpired = 'VerificationCodeExpired',
+  VerificationCodeIncorrect = 'VerificationCodeIncorrect',
+  RateLimited = 'RateLimited',
+  RegistrationFailed = 'RegistrationFailed',
+  // Legacy errors (kept for compatibility)
   TooManyDevices = 'TooManyDevices',
   TooOld = 'TooOld',
-  ConnectionFailed = 'ConnectionFailed',
   QRCodeFailed = 'QRCodeFailed',
 }
 

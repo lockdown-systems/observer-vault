@@ -9,10 +9,8 @@ import { useBoundActions } from '../../hooks/useBoundActions.std.js';
 import { createLogger } from '../../logging/log.std.js';
 import { getEnvironment, Environment } from '../../environment.std.js';
 import {
-  START_INSTALLER,
-  type StartInstallerActionType,
-  SHOW_BACKUP_IMPORT,
-  type ShowBackupImportActionType,
+  START_REGISTRATION,
+  StartRegistrationActionType,
 } from './installer.preload.js';
 
 const log = createLogger('app');
@@ -115,9 +113,7 @@ export function getEmptyState(): AppStateType {
 
 export function reducer(
   state: Readonly<AppStateType> = getEmptyState(),
-  action: Readonly<
-    AppActionType | StartInstallerActionType | ShowBackupImportActionType
-  >
+  action: Readonly<AppActionType | StartRegistrationActionType>
 ): AppStateType {
   if (action.type === OPEN_INBOX) {
     return {
@@ -141,7 +137,7 @@ export function reducer(
   }
 
   // Foreign action
-  if (action.type === START_INSTALLER || action.type === SHOW_BACKUP_IMPORT) {
+  if (action.type === START_REGISTRATION) {
     return {
       ...state,
       appView: AppViewType.Installer,
