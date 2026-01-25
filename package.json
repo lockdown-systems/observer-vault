@@ -183,6 +183,7 @@
     "lodash": "4.17.21",
     "long": "5.2.3",
     "lru-cache": "11.0.2",
+    "mediabunny": "^1.28.0",
     "memoizee": "0.4.17",
     "moment": "2.30.1",
     "mp4box": "0.5.3",
