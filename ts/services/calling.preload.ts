@@ -3701,6 +3701,23 @@ export class CallingClass {
             console.log(
               `[Observer Vault] Video recording saved to: ${recordingPath}`
             );
+            // Extract just the filename from the full path
+            const recordingFilename =
+              recordingPath.split('/').pop() || recordingPath;
+            // Show desktop notification
+            try {
+              // eslint-disable-next-line no-new
+              new window.Notification('Observer Vault', {
+                body: `Video call recorded: ${recordingFilename}`,
+                silent: true,
+              });
+            } catch (notifyError) {
+              // eslint-disable-next-line no-console
+              console.error(
+                '[Observer Vault] Failed to show notification:',
+                notifyError
+              );
+            }
           }
         }
 
