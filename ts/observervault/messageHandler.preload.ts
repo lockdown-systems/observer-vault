@@ -122,8 +122,15 @@ export async function handleVideoStashIncomingMessage(
     return false;
   }
 
-  // First, ensure disappearing messages is set to 30 seconds
+  // First, ensure disappearing messages is set to 2 minutes
   drop(ensureDisappearingMessagesTimer(conversation));
+
+  // Auto-select the conversation to mark messages as read
+  // This triggers the normal "mark as read" behavior
+  window.reduxActions?.conversations?.showConversation({
+    conversationId: conversation.id,
+  });
+  log.info(`${logId}: Auto-selected conversation to mark as read`);
 
   // Get the message body
   const body = message.get('body');

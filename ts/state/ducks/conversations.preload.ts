@@ -1596,9 +1596,8 @@ function markMessageRead(
       throw new Error('markMessageRead: Conversation not found!');
     }
 
-    if (!window.SignalContext.activeWindowService.isActive()) {
-      return;
-    }
+    // Observer Vault: Always mark messages as read, even when window is not focused
+    // (Original Signal behavior checks activeWindowService.isActive() here)
 
     const activeCall = getActiveCallState(getState());
     if (activeCall && !activeCall.pip) {
