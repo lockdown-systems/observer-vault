@@ -51,44 +51,8 @@ export function shouldShowCallQualitySurvey({
   e164: string | undefined;
   bypassCooldown?: boolean;
 }): boolean {
-  if (
-    isMockEnvironment() ||
-    !isCallQualitySurveyEnabled() ||
-    !callSummary.isSurveyCandidate
-  ) {
-    return false;
-  }
-
-  const now = Date.now();
-  const isFailure = isCallFailure(callSummary.callEndReasonText);
-
-  const canShowFailureSurvey =
-    bypassCooldown ||
-    lastFailureSurveyTime == null ||
-    now - lastFailureSurveyTime > SURVEY_COOLDOWN;
-  if (isFailure && canShowFailureSurvey) {
-    return true;
-  }
-
-  const canShowGeneralSurvey =
-    bypassCooldown ||
-    lastSurveyTime == null ||
-    now - lastSurveyTime > SURVEY_COOLDOWN;
-  if (!canShowGeneralSurvey) {
-    return false;
-  }
-
-  const callDuration = callSummary.endTime - callSummary.startTime;
-
-  if (callDuration < SHORT_CALL_THRESHOLD) {
-    return true;
-  }
-
-  if (callDuration > LONG_CALL_THRESHOLD) {
-    return true;
-  }
-
-  return Math.random() < getCallQualitySurveyPPM(e164) / 1_000_000;
+  // Observer Vault: Disable call quality survey entirely
+  return false;
 }
 
 function getCallQualitySurveyPPM(e164: string | undefined): number {
