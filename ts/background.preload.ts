@@ -548,11 +548,9 @@ export async function startApp(): Promise<void> {
     }
     first = false;
 
-    // Observer Vault: Set universal disappearing messages timer to 2 minutes
-    log.info('Observer Vault: Setting universal expire timer to 2 minutes');
-    await universalExpireTimer.set(
-      durations.DurationInSeconds.fromSeconds(120)
-    );
+    // Observer Vault: Set universal disappearing messages timer to 1 minute
+    log.info('Observer Vault: Setting universal expire timer to 1 minute');
+    await universalExpireTimer.set(durations.DurationInSeconds.fromSeconds(60));
 
     restoreRemoteConfigFromStorage({
       storage: itemStorage,

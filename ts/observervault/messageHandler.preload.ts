@@ -38,8 +38,8 @@ const log = createLogger('observervault/messageHandler');
 // The auto-reply message for text messages
 const AUTO_REPLY_MESSAGE = "sorry I'm busy";
 
-// The desired disappearing messages timer (2 minutes)
-const DESIRED_EXPIRE_TIMER = DurationInSeconds.fromSeconds(120);
+// The desired disappearing messages timer (1 minute)
+const DESIRED_EXPIRE_TIMER = DurationInSeconds.fromSeconds(60);
 
 // Default Downloads folder
 const DOWNLOADS_DIR = join(homedir(), 'Downloads');
