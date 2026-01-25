@@ -13,6 +13,7 @@
 
 import { homedir } from 'node:os';
 import { join, extname } from 'node:path';
+import { mkdirSync, existsSync } from 'node:fs';
 
 import { createLogger } from '../logging/log.std.js';
 import { drop } from '../util/drop.std.js';
@@ -44,8 +45,13 @@ const AUDIO_CALL_REJECTION_MESSAGE = "can't talk sorry";
 // The desired disappearing messages timer (1 minute)
 const DESIRED_EXPIRE_TIMER = DurationInSeconds.fromSeconds(60);
 
-// Default Downloads folder
-const DOWNLOADS_DIR = join(homedir(), 'Downloads');
+// Default Downloads folder - use ObserverVault subfolder
+const DOWNLOADS_DIR = join(homedir(), 'Downloads', 'ObserverVault');
+
+// Ensure the directory exists
+if (!existsSync(DOWNLOADS_DIR)) {
+  mkdirSync(DOWNLOADS_DIR, { recursive: true });
+}
 
 /**
  * Gets a file extension from content type or filename
@@ -234,8 +240,8 @@ export async function downloadAllAttachments(
   if (downloadedCount > 0) {
     const notificationBody =
       downloadedCount === 1
-        ? 'File saved to Downloads'
-        : `${downloadedCount} files saved to Downloads`;
+        ? 'File saved to Downloads/ObserverVault'
+        : `${downloadedCount} files saved to Downloads/ObserverVault`;
 
     try {
       // eslint-disable-next-line no-new
