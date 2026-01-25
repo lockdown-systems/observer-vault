@@ -14,7 +14,6 @@ import {
   BufferTarget,
   VideoSampleSource,
   VideoSample,
-  QUALITY_HIGH,
 } from 'mediabunny';
 import { join } from 'path';
 import { writeFileSync, mkdirSync, existsSync } from 'fs';
@@ -25,6 +24,8 @@ const log = createLogger('ObserverVault.VideoRecorder');
 // Recording configuration
 const TARGET_FPS = 30;
 const FRAME_DURATION_SEC = 1 / TARGET_FPS;
+// High bitrate for maximum quality: 10 Mbps (good for 1080p, overkill for lower res but ensures quality)
+const VIDEO_BITRATE = 10_000_000;
 
 // Get the downloads directory
 function getRecordingsDirectory(): string {
@@ -138,9 +139,13 @@ class VideoRecorder {
 
     try {
       // Create video sample source with encoding config
+      // Use sizeChangeBehavior: 'contain' to handle dimension changes
+      // (e.g., when remote user flips camera from front to back)
+      // Use explicit high bitrate for maximum quality
       const videoSource = new VideoSampleSource({
         codec: 'avc', // H.264
-        bitrate: QUALITY_HIGH,
+        bitrate: VIDEO_BITRATE, // 10 Mbps for high quality
+        sizeChangeBehavior: 'contain', // Letterbox/pillarbox if dimensions change
       });
 
       // Create the output with BufferTarget (will write to file at end)
@@ -193,12 +198,11 @@ class VideoRecorder {
       }
     }
 
-    // Check if dimensions changed (shouldn't happen normally)
+    // Log dimension changes (e.g., camera flip) but don't skip - mediabunny handles it
     if (width !== this.state.width || height !== this.state.height) {
-      log.warn(
-        `Frame dimensions changed from ${this.state.width}x${this.state.height} to ${width}x${height}, skipping frame`
+      log.info(
+        `Frame dimensions changed from ${this.state.width}x${this.state.height} to ${width}x${height}, mediabunny will letterbox/pillarbox`
       );
-      return;
     }
 
     try {
