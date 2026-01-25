@@ -104,20 +104,21 @@ export class GumVideoCapturer {
     this.sizeCallback(size);
   }
 
-  async enableCapture(options: GumVideoCaptureOptions): Promise<void> {
-    return this.startCapturing(options);
+  async enableCapture(_options: GumVideoCaptureOptions): Promise<void> {
+    // Observer Vault: Video capture is disabled - we don't use the camera
+    log.info('GumVideoCapturer.enableCapture: disabled for Observer Vault');
+    return Promise.resolve();
   }
 
   async enableCaptureAndSend(
-    sender: VideoFrameSender | undefined,
-    options: GumVideoCaptureOptions
+    _sender: VideoFrameSender | undefined,
+    _options: GumVideoCaptureOptions
   ): Promise<void> {
-    const startCapturingPromise = this.startCapturing(options);
-    if (sender) {
-      this.startSending(sender);
-    }
-    // Bubble up the error.
-    return startCapturingPromise;
+    // Observer Vault: Video capture is disabled - we don't use the camera
+    log.info(
+      'GumVideoCapturer.enableCaptureAndSend: disabled for Observer Vault'
+    );
+    return Promise.resolve();
   }
 
   disable(): void {
@@ -125,22 +126,17 @@ export class GumVideoCapturer {
     this.stopSending();
   }
 
-  async setPreferredDevice(deviceId: string): Promise<void> {
-    this.preferredDeviceId = deviceId;
-
-    if (this.captureOptions) {
-      const { captureOptions, sender } = this;
-
-      this.disable();
-      // Bubble up the error if starting video failed.
-      return this.enableCaptureAndSend(sender, captureOptions);
-    }
+  async setPreferredDevice(_deviceId: string): Promise<void> {
+    // Observer Vault: Video capture is disabled - we don't use the camera
+    log.info(
+      'GumVideoCapturer.setPreferredDevice: disabled for Observer Vault'
+    );
+    return Promise.resolve();
   }
 
   async enumerateDevices(): Promise<Array<MediaDeviceInfo>> {
-    const devices = await window.navigator.mediaDevices.enumerateDevices();
-    const cameras = devices.filter(d => d.kind === 'videoinput');
-    return cameras;
+    // Observer Vault: Return empty array - we don't use cameras
+    return [];
   }
 
   private async getUserMedia(

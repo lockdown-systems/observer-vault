@@ -676,26 +676,7 @@ export function CallingPip({
         )}
       >
         <div className="module-calling-pip__actions__spacer" />
-        <div className="module-calling-pip__actions__button">
-          <CallingButton
-            buttonType={videoButtonType}
-            i18n={i18n}
-            onMouseEnter={onControlsMouseEnter}
-            onMouseLeave={onControlsMouseLeave}
-            onClick={toggleVideo}
-            tooltipDirection={TooltipPlacement.Top}
-          />
-        </div>
-        <div className="module-calling-pip__actions__button module-calling-pip__actions__middle-button">
-          <CallingButton
-            buttonType={audioButtonType}
-            i18n={i18n}
-            onMouseEnter={onControlsMouseEnter}
-            onMouseLeave={onControlsMouseLeave}
-            onClick={toggleAudio}
-            tooltipDirection={TooltipPlacement.Top}
-          />
-        </div>
+        {/* Observer Vault: Video and audio buttons removed - we don't use camera/mic */}
         <div className="module-calling-pip__actions__button">
           <CallingButton
             buttonType={hangupButtonType}

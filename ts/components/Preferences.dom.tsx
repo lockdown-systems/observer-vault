@@ -849,24 +849,7 @@ export function Preferences({
             </>
           )}
         </SettingsRow>
-        <SettingsRow title={i18n('icu:permissions')}>
-          <Checkbox
-            checked={hasMediaPermissions}
-            disabled={hasMediaPermissions === undefined}
-            label={i18n('icu:mediaPermissionsDescription')}
-            moduleClassName="Preferences__checkbox"
-            name="mediaPermissions"
-            onChange={onMediaPermissionsChange}
-          />
-          <Checkbox
-            checked={hasMediaCameraPermissions ?? false}
-            disabled={hasMediaCameraPermissions === undefined}
-            label={i18n('icu:mediaCameraPermissionsDescription')}
-            moduleClassName="Preferences__checkbox"
-            name="mediaCameraPermissions"
-            onChange={onMediaCameraPermissionsChange}
-          />
-        </SettingsRow>
+        {/* Observer Vault: Media permissions removed - we don't use camera/microphone */}
         {isAutoDownloadUpdatesSupported && (
           <SettingsRow title={i18n('icu:Preferences--updates')}>
             <Checkbox
@@ -1349,77 +1332,7 @@ export function Preferences({
           />
         </SettingsRow>
         <SettingsRow title={i18n('icu:Preferences__devices')}>
-          <Control
-            left={
-              <>
-                <label className="Preferences__select-title" htmlFor="video">
-                  {i18n('icu:callingDeviceSelection__label--video')}
-                </label>
-                <Select
-                  ariaLabel={i18n('icu:callingDeviceSelection__label--video')}
-                  disabled={!availableCameras.length}
-                  moduleClassName="Preferences__select"
-                  name="video"
-                  onChange={onSelectedCameraChange}
-                  options={
-                    availableCameras.length
-                      ? availableCameras.map(device => ({
-                          text: localizeDefault(i18n, device.label),
-                          value: device.deviceId,
-                        }))
-                      : [
-                          {
-                            text: i18n(
-                              'icu:callingDeviceSelection__select--no-device'
-                            ),
-                            value: 'undefined',
-                          },
-                        ]
-                  }
-                  value={selectedCamera}
-                />
-              </>
-            }
-            right={<div />}
-          />
-          <Control
-            left={
-              <>
-                <label
-                  className="Preferences__select-title"
-                  htmlFor="audio-input"
-                >
-                  {i18n('icu:callingDeviceSelection__label--audio-input')}
-                </label>
-                <Select
-                  ariaLabel={i18n(
-                    'icu:callingDeviceSelection__label--audio-input'
-                  )}
-                  disabled={!availableMicrophones.length}
-                  moduleClassName="Preferences__select"
-                  name="audio-input"
-                  onChange={onAudioInputSelectChange}
-                  options={
-                    availableMicrophones.length
-                      ? availableMicrophones.map(device => ({
-                          text: localizeDefault(i18n, device.name),
-                          value: device.index,
-                        }))
-                      : [
-                          {
-                            text: i18n(
-                              'icu:callingDeviceSelection__select--no-device'
-                            ),
-                            value: 'undefined',
-                          },
-                        ]
-                  }
-                  value={selectedMicrophone?.index}
-                />
-              </>
-            }
-            right={<div />}
-          />
+          {/* Observer Vault: Camera and microphone dropdowns removed - we don't use them */}
           <Control
             left={
               <>

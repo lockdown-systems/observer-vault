@@ -135,40 +135,7 @@ export function CallingDeviceSelection({
         {i18n('icu:callingDeviceSelection__settings')}
       </h1>
 
-      <label htmlFor="video" className="module-calling-device-selection__label">
-        {i18n('icu:callingDeviceSelection__label--video')}
-      </label>
-      <div className="module-calling-device-selection__select">
-        <Select
-          disabled={!availableCameras.length}
-          id="camera"
-          name="camera"
-          onChange={createCameraChangeHandler(changeIODevice)}
-          options={renderVideoOptions(availableCameras, i18n)}
-          value={selectedCamera}
-        />
-      </div>
-
-      <label
-        htmlFor="audio-input"
-        className="module-calling-device-selection__label"
-      >
-        {i18n('icu:callingDeviceSelection__label--audio-input')}
-      </label>
-      <div className="module-calling-device-selection__select">
-        <Select
-          disabled={!availableMicrophones.length}
-          id="audio-input"
-          name="audio-input"
-          onChange={createAudioChangeHandler(
-            availableMicrophones,
-            changeIODevice,
-            CallingDeviceType.MICROPHONE
-          )}
-          options={renderAudioOptions(availableMicrophones, i18n)}
-          value={selectedMicrophoneIndex}
-        />
-      </div>
+      {/* Observer Vault: Camera and microphone dropdowns removed - we don't use them */}
 
       <label
         htmlFor="audio-output"

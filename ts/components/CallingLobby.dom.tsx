@@ -342,18 +342,7 @@ export function CallingLobby({
               <div className="CallControls__Status">{callStatus}</div>
             </div>
             <div className="CallControls__ButtonContainer">
-              <CallingButton
-                buttonType={videoButtonType}
-                i18n={i18n}
-                onClick={toggleVideo}
-                tooltipDirection={TooltipPlacement.Top}
-              />
-              <CallingButton
-                buttonType={audioButtonType}
-                i18n={i18n}
-                onClick={toggleAudio}
-                tooltipDirection={TooltipPlacement.Top}
-              />
+              {/* Observer Vault: Video and audio buttons removed - we don't use camera/mic */}
               <CallingButton
                 buttonType={ringButtonType}
                 i18n={i18n}

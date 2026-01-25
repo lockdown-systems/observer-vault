@@ -2327,34 +2327,20 @@ export class CallingClass {
       return;
     }
 
-    const haveMediaPermissions = await this.#requestPermissions(asVideoCall);
-    if (haveMediaPermissions) {
-      await ensureSystemPermissions({
-        hasLocalAudio: true,
-        hasLocalVideo: asVideoCall,
-      });
-      await this.#startDeviceReselectionTimer();
-      muteStateChange.setIsMuted(false);
+    // Observer Vault: Always accept calls with audio and video disabled
+    // No permissions needed since we don't use camera or mic
+    log.info(
+      `${logId}: Observer Vault - accepting call with audio/video disabled`
+    );
 
-      if (asVideoCall) {
-        // Warm up the camera as soon as possible.
-        drop(this.enableLocalCamera(CallMode.Direct));
-      }
+    // Set the starting camera disposition - always disabled
+    this.#cameraEnabled = false;
 
-      // Set the starting camera disposition based on the type of call.
-      this.#cameraEnabled = asVideoCall;
+    // Set the initial state for outgoing media - always muted
+    call.setOutgoingAudioMuted(true);
+    call.setOutgoingVideoMuted(true);
 
-      // Set the initial state for outgoing media for the incoming call.
-      call.setOutgoingAudioMuted(false);
-      call.setOutgoingVideoMuted(!asVideoCall);
-
-      RingRTC.accept(callId);
-    } else {
-      log.info(
-        `${logId}: Permissions were denied, call not allowed, hanging up.`
-      );
-      RingRTC.hangup(callId);
-    }
+    RingRTC.accept(callId);
   }
 
   declineDirectCall(conversationId: string): void {
@@ -2473,28 +2459,13 @@ export class CallingClass {
   }
 
   setOutgoingAudio(conversationId: string, enabled: boolean): void {
-    const call = getOwn(this.#callsLookup, conversationId);
-    if (!call) {
-      log.warn('Trying to set outgoing audio for a non-existent call');
-      return;
-    }
-
+    // Observer Vault: Audio is never enabled, ignore toggle requests
     const logId = getLogId({
       source: 'CallingClass.setOutgoingAudio',
       conversationId,
     });
-    log.info(`${logId}: set to ${enabled}`);
-
-    if (call instanceof Call) {
-      call.setOutgoingAudioMuted(!enabled);
-    } else if (call instanceof GroupCall) {
-      call.setOutgoingAudioMuted(!enabled);
-    } else {
-      throw missingCaseError(call);
-    }
-
-    muteStateChange.setIsMuted(!enabled);
-    log.info(`${logId}: set to ${enabled} done`);
+    log.info(`${logId}: Observer Vault - audio toggle ignored, always muted`);
+    return;
   }
 
   setOutgoingAudioRemoteMuted(conversationId: string, source: number): void {
@@ -2521,36 +2492,15 @@ export class CallingClass {
     conversationId: string,
     enabled: boolean
   ): Promise<void> {
-    const call = getOwn(this.#callsLookup, conversationId);
-    if (!call) {
-      log.warn('Trying to set outgoing video for a non-existent call');
-      return;
-    }
-
-    if (enabled) {
-      // Make sure we have access to camera
-      await window.reduxActions.globalModals.ensureSystemMediaPermissions(
-        'camera',
-        'call'
-      );
-    }
-
-    this.#cameraEnabled = enabled;
-
-    if (call instanceof Call) {
-      if (enabled) {
-        // Start sending video from the camera.
-        await this.enableCaptureAndSend(call);
-      } else {
-        // Stop the camera.
-        this.disableLocalVideo();
-      }
-      call.setOutgoingVideoMuted(!enabled);
-    } else if (call instanceof GroupCall) {
-      call.setOutgoingVideoMuted(!enabled);
-    } else {
-      throw missingCaseError(call);
-    }
+    // Observer Vault: Video is never enabled, ignore toggle requests
+    const logId = getLogId({
+      source: 'CallingClass.setOutgoingVideo',
+      conversationId,
+    });
+    log.info(
+      `${logId}: Observer Vault - video toggle ignored, always disabled`
+    );
+    return;
   }
 
   async #startPresenting(
@@ -2873,9 +2823,10 @@ export class CallingClass {
     prefetchedMicrophones: Array<AudioDevice> | undefined,
     prefetchedSpeakers: Array<AudioDevice> | undefined
   ): Promise<AvailableIODevicesType> {
-    const availableCameras = await this.#videoCapturer.enumerateDevices();
-    const availableMicrophones =
-      prefetchedMicrophones || RingRTC.getAudioInputs();
+    // Observer Vault: Return empty arrays for cameras and microphones
+    // Only keep speakers for receiving audio from calls
+    const availableCameras: Array<MediaDeviceInfo> = [];
+    const availableMicrophones: Array<AudioDevice> = [];
     const availableSpeakers = prefetchedSpeakers || RingRTC.getAudioOutputs();
 
     return {

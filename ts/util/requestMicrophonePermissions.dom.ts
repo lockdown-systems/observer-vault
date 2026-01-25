@@ -1,16 +1,9 @@
 // Copyright 2021 Signal Messenger, LLC
 // SPDX-License-Identifier: AGPL-3.0-only
 
+// Observer Vault: Microphone is never used, always return true to not block call flow
 export async function requestMicrophonePermissions(
-  forCalling: boolean
+  _forCalling: boolean
 ): Promise<boolean> {
-  const microphonePermission = await window.IPC.getMediaPermissions();
-  if (!microphonePermission) {
-    await window.IPC.showPermissionsPopup(forCalling, false);
-
-    // Check the setting again (from the source of truth).
-    return window.Events.getMediaPermissions();
-  }
-
   return true;
 }

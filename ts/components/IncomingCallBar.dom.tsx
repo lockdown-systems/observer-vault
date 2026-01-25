@@ -307,29 +307,13 @@ export function IncomingCallBar(props: PropsType): React.JSX.Element | null {
             tabIndex={0}
             tooltipContent={i18n('icu:declineCall')}
           />
-          {isVideoCall ? (
-            <>
-              <CallButton
-                classSuffix="accept-video-as-audio"
-                onClick={acceptAudioCall}
-                tabIndex={0}
-                tooltipContent={i18n('icu:acceptCallWithoutVideo')}
-              />
-              <CallButton
-                classSuffix="accept-video"
-                onClick={acceptVideoCall}
-                tabIndex={0}
-                tooltipContent={i18n('icu:acceptCall')}
-              />
-            </>
-          ) : (
-            <CallButton
-              classSuffix="accept-audio"
-              onClick={acceptAudioCall}
-              tabIndex={0}
-              tooltipContent={i18n('icu:acceptCall')}
-            />
-          )}
+          {/* Observer Vault: Single accept button - always accept without camera/mic */}
+          <CallButton
+            classSuffix="accept-audio"
+            onClick={acceptAudioCall}
+            tabIndex={0}
+            tooltipContent={i18n('icu:acceptCall')}
+          />
         </div>
       </div>
     </div>

@@ -1214,22 +1214,7 @@ export function CallScreen({
           )}
 
           <div className="CallControls__ButtonContainer">
-            <CallingButton
-              buttonType={videoButtonType}
-              i18n={i18n}
-              onMouseEnter={onControlsMouseEnter}
-              onMouseLeave={onControlsMouseLeave}
-              onClick={toggleVideo}
-              tooltipDirection={TooltipPlacement.Top}
-            />
-            <CallingButton
-              buttonType={audioButtonType}
-              i18n={i18n}
-              onMouseEnter={onControlsMouseEnter}
-              onMouseLeave={onControlsMouseLeave}
-              onClick={toggleAudio}
-              tooltipDirection={TooltipPlacement.Top}
-            />
+            {/* Observer Vault: Video and audio buttons removed - we don't use camera/mic */}
             {raiseHandButtonType && (
               <CallingButton
                 buttonType={raiseHandButtonType}
