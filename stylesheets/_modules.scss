@@ -41,18 +41,11 @@
   margin-block: 24px;
   margin-inline: 0;
 
-  @include mixins.light-theme {
-    @include mixins.color-svg(
-      '../images/signal-logo.svg',
-      variables.$color-ultramarine-logo
-    );
-  }
-  @include mixins.dark-theme {
-    @include mixins.color-svg(
-      '../images/signal-logo.svg',
-      variables.$color-white
-    );
-  }
+  // Observer Vault: Use actual image instead of color-masked SVG
+  background-image: url('../images/signal-logo.svg');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
 
   &.module-splash-screen__logo--128 {
     height: 128px;
