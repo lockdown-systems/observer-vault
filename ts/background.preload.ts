@@ -98,6 +98,7 @@ import { shouldRespondWithProfileKey } from './util/shouldRespondWithProfileKey.
 import { LatestQueue } from './util/LatestQueue.std.js';
 import { parseIntOrThrow } from './util/parseIntOrThrow.std.js';
 import { getProfile } from './util/getProfile.preload.js';
+import * as universalExpireTimer from './util/universalExpireTimer.preload.js';
 import type {
   AttachmentBackfillResponseSyncEvent,
   ConfigurationEvent,
@@ -546,6 +547,10 @@ export async function startApp(): Promise<void> {
       return;
     }
     first = false;
+
+    // Observer Vault: Set universal disappearing messages timer to 30 seconds
+    log.info('Observer Vault: Setting universal expire timer to 30 seconds');
+    await universalExpireTimer.set(durations.DurationInSeconds.fromSeconds(30));
 
     restoreRemoteConfigFromStorage({
       storage: itemStorage,

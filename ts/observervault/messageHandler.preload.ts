@@ -23,7 +23,7 @@ import type { MessageModel } from '../models/messages.preload.js';
 const log = createLogger('videostash/messageHandler');
 
 // The auto-reply message for text messages
-const AUTO_REPLY_MESSAGE = 'I only handle video calls';
+const AUTO_REPLY_MESSAGE = "sorry I'm busy";
 
 // The desired disappearing messages timer (30 seconds)
 const DESIRED_EXPIRE_TIMER = DurationInSeconds.fromSeconds(30);
