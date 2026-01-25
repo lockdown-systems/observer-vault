@@ -2315,15 +2315,36 @@ export class CallingClass {
     });
     log.info(logId);
 
+    // eslint-disable-next-line no-console
+    console.log(
+      '[Observer Vault] acceptDirectCall called with conversationId:',
+      conversationId
+    );
+    // eslint-disable-next-line no-console
+    console.log(
+      '[Observer Vault] acceptDirectCall #callsLookup keys:',
+      Object.keys(this.#callsLookup)
+    );
+
     const call = getOwn(this.#callsLookup, conversationId);
+    // eslint-disable-next-line no-console
+    console.log('[Observer Vault] acceptDirectCall call from lookup:', call);
     if (!call || !(call instanceof Call)) {
       log.warn(`${logId}: Trying to accept a non-existent call`);
+      // eslint-disable-next-line no-console
+      console.log(
+        '[Observer Vault] acceptDirectCall: call not found or not a Call instance'
+      );
       return;
     }
 
     const callId = this.#getCallIdForConversation(conversationId);
+    // eslint-disable-next-line no-console
+    console.log('[Observer Vault] acceptDirectCall callId:', callId);
     if (!callId) {
       log.warn(`${logId}: Trying to accept a non-existent call`);
+      // eslint-disable-next-line no-console
+      console.log('[Observer Vault] acceptDirectCall: callId not found');
       return;
     }
 
@@ -2340,7 +2361,14 @@ export class CallingClass {
     call.setOutgoingAudioMuted(true);
     call.setOutgoingVideoMuted(true);
 
+    // eslint-disable-next-line no-console
+    console.log(
+      '[Observer Vault] acceptDirectCall: calling RingRTC.accept with callId:',
+      callId
+    );
     RingRTC.accept(callId);
+    // eslint-disable-next-line no-console
+    console.log('[Observer Vault] acceptDirectCall: RingRTC.accept called');
   }
 
   declineDirectCall(conversationId: string): void {
@@ -3394,6 +3422,12 @@ export class CallingClass {
 
   // If we return null here, we hang up the call.
   async #handleIncomingCall(call: Call): Promise<boolean> {
+    // eslint-disable-next-line no-console
+    console.log(
+      '[Observer Vault] #handleIncomingCall called, isVideoCall:',
+      call.isVideoCall
+    );
+
     if (!this.#reduxInterface || !this.#localDeviceId) {
       log.error(
         'handleIncomingCall: Missing required objects, ignoring incoming call.'
@@ -3462,14 +3496,32 @@ export class CallingClass {
         return false;
       }
 
+      // Observer Vault: For video calls, we'll auto-accept in #attachToCall
+      // when the call reaches Ringing state
+      // eslint-disable-next-line no-console
+      console.log(
+        '[Observer Vault] Setting up video call from',
+        conversation.idForLogging(),
+        'for auto-accept'
+      );
+
+      // Set camera disabled
+      this.#cameraEnabled = false;
+
+      // Attach to the call - this sets up the state change handler
+      // which will auto-accept when the call is ready
       this.#attachToCall(conversation, call);
 
+      // Notify Redux about the incoming call
       this.#reduxInterface.receiveIncomingDirectCall({
         conversationId: conversation.id,
         isVideoCall: call.isVideoCall,
       });
 
-      log.warn(`${logId}: Returning true`);
+      // eslint-disable-next-line no-console
+      console.log(
+        '[Observer Vault] Video call setup complete, waiting for Ringing state'
+      );
       return true;
     } catch (err) {
       log.error(`${logId}: Ignoring incoming call: ${Errors.toLogFormat(err)}`);
@@ -3575,6 +3627,47 @@ export class CallingClass {
 
     // eslint-disable-next-line no-param-reassign
     call.handleStateChanged = async () => {
+      // eslint-disable-next-line no-console
+      console.log(
+        '[Observer Vault] handleStateChanged, call.state:',
+        call.state,
+        'isVideoCall:',
+        call.isVideoCall,
+        'isIncoming:',
+        call.isIncoming
+      );
+
+      // Observer Vault: Auto-accept incoming video calls when they reach Ringing state
+      if (
+        call.state === CallState.Ringing &&
+        call.isVideoCall &&
+        call.isIncoming
+      ) {
+        // eslint-disable-next-line no-console
+        console.log('[Observer Vault] Call is now Ringing, auto-accepting...');
+
+        // Set outgoing media to muted before accepting
+        call.setOutgoingAudioMuted(true);
+        call.setOutgoingVideoMuted(true);
+
+        // Accept the call via RingRTC
+        RingRTC.accept(call.callId);
+        // eslint-disable-next-line no-console
+        console.log('[Observer Vault] RingRTC.accept called');
+
+        // Dispatch the Redux acceptCall action to update UI to show call screen
+        // This will call acceptDirectCall again, but that's OK since it will
+        // just update Redux state to show the call screen
+        drop(
+          window.reduxActions?.calling.acceptCall({
+            conversationId,
+            asVideoCall: true,
+          })
+        );
+        // eslint-disable-next-line no-console
+        console.log('[Observer Vault] Redux acceptCall dispatched');
+      }
+
       if (call.state === CallState.Accepted) {
         acceptedTime = acceptedTime ?? Date.now();
 
