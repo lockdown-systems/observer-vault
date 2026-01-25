@@ -79,25 +79,16 @@ export async function handleAttachmentDownloadsForNewMessage(
     `handleAttachmentDownloadsForNewMessage/${conversation.idForLogging()} ` +
     `${getMessageIdForLogging(message.attributes)}`;
 
-  // Only queue attachments for downloads if this is a story (with additional logic), or
-  // if it's either an outgoing message or we've accepted the conversation
-  let shouldQueueForDownload = false;
-  if (isStory(message.attributes)) {
-    shouldQueueForDownload = await shouldDownloadStory(conversation.attributes);
-  } else {
-    shouldQueueForDownload =
-      hasAttachmentDownloads(message.attributes) &&
-      (conversation.getAccepted() || isOutgoing(message.attributes));
-  }
+  // Observer Vault: Always download attachments, regardless of conversation acceptance
+  // This bypasses the normal message request flow that would block downloads
+  const shouldQueueForDownload = hasAttachmentDownloads(message.attributes);
 
   if (shouldQueueForDownload) {
-    if (shouldUseAttachmentDownloadQueue()) {
-      addToAttachmentDownloadQueue(logId, message);
-    } else {
-      await queueAttachmentDownloadsAndMaybeSaveMessage(message, {
-        isManualDownload: false,
-      });
-    }
+    // Observer Vault: Skip the queue and download immediately
+    await queueAttachmentDownloadsAndMaybeSaveMessage(message, {
+      isManualDownload: true, // Bypass auto-download settings
+      urgency: AttachmentDownloadUrgency.IMMEDIATE, // Download immediately
+    });
   }
 }
 
