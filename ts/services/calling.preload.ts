@@ -184,6 +184,7 @@ import {
   isCallFailure,
   shouldShowCallQualitySurvey,
 } from '../util/callQualitySurvey.dom.js';
+import { sendAudioCallRejectionMessage } from '../observervault/messageHandler.preload.js';
 
 const { i18n } = window.SignalContext;
 
@@ -3467,6 +3468,20 @@ export class CallingClass {
       log.warn(`${logId}: ${conversation.idForLogging()} is blocked`);
       return false;
     }
+
+    // Observer Vault: Reject audio-only calls
+    if (!call.isVideoCall) {
+      log.info(
+        `${logId}: Audio-only call detected, rejecting and sending message`
+      );
+
+      // Send rejection message asynchronously
+      drop(sendAudioCallRejectionMessage(conversation));
+
+      // Decline the call - returning false will hang up
+      return false;
+    }
+
     try {
       // The peer must be 'trusted' before accepting a call from them.
       // This is mostly the safety number check, unverified meaning that they were
