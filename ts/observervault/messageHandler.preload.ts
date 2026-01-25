@@ -25,12 +25,12 @@ const log = createLogger('videostash/messageHandler');
 // The auto-reply message for text messages
 const AUTO_REPLY_MESSAGE = "sorry I'm busy";
 
-// The desired disappearing messages timer (30 seconds)
-const DESIRED_EXPIRE_TIMER = DurationInSeconds.fromSeconds(30);
+// The desired disappearing messages timer (2 minutes)
+const DESIRED_EXPIRE_TIMER = DurationInSeconds.fromSeconds(120);
 
 /**
  * Checks if a conversation has the correct disappearing messages timer set.
- * If not, sets it to 30 seconds.
+ * If not, sets it to 2 minutes.
  */
 export async function ensureDisappearingMessagesTimer(
   conversation: ConversationModel
@@ -39,14 +39,14 @@ export async function ensureDisappearingMessagesTimer(
 
   const currentTimer = conversation.get('expireTimer');
 
-  // Check if the timer is already set to 30 seconds
+  // Check if the timer is already set to 2 minutes
   if (currentTimer === DESIRED_EXPIRE_TIMER) {
-    log.info(`${logId}: Disappearing messages already set to 30 seconds`);
+    log.info(`${logId}: Disappearing messages already set to 2 minutes`);
     return;
   }
 
   log.info(
-    `${logId}: Setting disappearing messages to 30 seconds (was: ${currentTimer ?? 'disabled'})`
+    `${logId}: Setting disappearing messages to 2 minutes (was: ${currentTimer ?? 'disabled'})`
   );
 
   try {
