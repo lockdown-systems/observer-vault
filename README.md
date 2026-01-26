@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="build/icons/png/256x256.png" alt="Observer Vault Logo" width="256" height="256">
+</p>
+
 # Observer Vault
 
 Observer Vault is a fork of [Signal Desktop](https://github.com/signalapp/Signal-Desktop).
