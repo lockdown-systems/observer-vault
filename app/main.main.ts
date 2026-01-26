@@ -2142,6 +2142,41 @@ app.on('ready', async () => {
     );
   }
 
+  // [Observer Vault] Check for screen recording permission on macOS
+  // This is required for electron-audio-loopback to capture system audio
+  if (OS.isMacOS()) {
+    const screenStatus = systemPreferences.getMediaAccessStatus('screen');
+    log.info(
+      `[Observer Vault] Screen recording permission status: ${screenStatus}`
+    );
+
+    if (screenStatus !== 'granted') {
+      log.info(
+        '[Observer Vault] Screen recording permission not granted, prompting user'
+      );
+
+      const result = await dialog.showMessageBox({
+        type: 'warning',
+        title: 'Observer Vault - Permission Required',
+        message: 'Screen Recording Permission Required',
+        detail:
+          'Observer Vault needs Screen Recording permission to capture audio during calls.\n\n' +
+          'Please grant permission in System Settings > Privacy & Security > Screen Recording, ' +
+          'then restart Observer Vault.',
+        buttons: ['Open System Settings', 'Continue Anyway'],
+        defaultId: 0,
+        cancelId: 1,
+      });
+
+      if (result.response === 0) {
+        // Open System Settings to Screen Recording
+        await shell.openExternal(
+          'x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture'
+        );
+      }
+    }
+  }
+
   GlobalErrors.updateLocale(resolvedTranslationsLocale);
 
   // If the sql initialization takes more than three seconds to complete, we
