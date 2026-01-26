@@ -124,8 +124,13 @@ class CallRecorder {
 
   /**
    * Start recording
+   * @param conversationId - The conversation ID for the recording
+   * @param audioTrack - Optional audio track to include (from loopback audio)
    */
-  async startRecording(conversationId: string): Promise<string | null> {
+  async startRecording(
+    conversationId: string,
+    audioTrack?: MediaStreamAudioTrack
+  ): Promise<string | null> {
     if (this.state.isRecording) {
       log.warn('Already recording, ignoring start request');
       return this.state.filenameBase;
@@ -150,7 +155,7 @@ class CallRecorder {
         output: null,
         videoSource: null,
         audioSource: null,
-        audioTrack: null,
+        audioTrack: audioTrack ?? null,
         frameCount: 0,
         width: 0,
         height: 0,
@@ -159,41 +164,21 @@ class CallRecorder {
         conversationId,
         hasEverHadVideo: false,
         currentlyHasVideo: false,
-        hasAudioTrack: false,
+        hasAudioTrack: audioTrack != null,
         blackFrameTimer: null,
       };
 
       // eslint-disable-next-line no-console
       console.log(`[Observer Vault] Recording started: ${filenameBasePath}`);
+      if (audioTrack) {
+        log.info('Audio track provided at recording start');
+      }
 
       return filenameBasePath;
     } catch (err) {
       log.error('Failed to start recording:', err);
       return null;
     }
-  }
-
-  /**
-   * Set the audio track from electron-audio-loopback
-   * Should be called after startRecording when loopback audio is available
-   */
-  async setAudioTrack(track: MediaStreamAudioTrack): Promise<void> {
-    if (!this.state.isRecording) {
-      log.warn('Not recording, cannot set audio track');
-      return;
-    }
-
-    if (this.state.audioTrack) {
-      log.warn('Audio track already set, ignoring');
-      return;
-    }
-
-    log.info('Setting audio track from loopback');
-    this.state.audioTrack = track;
-    this.state.hasAudioTrack = true;
-
-    // Note: The actual audioSource will be created when we initialize the encoder
-    // because we need to know if we're creating MP4 (with video) or MP3 (audio-only)
   }
 
   /**

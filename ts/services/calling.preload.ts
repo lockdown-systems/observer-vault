@@ -3671,35 +3671,44 @@ export class CallingClass {
           await this.enableCaptureAndSend(call);
         }
 
-        // [Observer Vault] Start recording for all calls (audio and video)
-        // eslint-disable-next-line no-console
-        console.log(
-          `[Observer Vault] ${call.isVideoCall ? 'Video' : 'Audio'} call accepted, starting recording`
-        );
-        await callRecorder.startRecording(conversationId);
-
-        // [Observer Vault] Start loopback audio capture
+        // [Observer Vault] Start loopback audio capture FIRST (before recording)
+        // This ensures the audio track is available when the encoder initializes
+        // The audio track MUST be passed to startRecording atomically to avoid
+        // race conditions where frames arrive before the track is set
         try {
           // eslint-disable-next-line no-console
           console.log('[Observer Vault] Starting loopback audio capture...');
           currentLoopbackStream = await getLoopbackAudioMediaStream();
           const audioTracks = currentLoopbackStream.getAudioTracks();
           if (audioTracks.length > 0) {
-            await callRecorder.setAudioTrack(
+            // eslint-disable-next-line no-console
+            console.log(
+              '[Observer Vault] Loopback audio stream acquired, starting recording with audio...'
+            );
+            // Start recording with audio track - pass it directly to avoid race condition
+            await callRecorder.startRecording(
+              conversationId,
               audioTracks[0] as MediaStreamAudioTrack
             );
             // eslint-disable-next-line no-console
-            console.log('[Observer Vault] Loopback audio track connected');
+            console.log(
+              '[Observer Vault] Recording started with loopback audio'
+            );
           } else {
             // eslint-disable-next-line no-console
-            console.warn('[Observer Vault] No audio tracks in loopback stream');
+            console.warn(
+              '[Observer Vault] No audio tracks in loopback stream, starting video-only recording'
+            );
+            await callRecorder.startRecording(conversationId);
           }
         } catch (loopbackError) {
           // eslint-disable-next-line no-console
           console.error(
-            '[Observer Vault] Failed to start loopback audio:',
+            '[Observer Vault] Failed to start loopback audio, starting video-only recording:',
             loopbackError
           );
+          // Start recording without audio
+          await callRecorder.startRecording(conversationId);
         }
 
         // [Observer Vault] Set initial video state for video calls
