@@ -30,6 +30,7 @@ import {
   protocol as electronProtocol,
 } from 'electron';
 import type { MenuItemConstructorOptions, Settings } from 'electron';
+import { initMain as initAudioLoopback } from 'electron-audio-loopback';
 import { z } from 'zod';
 
 import {
@@ -1952,6 +1953,12 @@ electronProtocol.registerSchemesAsPrivileged([
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
+
+// Initialize electron-audio-loopback for system audio capture during calls
+// This must be called before app is ready
+initAudioLoopback();
+log.info('electron-audio-loopback initialized');
+
 let ready = false;
 app.on('ready', async () => {
   dns.setFallback(await getDNSFallback());
