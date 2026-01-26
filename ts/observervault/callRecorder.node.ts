@@ -99,6 +99,12 @@ type RecordingState = {
   hasAudioTrack: boolean; // True if we have an audio track connected
   // Black frame timer
   blackFrameTimer: ReturnType<typeof setInterval> | null;
+  // For audio calls: backup video+audio recording in case camera is enabled
+  backupVideoOutput: Output | null;
+  backupVideoSource: VideoSampleSource | null;
+  backupAudioSource: MediaStreamAudioTrackSource | null;
+  backupBlackFrameTimer: ReturnType<typeof setInterval> | null;
+  isAudioCallWithBackup: boolean; // True if this is an audio call with backup video
 };
 
 class CallRecorder {
@@ -119,6 +125,11 @@ class CallRecorder {
     currentlyHasVideo: false,
     hasAudioTrack: false,
     blackFrameTimer: null,
+    backupVideoOutput: null,
+    backupVideoSource: null,
+    backupAudioSource: null,
+    backupBlackFrameTimer: null,
+    isAudioCallWithBackup: false,
   };
 
   /**
@@ -167,6 +178,11 @@ class CallRecorder {
         currentlyHasVideo: false,
         hasAudioTrack: audioTrack != null,
         blackFrameTimer: null,
+        backupVideoOutput: null,
+        backupVideoSource: null,
+        backupAudioSource: null,
+        backupBlackFrameTimer: null,
+        isAudioCallWithBackup: false,
       };
 
       // eslint-disable-next-line no-console
@@ -176,8 +192,7 @@ class CallRecorder {
       }
 
       // For audio-only calls, initialize the audio encoder immediately
-      // This is critical because we won't receive any video frames to trigger
-      // encoder init, and the audio track will be ended by stopRecording time
+      // AND start a backup video+audio encoder in case camera is enabled later
       if (!isVideoCall && audioTrack) {
         log.info('Audio-only call detected, initializing audio encoder now');
         const success = await this.initializeAudioOnlyEncoder();
@@ -186,6 +201,11 @@ class CallRecorder {
           this.resetState();
           return null;
         }
+
+        // Also start a backup video+audio recording with black frames
+        // in case the camera is enabled mid-call
+        log.info('Starting backup video+audio recording for potential camera');
+        await this.initializeBackupVideoRecording();
       }
 
       return filenameBasePath;
@@ -363,6 +383,128 @@ class CallRecorder {
   }
 
   /**
+   * Initialize backup video+audio recording for audio calls
+   * This runs in parallel with the audio-only recording in case camera is enabled
+   */
+  private async initializeBackupVideoRecording(): Promise<boolean> {
+    if (!this.state.audioTrack) {
+      log.error('Cannot initialize backup video without audio track');
+      return false;
+    }
+
+    log.info('Initializing backup video+audio encoder with black frames');
+
+    try {
+      // Create video sample source
+      const videoSource = new VideoSampleSource({
+        codec: 'avc', // H.264
+        bitrate: VIDEO_BITRATE,
+        sizeChangeBehavior: 'contain',
+      });
+
+      // Create a SEPARATE audio source for the backup (can't share)
+      // Note: This is a limitation - we create a second audio source from
+      // the same track. mediabunny should handle this.
+      const audioSource = new MediaStreamAudioTrackSource(
+        this.state.audioTrack,
+        {
+          codec: 'aac',
+          bitrate: AUDIO_BITRATE,
+        }
+      );
+
+      // Create the output with MP4 format
+      const output = new Output({
+        format: new Mp4OutputFormat(),
+        target: new BufferTarget(),
+      });
+
+      // Add both tracks
+      output.addVideoTrack(videoSource, { frameRate: TARGET_FPS });
+      output.addAudioTrack(audioSource);
+
+      // Start the output
+      await output.start();
+
+      this.state.backupVideoOutput = output;
+      this.state.backupVideoSource = videoSource;
+      this.state.backupAudioSource = audioSource;
+      this.state.isAudioCallWithBackup = true;
+
+      log.info('Backup video+audio encoder initialized successfully');
+
+      // Start generating black frames for the backup
+      this.startBackupBlackFrameTimer();
+
+      return true;
+    } catch (err) {
+      log.error('Failed to initialize backup video encoder:', err);
+      return false;
+    }
+  }
+
+  /**
+   * Start generating black frames for the backup video recording
+   */
+  private startBackupBlackFrameTimer(): void {
+    if (this.state.backupBlackFrameTimer) {
+      return; // Already running
+    }
+
+    const width = DEFAULT_WIDTH;
+    const height = DEFAULT_HEIGHT;
+    const blackFrame = generateBlackFrame(width, height);
+
+    log.info('Starting black frame generation for backup video recording');
+
+    this.state.backupBlackFrameTimer = setInterval(() => {
+      if (this.state.backupVideoSource && !this.state.hasEverHadVideo) {
+        void this.addFrameToBackup(blackFrame, width, height);
+      }
+    }, BLACK_FRAME_INTERVAL_MS);
+  }
+
+  /**
+   * Stop backup black frame timer
+   */
+  private stopBackupBlackFrameTimer(): void {
+    if (this.state.backupBlackFrameTimer) {
+      clearInterval(this.state.backupBlackFrameTimer);
+      this.state.backupBlackFrameTimer = null;
+    }
+  }
+
+  /**
+   * Add a frame to the backup video recording
+   */
+  private async addFrameToBackup(
+    rgbaData: Uint8Array,
+    width: number,
+    height: number
+  ): Promise<void> {
+    if (!this.state.backupVideoSource) {
+      return;
+    }
+
+    try {
+      const timestampSec = (Date.now() - this.state.startTime) / 1000;
+
+      const videoSample = new VideoSample(rgbaData, {
+        format: 'RGBA',
+        codedWidth: width,
+        codedHeight: height,
+        timestamp: timestampSec,
+        duration: FRAME_DURATION_SEC,
+      });
+
+      await this.state.backupVideoSource.add(videoSample);
+      videoSample.close();
+    } catch (err) {
+      // Silently ignore errors for backup frames
+    }
+  }
+
+  /**
    * Add a video frame to the recording
    * @param rgbaData - Raw RGBA pixel data
    * @param width - Frame width
@@ -385,6 +527,18 @@ class CallRecorder {
       this.state.currentlyHasVideo = true;
       // Stop black frame timer if it was running
       this.stopBlackFrameTimer();
+      // Stop backup black frame timer - we have real video now
+      this.stopBackupBlackFrameTimer();
+    }
+
+    // For audio calls with backup, when we receive real video,
+    // add frames to the backup video recording instead of trying
+    // to initialize the main audio-only output with video
+    if (this.state.isAudioCallWithBackup && this.state.backupVideoSource) {
+      // Send frame to backup recording
+      await this.addFrameToBackup(rgbaData, width, height);
+      this.state.frameCount += 1;
+      return;
     }
 
     // Initialize encoder on first frame with actual dimensions
@@ -479,6 +633,57 @@ class CallRecorder {
       `Stopping recording: ${frameCount} frames, ${duration.toFixed(1)}s, hasVideo=${hasEverHadVideo}, hasAudio=${hasAudioTrack}`
     );
 
+    // Stop backup black frame timer
+    this.stopBackupBlackFrameTimer();
+
+    // For audio calls with backup: choose which recording to save
+    if (this.state.isAudioCallWithBackup) {
+      if (hasEverHadVideo && this.state.backupVideoOutput) {
+        // Camera was enabled - save the video+audio backup, discard audio-only
+        log.info(
+          'Audio call had video enabled, saving video+audio backup recording'
+        );
+
+        const extension = '.mp4';
+        const filePath = filenameBase ? `${filenameBase}${extension}` : null;
+
+        try {
+          // Finalize the backup video output
+          await this.state.backupVideoOutput.finalize();
+
+          // Discard the primary audio-only output (don't finalize, just abandon)
+          // The output will be garbage collected
+
+          // Get the buffer and write to file
+          const target = this.state.backupVideoOutput.target as BufferTarget;
+          if (target.buffer && filePath) {
+            writeFileSync(filePath, Buffer.from(target.buffer));
+            log.info(`Recording saved: ${filePath}`);
+          }
+
+          // eslint-disable-next-line no-console
+          console.log(
+            `[Observer Vault] Recording saved: ${filePath} ` +
+              `(${frameCount} frames, ${duration.toFixed(1)}s)`
+          );
+
+          this.resetState();
+          return filePath;
+        } catch (err) {
+          log.error('Error stopping backup recording:', err);
+          this.resetState();
+          return filePath;
+        }
+      } else {
+        // Camera was never enabled - save the audio-only, discard video backup
+        log.info(
+          'Audio call had no video, saving audio-only, discarding backup'
+        );
+        // The backup will be discarded when we reset state
+        // Continue with normal audio-only finalization below
+      }
+    }
+
     // If we have audio but no video, and encoder wasn't initialized yet, do it now
     if (!this.state.output && hasAudioTrack && !hasEverHadVideo) {
       const success = await this.initializeAudioOnlyEncoder();
@@ -531,6 +736,7 @@ class CallRecorder {
    */
   private resetState(): void {
     this.stopBlackFrameTimer();
+    this.stopBackupBlackFrameTimer();
     this.state = {
       isRecording: false,
       filenameBase: null,
@@ -548,6 +754,12 @@ class CallRecorder {
       currentlyHasVideo: false,
       hasAudioTrack: false,
       blackFrameTimer: null,
+      // Backup recording fields
+      backupVideoOutput: null,
+      backupVideoSource: null,
+      backupAudioSource: null,
+      backupBlackFrameTimer: null,
+      isAudioCallWithBackup: false,
     };
   }
 
