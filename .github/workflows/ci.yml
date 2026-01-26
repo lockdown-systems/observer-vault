@@ -17,7 +17,7 @@ jobs:
     steps:
     - run: lsb_release -a
     - run: uname -a
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: Setup pnpm
       uses: pnpm/action-setup@v4
     - name: Setup node.js
@@ -74,7 +74,7 @@ jobs:
 
     steps:
     - run: uname -a
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: Setup pnpm
       uses: pnpm/action-setup@v4
     - name: Setup node.js
@@ -126,7 +126,7 @@ jobs:
     steps:
     - run: lsb_release -a
     - run: uname -a
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: Setup pnpm
       uses: pnpm/action-setup@v4
     - name: Setup node.js
@@ -198,7 +198,7 @@ jobs:
     - run: systeminfo
     - run: git config --global core.autocrlf false
     - run: git config --global core.eol lf
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: Setup pnpm
       uses: pnpm/action-setup@v4
     - name: Setup node.js
@@ -263,7 +263,7 @@ jobs:
         working-directory: sticker-creator
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: Setup pnpm
       uses: pnpm/action-setup@v4
     - name: Setup node.js
