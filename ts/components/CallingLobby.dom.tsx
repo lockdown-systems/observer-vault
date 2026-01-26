@@ -160,16 +160,8 @@ export function CallingLobby({
     isAdhocJoinRequestPending || false
   );
 
-  // eslint-disable-next-line no-nested-ternary
-  const videoButtonType = hasLocalVideo
-    ? CallingButtonType.VIDEO_ON
-    : availableCameras.length === 0
-      ? CallingButtonType.VIDEO_DISABLED
-      : CallingButtonType.VIDEO_OFF;
-
-  const audioButtonType = hasLocalAudio
-    ? CallingButtonType.AUDIO_ON
-    : CallingButtonType.AUDIO_OFF;
+  // Observer Vault: Video and audio buttons removed from UI
+  // videoButtonType and audioButtonType are intentionally not computed
 
   const isRingButtonVisible: boolean =
     isGroupOrAdhocCall &&
@@ -342,7 +334,7 @@ export function CallingLobby({
               <div className="CallControls__Status">{callStatus}</div>
             </div>
             <div className="CallControls__ButtonContainer">
-              {/* Observer Vault: Video and audio buttons removed - we don't use camera/mic */}
+              {/* Observer Vault: Video/audio buttons removed */}
               <CallingButton
                 buttonType={ringButtonType}
                 i18n={i18n}

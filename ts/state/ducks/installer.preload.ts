@@ -9,7 +9,7 @@ import {
   InstallScreenStep,
   InstallScreenError,
   InstallScreenBackupStep,
-  InstallScreenBackupError,
+  type InstallScreenBackupError,
 } from '../../types/InstallScreen.std.js';
 import * as Errors from '../../types/errors.std.js';
 import { strictAssert } from '../../util/assert.std.js';

@@ -241,14 +241,16 @@ export function LeftPane({
   hasNetworkDialog,
   hasPendingUpdate,
   hasRelinkDialog,
-  hasUpdateDialog,
+  // Observer Vault: Update dialog removed
+  hasUpdateDialog: _hasUpdateDialog,
   i18n,
   lookupConversationWithoutServiceId,
   isMacOS,
   isNotificationProfileActive,
   isChatFoldersEnabled,
   isOnline,
-  isUpdateDownloaded,
+  // Observer Vault: Update dialog removed
+  isUpdateDownloaded: _isUpdateDownloaded,
   modeSpecificProps,
   navTabsCollapsed,
   onChatFoldersOpenSettings,
@@ -270,7 +272,8 @@ export function LeftPane({
   renderNotificationProfilesMenu,
   renderUnsupportedOSDialog,
   renderRelinkDialog,
-  renderUpdateDialog,
+  // Observer Vault: Update dialog removed
+  renderUpdateDialog: _renderUpdateDialog,
   renderToastManager,
   resumeBackupMediaDownload,
   saveAlerts,

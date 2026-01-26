@@ -57,7 +57,7 @@ export function InstallScreenCaptchaStep({
 
       <div className="module-InstallScreenCaptchaStep__card">
         <h1 className="module-InstallScreenCaptchaStep__title">
-          Verify you're human
+          Verify you&apos;re human
         </h1>
         <p className="module-InstallScreenCaptchaStep__description">
           Complete a captcha challenge to continue registration for{' '}
@@ -74,7 +74,8 @@ export function InstallScreenCaptchaStep({
           <div className="module-InstallScreenCaptchaStep__waiting">
             <Spinner size="36px" svgSize="normal" />
             <span className="module-InstallScreenCaptchaStep__waiting-text">
-              Complete the captcha in your browser, then click "Open Signal"
+              Complete the captcha in your browser, then click &quot;Open
+              Signal&quot;
             </span>
           </div>
         ) : null}
@@ -97,8 +98,8 @@ export function InstallScreenCaptchaStep({
         </div>
 
         <p className="module-InstallScreenCaptchaStep__hint">
-          After completing the captcha, click the "Open Signal" link to return
-          here.
+          After completing the captcha, click the &quot;Open Signal&quot; link
+          to return here.
         </p>
       </div>
     </div>

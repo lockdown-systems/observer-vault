@@ -141,6 +141,7 @@ export async function downloadAllAttachments(
   const savedFiles: Array<string> = [];
 
   while (Date.now() - startTime < MAX_DOWNLOAD_WAIT_MS) {
+    // eslint-disable-next-line no-await-in-loop
     const updatedMessage = await getMessageById(messageId);
     if (!updatedMessage) {
       // eslint-disable-next-line no-console
@@ -171,6 +172,7 @@ export async function downloadAllAttachments(
           `[Observer Vault] ${logId}: Loading decrypted data from ${attachment.path}`
         );
 
+        // eslint-disable-next-line no-await-in-loop
         const attachmentWithData = await loadAttachmentData(attachment);
 
         if (!attachmentWithData.data) {
@@ -198,6 +200,7 @@ export async function downloadAllAttachments(
           `[Observer Vault] ${logId}: Saving to Downloads as ${uniqueName}`
         );
 
+        // eslint-disable-next-line no-await-in-loop
         const result = await saveAttachmentToDisk({
           data: attachmentWithData.data,
           name: uniqueName,
@@ -233,6 +236,7 @@ export async function downloadAllAttachments(
       break;
     }
 
+    // eslint-disable-next-line no-await-in-loop
     await sleep(DOWNLOAD_POLL_MS);
   }
 

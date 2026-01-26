@@ -37,13 +37,12 @@ import { AttachmentDownloadManager } from '../jobs/AttachmentDownloadManager.pre
 import { AttachmentDownloadSource } from '../sql/Interface.std.js';
 import type { MessageModel } from '../models/messages.preload.js';
 import type { ConversationModel } from '../models/conversations.preload.js';
-import { isOutgoing, isStory } from '../messages/helpers.std.js';
-import { shouldDownloadStory } from './shouldDownloadStory.preload.js';
 import { hasAttachmentDownloads } from './hasAttachmentDownloads.std.js';
-import {
-  addToAttachmentDownloadQueue,
-  shouldUseAttachmentDownloadQueue,
-} from './attachmentDownloadQueue.preload.js';
+// Observer Vault: Queue not used, attachments downloaded immediately
+// import {
+//   addToAttachmentDownloadQueue,
+//   shouldUseAttachmentDownloadQueue,
+// } from './attachmentDownloadQueue.preload.js';
 import { queueUpdateMessage } from './messageBatcher.preload.js';
 import type { LoggerType } from '../types/Logging.std.js';
 import {
@@ -73,12 +72,9 @@ function getLogger(source: AttachmentDownloadSource) {
 
 export async function handleAttachmentDownloadsForNewMessage(
   message: MessageModel,
-  conversation: ConversationModel
+  // Observer Vault: conversation parameter unused since we always download
+  _conversation: ConversationModel
 ): Promise<void> {
-  const logId =
-    `handleAttachmentDownloadsForNewMessage/${conversation.idForLogging()} ` +
-    `${getMessageIdForLogging(message.attributes)}`;
-
   // Observer Vault: Always download attachments, regardless of conversation acceptance
   // This bypasses the normal message request flow that would block downloads
   const shouldQueueForDownload = hasAttachmentDownloads(message.attributes);

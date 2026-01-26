@@ -14,13 +14,14 @@ import type {
   UserNotFoundModalStateType,
 } from '../state/ducks/globalModals.preload.js';
 import type { LocalizerType, ThemeType } from '../types/Util.std.js';
-import { UsernameOnboardingState } from '../types/globalModals.std.js';
+import type { UsernameOnboardingState } from '../types/globalModals.std.js';
 import { missingCaseError } from '../util/missingCaseError.std.js';
 
 import { ButtonVariant } from './Button.dom.js';
 import { ConfirmationDialog } from './ConfirmationDialog.dom.js';
 import { SignalConnectionsModal } from './SignalConnectionsModal.dom.js';
-import { WhatsNewModal } from './WhatsNewModal.dom.js';
+// Observer Vault: WhatsNewModal removed
+// import { WhatsNewModal } from './WhatsNewModal.dom.js';
 import { MediaPermissionsModal } from './MediaPermissionsModal.dom.js';
 import type { StartCallData } from './ConfirmLeaveCallModal.dom.js';
 import {
@@ -252,12 +253,12 @@ export function GlobalModalContainer({
   // UserNotFoundModal
   hideUserNotFoundModal,
   userNotFoundModalState,
-  // WhatsNewModal
-  hideWhatsNewModal,
-  isWhatsNewVisible,
-  // UsernameOnboarding
-  usernameOnboardingState,
-  renderUsernameOnboarding,
+  // WhatsNewModal - Observer Vault: removed
+  hideWhatsNewModal: _hideWhatsNewModal,
+  isWhatsNewVisible: _isWhatsNewVisible,
+  // UsernameOnboarding - Observer Vault: removed
+  usernameOnboardingState: _usernameOnboardingState,
+  renderUsernameOnboarding: _renderUsernameOnboarding,
   // ProfileNameWarningModal
   isProfileNameWarningModalVisible,
   renderProfileNameWarningModal,

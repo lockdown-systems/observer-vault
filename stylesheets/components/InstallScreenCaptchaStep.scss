@@ -42,7 +42,8 @@
   &__title {
     @include mixins.font-title-1;
     color: variables.$color-black;
-    margin: 0 0 12px;
+    margin-block: 0 12px;
+    margin-inline: 0;
 
     @include mixins.dark-theme {
       color: variables.$color-white;
@@ -52,7 +53,8 @@
   &__description {
     @include mixins.font-body-1;
     color: variables.$color-gray-60;
-    margin: 0 0 32px;
+    margin-block: 0 32px;
+    margin-inline: 0;
     line-height: 1.5;
 
     @include mixins.dark-theme {
@@ -63,7 +65,8 @@
   &__error {
     @include mixins.font-body-2;
     color: variables.$color-accent-red;
-    padding: 12px 16px;
+    padding-block: 12px;
+    padding-inline: 16px;
     background: rgba(variables.$color-accent-red, 0.1);
     border-radius: 8px;
     text-align: center;
@@ -101,7 +104,8 @@
 
     .module-Button {
       width: 100%;
-      padding: 14px 24px;
+      padding-block: 14px;
+      padding-inline: 24px;
       font-size: 16px;
       font-weight: 600;
       border-radius: 12px;

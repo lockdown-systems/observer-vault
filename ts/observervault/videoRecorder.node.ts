@@ -15,8 +15,8 @@ import {
   VideoSampleSource,
   VideoSample,
 } from 'mediabunny';
-import { join } from 'path';
-import { writeFileSync, mkdirSync, existsSync } from 'fs';
+import { join } from 'node:path';
+import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { createLogger } from '../logging/log.std.js';
 
 const log = createLogger('ObserverVault.VideoRecorder');
@@ -24,7 +24,7 @@ const log = createLogger('ObserverVault.VideoRecorder');
 // Recording configuration
 const TARGET_FPS = 30;
 const FRAME_DURATION_SEC = 1 / TARGET_FPS;
-// High bitrate for maximum quality: 10 Mbps (good for 1080p, overkill for lower res but ensures quality)
+// High bitrate for max quality: 10 Mbps (good for 1080p)
 const VIDEO_BITRATE = 10_000_000;
 
 // Get the downloads directory
@@ -52,7 +52,7 @@ function generateFilename(conversationId: string): string {
   return `call_${timestamp}_${sanitizedConvId}.mp4`;
 }
 
-interface RecordingState {
+type RecordingState = {
   isRecording: boolean;
   filePath: string | null;
   output: Output | null;
@@ -63,7 +63,7 @@ interface RecordingState {
   startTime: number;
   lastFrameTime: number;
   conversationId: string;
-}
+};
 
 class VideoRecorder {
   private state: RecordingState = {
@@ -238,7 +238,7 @@ class VideoRecorder {
       // Close the sample to free memory
       videoSample.close();
 
-      this.state.frameCount++;
+      this.state.frameCount += 1;
 
       // Log progress periodically
       if (this.state.frameCount % 300 === 0) {
@@ -262,9 +262,8 @@ class VideoRecorder {
       return null;
     }
 
-    const filePath = this.state.filePath;
-    const frameCount = this.state.frameCount;
-    const duration = (Date.now() - this.state.startTime) / 1000;
+    const { filePath, frameCount, startTime } = this.state;
+    const duration = (Date.now() - startTime) / 1000;
 
     log.info(
       `Stopping recording: ${frameCount} frames, ${duration.toFixed(1)}s`

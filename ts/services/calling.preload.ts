@@ -110,7 +110,7 @@ import {
 } from '../textsecure/WebAPI.preload.js';
 import { missingCaseError } from '../util/missingCaseError.std.js';
 import { normalizeGroupCallTimestamp } from '../util/ringrtc/normalizeGroupCallTimestamp.std.js';
-import { requestCameraPermissions } from '../util/callingPermissions.dom.js';
+import { requestCameraPermissions } from '../util/callingPermissions.std.js';
 import {
   AUDIO_LEVEL_INTERVAL_MS,
   REQUESTED_VIDEO_WIDTH,
@@ -123,7 +123,7 @@ import {
   REQUESTED_SCREEN_SHARE_FRAMERATE,
 } from '../calling/constants.std.js';
 import { callingMessageToProto } from '../util/callingMessageToProto.node.js';
-import { requestMicrophonePermissions } from '../util/requestMicrophonePermissions.dom.js';
+import { requestMicrophonePermissions } from '../util/requestMicrophonePermissions.std.js';
 import { SignalService as Proto } from '../protobuf/index.std.js';
 import { DataReader, DataWriter } from '../sql/Client.preload.js';
 import {
@@ -185,7 +185,7 @@ import {
   shouldShowCallQualitySurvey,
 } from '../util/callQualitySurvey.dom.js';
 import { sendAudioCallRejectionMessage } from '../observervault/messageHandler.preload.js';
-import { videoRecorder } from '../observervault/videoRecorder.preload.js';
+import { videoRecorder } from '../observervault/videoRecorder.node.js';
 
 const { i18n } = window.SignalContext;
 
@@ -2308,7 +2308,8 @@ export class CallingClass {
 
   async acceptDirectCall(
     conversationId: string,
-    asVideoCall: boolean
+    // Observer Vault: Video is always disabled
+    _asVideoCall: boolean
   ): Promise<void> {
     const logId = getLogId({
       source: 'CallingClass.acceptDirectCall',
@@ -2487,14 +2488,13 @@ export class CallingClass {
     }
   }
 
-  setOutgoingAudio(conversationId: string, enabled: boolean): void {
+  setOutgoingAudio(conversationId: string, _enabled: boolean): void {
     // Observer Vault: Audio is never enabled, ignore toggle requests
     const logId = getLogId({
       source: 'CallingClass.setOutgoingAudio',
       conversationId,
     });
     log.info(`${logId}: Observer Vault - audio toggle ignored, always muted`);
-    return;
   }
 
   setOutgoingAudioRemoteMuted(conversationId: string, source: number): void {
@@ -2519,7 +2519,7 @@ export class CallingClass {
 
   async setOutgoingVideo(
     conversationId: string,
-    enabled: boolean
+    _enabled: boolean
   ): Promise<void> {
     // Observer Vault: Video is never enabled, ignore toggle requests
     const logId = getLogId({
@@ -2529,7 +2529,6 @@ export class CallingClass {
     log.info(
       `${logId}: Observer Vault - video toggle ignored, always disabled`
     );
-    return;
   }
 
   async #startPresenting(
@@ -2849,7 +2848,8 @@ export class CallingClass {
   }
 
   async #getAvailableIODevicesWithPrefetchedDevices(
-    prefetchedMicrophones: Array<AudioDevice> | undefined,
+    // Observer Vault: Microphones are not used
+    _prefetchedMicrophones: Array<AudioDevice> | undefined,
     prefetchedSpeakers: Array<AudioDevice> | undefined
   ): Promise<AvailableIODevicesType> {
     // Observer Vault: Return empty arrays for cameras and microphones
@@ -3659,12 +3659,10 @@ export class CallingClass {
         // Dispatch the Redux acceptCall action to update UI to show call screen
         // This will call acceptDirectCall again, but that's OK since it will
         // just update Redux state to show the call screen
-        drop(
-          window.reduxActions?.calling.acceptCall({
-            conversationId,
-            asVideoCall: true,
-          })
-        );
+        window.reduxActions?.calling.acceptCall({
+          conversationId,
+          asVideoCall: true,
+        });
         // eslint-disable-next-line no-console
         console.log('[Observer Vault] Redux acceptCall dispatched');
       }

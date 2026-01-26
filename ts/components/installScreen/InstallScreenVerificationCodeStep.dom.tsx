@@ -33,7 +33,7 @@ export function InstallScreenVerificationCodeStep({
   error,
 }: Props): ReactElement {
   const [code, setCode] = useState('');
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
 
   // Focus first input on mount
   useEffect(() => {
@@ -118,6 +118,7 @@ export function InstallScreenVerificationCodeStep({
         >
           {Array.from({ length: CODE_LENGTH }).map((_, index) => (
             <input
+              // eslint-disable-next-line react/no-array-index-key
               key={index}
               ref={el => {
                 inputRefs.current[index] = el;

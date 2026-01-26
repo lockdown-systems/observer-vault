@@ -60,7 +60,7 @@ export function InstallScreenPhoneNumberStep({
 
       <div className="module-InstallScreenPhoneNumberStep__card">
         <h1 className="module-InstallScreenPhoneNumberStep__title">
-          Enter a phone number that isn't already registered with Signal
+          Enter a phone number that isn&apos;t already registered with Signal
         </h1>
         <p className="module-InstallScreenPhoneNumberStep__description">
           Use a different number than your existing Signal account — registering
@@ -79,6 +79,7 @@ export function InstallScreenPhoneNumberStep({
               value={phoneNumber}
               onChange={e => setPhoneNumber(e.target.value)}
               disabled={isSubmitting}
+              // eslint-disable-next-line jsx-a11y/no-autofocus
               autoFocus
             />
           </div>

@@ -8,7 +8,8 @@ import { createPortal } from 'react-dom';
 import { SECOND } from '../util/durations/index.std.js';
 import { Toast } from './Toast.dom.js';
 import { WidthBreakpoint } from './_util.std.js';
-import { UsernameMegaphone } from './UsernameMegaphone.dom.js';
+// Observer Vault: UsernameMegaphone removed
+// import { UsernameMegaphone } from './UsernameMegaphone.dom.js';
 import { assertDev } from '../util/assert.std.js';
 import { missingCaseError } from '../util/missingCaseError.std.js';
 import { ToastType } from '../types/Toast.dom.js';

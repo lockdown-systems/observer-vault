@@ -51,26 +51,8 @@ function renderAudioOptions(
   });
 }
 
-function renderVideoOptions(
-  devices: Array<MediaDeviceInfo>,
-  i18n: LocalizerType
-): Array<Option> {
-  if (!devices.length) {
-    return [
-      {
-        text: i18n('icu:callingDeviceSelection__select--no-device'),
-        value: '',
-      },
-    ];
-  }
-
-  return devices.map((device: MediaDeviceInfo) => {
-    return {
-      text: localizeDefault(i18n, device.label),
-      value: device.deviceId,
-    };
-  });
-}
+// Observer Vault: Camera selection removed, renderVideoOptions function removed
+// function _renderVideoOptions(...) { ... }
 
 function createAudioChangeHandler(
   devices: Array<AudioDevice>,
@@ -85,31 +67,25 @@ function createAudioChangeHandler(
   };
 }
 
-function createCameraChangeHandler(
-  changeIODevice: (payload: ChangeIODevicePayloadType) => void
-) {
-  return (value: string): void => {
-    changeIODevice({
-      type: CallingDeviceType.CAMERA,
-      selectedDevice: value,
-    });
-  };
-}
+// Observer Vault: Camera selection removed, createCameraChangeHandler function removed
+// function _createCameraChangeHandler(...) { ... }
 
 export function CallingDeviceSelection({
-  availableCameras,
-  availableMicrophones,
+  availableCameras: _availableCameras,
+  availableMicrophones: _availableMicrophones,
   availableSpeakers,
   changeIODevice,
   i18n,
-  selectedCamera,
+  selectedCamera: _selectedCamera,
   selectedMicrophone,
   selectedSpeaker,
   toggleSettings,
 }: Props): React.JSX.Element {
-  const selectedMicrophoneIndex = selectedMicrophone
+  // Observer Vault: Microphone selection UI removed, this variable is unused
+  const _unusedSelectedMicrophoneIndex = selectedMicrophone
     ? selectedMicrophone.index
     : undefined;
+  void _unusedSelectedMicrophoneIndex;
   const selectedSpeakerIndex = selectedSpeaker
     ? selectedSpeaker.index
     : undefined;

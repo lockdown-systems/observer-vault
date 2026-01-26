@@ -10,7 +10,7 @@ import { createLogger } from '../../logging/log.std.js';
 import { getEnvironment, Environment } from '../../environment.std.js';
 import {
   START_REGISTRATION,
-  StartRegistrationActionType,
+  type StartRegistrationActionType,
 } from './installer.preload.js';
 
 const log = createLogger('app');

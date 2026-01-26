@@ -145,7 +145,6 @@ const { chmod, realpath, writeFile } = fsExtra;
 const { get, pick, isNumber, isBoolean, some, debounce, noop } = lodash;
 
 const log = createLogger('app/main');
-const updaterLog = log.child('updater');
 
 const animationSettings = systemPreferences.getAnimationSettings();
 
@@ -896,7 +895,6 @@ async function createWindow() {
       );
     }
     if (!shouldClose) {
-      updater.onRestartCanceled();
       return;
     }
 
