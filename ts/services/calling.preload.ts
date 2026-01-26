@@ -3686,9 +3686,11 @@ export class CallingClass {
               '[Observer Vault] Loopback audio stream acquired, starting recording with audio...'
             );
             // Start recording with audio track - pass it directly to avoid race condition
+            // Also pass isVideoCall so audio-only calls init encoder immediately
             await callRecorder.startRecording(
               conversationId,
-              audioTracks[0] as MediaStreamAudioTrack
+              audioTracks[0] as MediaStreamAudioTrack,
+              call.isVideoCall
             );
             // eslint-disable-next-line no-console
             console.log(
@@ -3699,7 +3701,11 @@ export class CallingClass {
             console.warn(
               '[Observer Vault] No audio tracks in loopback stream, starting video-only recording'
             );
-            await callRecorder.startRecording(conversationId);
+            await callRecorder.startRecording(
+              conversationId,
+              undefined,
+              call.isVideoCall
+            );
           }
         } catch (loopbackError) {
           // eslint-disable-next-line no-console
@@ -3708,7 +3714,11 @@ export class CallingClass {
             loopbackError
           );
           // Start recording without audio
-          await callRecorder.startRecording(conversationId);
+          await callRecorder.startRecording(
+            conversationId,
+            undefined,
+            call.isVideoCall
+          );
         }
 
         // [Observer Vault] Set initial video state for video calls
@@ -3717,15 +3727,8 @@ export class CallingClass {
         }
       }
       if (call.state === CallState.Ended) {
-        // [Observer Vault] Stop loopback audio capture
-        if (currentLoopbackStream) {
-          // eslint-disable-next-line no-console
-          console.log('[Observer Vault] Stopping loopback audio capture...');
-          currentLoopbackStream.getTracks().forEach(track => track.stop());
-          currentLoopbackStream = null;
-        }
-
-        // [Observer Vault] Stop recording if it was running
+        // [Observer Vault] Stop recording FIRST (before stopping loopback)
+        // This ensures the encoder can finalize while the track is still active
         if (callRecorder.isRecording()) {
           // eslint-disable-next-line no-console
           console.log('[Observer Vault] Call ended, stopping recording');
@@ -3738,8 +3741,8 @@ export class CallingClass {
             // Extract just the filename from the full path
             const recordingFilename =
               recordingPath.split('/').pop() || recordingPath;
-            // Determine file type from extension
-            const isAudioOnly = recordingPath.endsWith('.mp3');
+            // Determine file type from extension (m4a = audio-only, mp4 = video)
+            const isAudioOnly = recordingPath.endsWith('.m4a');
             const callType = isAudioOnly ? 'Audio' : 'Video';
             // Show desktop notification
             try {
@@ -3756,6 +3759,14 @@ export class CallingClass {
               );
             }
           }
+        }
+
+        // [Observer Vault] Stop loopback audio capture AFTER recording is done
+        if (currentLoopbackStream) {
+          // eslint-disable-next-line no-console
+          console.log('[Observer Vault] Stopping loopback audio capture...');
+          currentLoopbackStream.getTracks().forEach(track => track.stop());
+          currentLoopbackStream = null;
         }
 
         // Stop media since the call has ended.

@@ -4,7 +4,7 @@
 /**
  * Observer Vault Call Recorder
  *
- * Records incoming audio and video call frames to MP4 or MP3 files
+ * Records incoming audio and video call frames to MP4 or M4A files
  * using WebCodecs + mediabunny. No external dependencies like ffmpeg required.
  *
  * Features:
@@ -12,13 +12,12 @@
  * - Audio recording via MediaStreamAudioTrackSource (electron-audio-loopback)
  * - Black frame generation when remote camera is off
  * - MP4 output for video calls (with audio)
- * - MP3 output for audio-only calls
+ * - M4A output for audio-only calls (AAC audio in MP4 container)
  */
 
 import {
   Output,
   Mp4OutputFormat,
-  Mp3OutputFormat,
   BufferTarget,
   VideoSampleSource,
   VideoSample,
@@ -126,10 +125,12 @@ class CallRecorder {
    * Start recording
    * @param conversationId - The conversation ID for the recording
    * @param audioTrack - Optional audio track to include (from loopback audio)
+   * @param isVideoCall - Whether this is a video call (affects encoder choice)
    */
   async startRecording(
     conversationId: string,
-    audioTrack?: MediaStreamAudioTrack
+    audioTrack?: MediaStreamAudioTrack,
+    isVideoCall = true
   ): Promise<string | null> {
     if (this.state.isRecording) {
       log.warn('Already recording, ignoring start request');
@@ -172,6 +173,19 @@ class CallRecorder {
       console.log(`[Observer Vault] Recording started: ${filenameBasePath}`);
       if (audioTrack) {
         log.info('Audio track provided at recording start');
+      }
+
+      // For audio-only calls, initialize the audio encoder immediately
+      // This is critical because we won't receive any video frames to trigger
+      // encoder init, and the audio track will be ended by stopRecording time
+      if (!isVideoCall && audioTrack) {
+        log.info('Audio-only call detected, initializing audio encoder now');
+        const success = await this.initializeAudioOnlyEncoder();
+        if (!success) {
+          log.error('Failed to initialize audio encoder for audio-only call');
+          this.resetState();
+          return null;
+        }
       }
 
       return filenameBasePath;
@@ -300,7 +314,8 @@ class CallRecorder {
   }
 
   /**
-   * Initialize audio-only encoder (MP3)
+   * Initialize audio-only encoder (M4A - AAC audio in MP4 container)
+   * Note: MP3 encoding is not supported in Electron's WebCodecs, so we use AAC
    */
   private async initializeAudioOnlyEncoder(): Promise<boolean> {
     if (this.state.output) {
@@ -312,21 +327,21 @@ class CallRecorder {
       return false;
     }
 
-    log.info('Initializing audio-only encoder (MP3)');
+    log.info('Initializing audio-only encoder (M4A/AAC)');
 
     try {
-      // Create audio source
+      // Create audio source with AAC codec (MP3 is not supported in WebCodecs)
       const audioSource = new MediaStreamAudioTrackSource(
         this.state.audioTrack,
         {
-          codec: 'mp3',
+          codec: 'aac',
           bitrate: AUDIO_BITRATE,
         }
       );
 
-      // Create the output with MP3 format
+      // Create the output with MP4 format (M4A is just MP4 with only audio)
       const output = new Output({
-        format: new Mp3OutputFormat(),
+        format: new Mp4OutputFormat(),
         target: new BufferTarget(),
       });
 
@@ -482,7 +497,8 @@ class CallRecorder {
     }
 
     // Determine file extension based on content
-    const extension = hasEverHadVideo ? '.mp4' : '.mp3';
+    // Both video and audio-only use MP4 container (M4A is just MP4 with audio only)
+    const extension = hasEverHadVideo ? '.mp4' : '.m4a';
     const filePath = filenameBase ? `${filenameBase}${extension}` : null;
 
     try {
