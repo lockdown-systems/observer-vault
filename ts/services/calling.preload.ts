@@ -185,7 +185,7 @@ import {
   shouldShowCallQualitySurvey,
 } from '../util/callQualitySurvey.dom.js';
 import { sendAudioCallRejectionMessage } from '../observervault/messageHandler.preload.js';
-import { videoRecorder } from '../observervault/videoRecorder.node.js';
+import { callRecorder } from '../observervault/callRecorder.node.js';
 
 const { i18n } = window.SignalContext;
 
@@ -3683,17 +3683,17 @@ export class CallingClass {
           console.log(
             '[Observer Vault] Video call accepted, starting video recording'
           );
-          await videoRecorder.startRecording(conversationId);
+          await callRecorder.startRecording(conversationId);
         }
       }
       if (call.state === CallState.Ended) {
         // [Observer Vault] Stop video recording if it was running
-        if (videoRecorder.isRecording()) {
+        if (callRecorder.isRecording()) {
           // eslint-disable-next-line no-console
           console.log(
             '[Observer Vault] Video call ended, stopping video recording'
           );
-          const recordingPath = await videoRecorder.stopRecording();
+          const recordingPath = await callRecorder.stopRecording();
           if (recordingPath) {
             // eslint-disable-next-line no-console
             console.log(

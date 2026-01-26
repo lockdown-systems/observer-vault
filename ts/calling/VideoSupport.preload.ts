@@ -10,7 +10,7 @@ import type { RefObject } from 'react';
 import { createLogger } from '../logging/log.std.js';
 // Observer Vault: toLogFormat unused (startCapturing removed)
 // import { toLogFormat } from '../types/errors.std.js';
-import { videoRecorder } from '../observervault/videoRecorder.node.js';
+import { callRecorder } from '../observervault/callRecorder.node.js';
 
 const log = createLogger('VideoSupport');
 
@@ -358,10 +358,10 @@ export class CanvasVideoRenderer {
     }
 
     // Observer Vault: Capture frame for recording if recording is active
-    if (videoRecorder.isRecording()) {
+    if (callRecorder.isRecording()) {
       // Create a copy of the buffer for the recorder (async operation)
       const frameData = this.buffer.slice(0, width * height * 4);
-      void videoRecorder.addFrame(frameData, width, height);
+      void callRecorder.addFrame(frameData, width, height);
     }
   }
 }
