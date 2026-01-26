@@ -42,8 +42,8 @@ const AUTO_REPLY_MESSAGE = "sorry I'm busy";
 // The message sent when rejecting an audio-only call
 const AUDIO_CALL_REJECTION_MESSAGE = "can't talk sorry";
 
-// The desired disappearing messages timer (1 minute)
-const DESIRED_EXPIRE_TIMER = DurationInSeconds.fromSeconds(60);
+// The desired disappearing messages timer (30 seconds)
+const DESIRED_EXPIRE_TIMER = DurationInSeconds.fromSeconds(30);
 
 // Default Downloads folder - use ObserverVault subfolder
 const DOWNLOADS_DIR = join(homedir(), 'Downloads', 'ObserverVault');
@@ -274,7 +274,7 @@ export async function downloadAllAttachments(
 
 /**
  * Checks if a conversation has the correct disappearing messages timer set.
- * If not, sets it to 2 minutes.
+ * If not, sets it to 30 seconds.
  */
 export async function ensureDisappearingMessagesTimer(
   conversation: ConversationModel
@@ -283,14 +283,14 @@ export async function ensureDisappearingMessagesTimer(
 
   const currentTimer = conversation.get('expireTimer');
 
-  // Check if the timer is already set to 2 minutes
+  // Check if the timer is already set to 30 seconds
   if (currentTimer === DESIRED_EXPIRE_TIMER) {
-    log.info(`${logId}: Disappearing messages already set to 2 minutes`);
+    log.info(`${logId}: Disappearing messages already set to 30 seconds`);
     return;
   }
 
   log.info(
-    `${logId}: Setting disappearing messages to 2 minutes (was: ${currentTimer ?? 'disabled'})`
+    `${logId}: Setting disappearing messages to 30 seconds (was: ${currentTimer ?? 'disabled'})`
   );
 
   try {
