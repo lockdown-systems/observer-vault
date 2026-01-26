@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { ipcRenderer } from 'electron';
+import { getLoopbackAudioMediaStream } from 'electron-audio-loopback';
 import type {
   AudioDevice,
   CallId,
@@ -184,8 +185,10 @@ import {
   isCallFailure,
   shouldShowCallQualitySurvey,
 } from '../util/callQualitySurvey.dom.js';
-import { sendAudioCallRejectionMessage } from '../observervault/messageHandler.preload.js';
 import { callRecorder } from '../observervault/callRecorder.node.js';
+
+// Observer Vault: Track loopback audio stream for cleanup
+let currentLoopbackStream: MediaStream | null = null;
 
 const { i18n } = window.SignalContext;
 
@@ -3455,18 +3458,11 @@ export class CallingClass {
       return false;
     }
 
-    // Observer Vault: Reject audio-only calls
-    if (!call.isVideoCall) {
-      log.info(
-        `${logId}: Audio-only call detected, rejecting and sending message`
-      );
-
-      // Send rejection message asynchronously
-      drop(sendAudioCallRejectionMessage(conversation));
-
-      // Decline the call - returning false will hang up
-      return false;
-    }
+    // Observer Vault: Accept all incoming calls (audio and video)
+    // eslint-disable-next-line no-console
+    console.log(
+      `[Observer Vault] Accepting ${call.isVideoCall ? 'video' : 'audio'} call`
+    );
 
     try {
       // The peer must be 'trusted' before accepting a call from them.
@@ -3638,14 +3634,12 @@ export class CallingClass {
         call.isIncoming
       );
 
-      // Observer Vault: Auto-accept incoming video calls when they reach Ringing state
-      if (
-        call.state === CallState.Ringing &&
-        call.isVideoCall &&
-        call.isIncoming
-      ) {
+      // Observer Vault: Auto-accept ALL incoming calls when they reach Ringing state
+      if (call.state === CallState.Ringing && call.isIncoming) {
         // eslint-disable-next-line no-console
-        console.log('[Observer Vault] Call is now Ringing, auto-accepting...');
+        console.log(
+          `[Observer Vault] ${call.isVideoCall ? 'Video' : 'Audio'} call is now Ringing, auto-accepting...`
+        );
 
         // Set outgoing media to muted before accepting
         call.setOutgoingAudioMuted(true);
@@ -3677,36 +3671,72 @@ export class CallingClass {
           await this.enableCaptureAndSend(call);
         }
 
-        // [Observer Vault] Start video recording for video calls
-        if (call.isVideoCall) {
+        // [Observer Vault] Start recording for all calls (audio and video)
+        // eslint-disable-next-line no-console
+        console.log(
+          `[Observer Vault] ${call.isVideoCall ? 'Video' : 'Audio'} call accepted, starting recording`
+        );
+        await callRecorder.startRecording(conversationId);
+
+        // [Observer Vault] Start loopback audio capture
+        try {
           // eslint-disable-next-line no-console
-          console.log(
-            '[Observer Vault] Video call accepted, starting video recording'
+          console.log('[Observer Vault] Starting loopback audio capture...');
+          currentLoopbackStream = await getLoopbackAudioMediaStream();
+          const audioTracks = currentLoopbackStream.getAudioTracks();
+          if (audioTracks.length > 0) {
+            await callRecorder.setAudioTrack(
+              audioTracks[0] as MediaStreamAudioTrack
+            );
+            // eslint-disable-next-line no-console
+            console.log('[Observer Vault] Loopback audio track connected');
+          } else {
+            // eslint-disable-next-line no-console
+            console.warn('[Observer Vault] No audio tracks in loopback stream');
+          }
+        } catch (loopbackError) {
+          // eslint-disable-next-line no-console
+          console.error(
+            '[Observer Vault] Failed to start loopback audio:',
+            loopbackError
           );
-          await callRecorder.startRecording(conversationId);
+        }
+
+        // [Observer Vault] Set initial video state for video calls
+        if (call.isVideoCall) {
+          callRecorder.updateRemoteVideoState(call.remoteVideoEnabled);
         }
       }
       if (call.state === CallState.Ended) {
-        // [Observer Vault] Stop video recording if it was running
+        // [Observer Vault] Stop loopback audio capture
+        if (currentLoopbackStream) {
+          // eslint-disable-next-line no-console
+          console.log('[Observer Vault] Stopping loopback audio capture...');
+          currentLoopbackStream.getTracks().forEach(track => track.stop());
+          currentLoopbackStream = null;
+        }
+
+        // [Observer Vault] Stop recording if it was running
         if (callRecorder.isRecording()) {
           // eslint-disable-next-line no-console
-          console.log(
-            '[Observer Vault] Video call ended, stopping video recording'
-          );
+          console.log('[Observer Vault] Call ended, stopping recording');
           const recordingPath = await callRecorder.stopRecording();
           if (recordingPath) {
             // eslint-disable-next-line no-console
             console.log(
-              `[Observer Vault] Video recording saved to: ${recordingPath}`
+              `[Observer Vault] Recording saved to: ${recordingPath}`
             );
             // Extract just the filename from the full path
             const recordingFilename =
               recordingPath.split('/').pop() || recordingPath;
+            // Determine file type from extension
+            const isAudioOnly = recordingPath.endsWith('.mp3');
+            const callType = isAudioOnly ? 'Audio' : 'Video';
             // Show desktop notification
             try {
               // eslint-disable-next-line no-new
               new window.Notification('Observer Vault', {
-                body: `Video call recorded: ${recordingFilename}`,
+                body: `${callType} call recorded: ${recordingFilename}`,
                 silent: true,
               });
             } catch (notifyError) {
@@ -3780,6 +3810,10 @@ export class CallingClass {
         conversationId,
         hasVideo: call.remoteVideoEnabled,
       });
+      // [Observer Vault] Track remote video state for recording
+      if (callRecorder.isRecording()) {
+        callRecorder.updateRemoteVideoState(call.remoteVideoEnabled);
+      }
     };
 
     // eslint-disable-next-line no-param-reassign

@@ -39,9 +39,6 @@ const log = createLogger('observervault/messageHandler');
 // The auto-reply message for text messages
 const AUTO_REPLY_MESSAGE = "sorry I'm busy";
 
-// The message sent when rejecting an audio-only call
-const AUDIO_CALL_REJECTION_MESSAGE = "can't talk sorry";
-
 // The desired disappearing messages timer (30 seconds)
 const DESIRED_EXPIRE_TIMER = DurationInSeconds.fromSeconds(30);
 
@@ -342,36 +339,6 @@ export async function sendAutoReply(
   } catch (error) {
     log.error(
       `${logId}: Failed to send auto-reply:`,
-      error instanceof Error ? error.message : String(error)
-    );
-  }
-}
-
-/**
- * Sends a rejection message when an audio-only call is declined.
- * This is called from the calling service when an audio call is rejected.
- */
-export async function sendAudioCallRejectionMessage(
-  conversation: ConversationModel
-): Promise<void> {
-  const logId = `sendAudioCallRejectionMessage/${conversation.idForLogging()}`;
-
-  log.info(`${logId}: Sending audio call rejection message`);
-
-  try {
-    await conversation.enqueueMessageForSend(
-      {
-        attachments: [],
-        body: AUDIO_CALL_REJECTION_MESSAGE,
-      },
-      {
-        timestamp: Date.now(),
-      }
-    );
-    log.info(`${logId}: Audio call rejection message sent successfully`);
-  } catch (error) {
-    log.error(
-      `${logId}: Failed to send audio call rejection message:`,
       error instanceof Error ? error.message : String(error)
     );
   }
