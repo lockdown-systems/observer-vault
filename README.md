@@ -7,6 +7,8 @@
 
 # Observer Vault
 
+> **Note:** This app is under development and hasn't been fully tested yet.
+
 Observer Vault is a fork of [Signal Desktop](https://github.com/signalapp/Signal-Desktop).
 
 Features:

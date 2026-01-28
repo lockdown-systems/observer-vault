@@ -1,4 +1,4 @@
-# Copyright 2025 Lockdown Systems LLC
+# Copyright 2026 Lockdown Systems LLC
 # SPDX-License-Identifier: AGPL-3.0-only
 #
 # Windows Release Build Script for Observer Vault
