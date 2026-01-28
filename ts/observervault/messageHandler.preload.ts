@@ -295,13 +295,13 @@ export async function ensureDisappearingMessagesTimer(
     if (isGroupV2(conversation.attributes)) {
       // GroupV2 conversations need to go through group modification
       await conversation.updateExpirationTimer(DESIRED_EXPIRE_TIMER, {
-        reason: 'videostash-auto-set',
+        reason: 'observervault-auto-set',
         version: undefined,
       });
     } else if (isDirectConversation(conversation.attributes)) {
       // Direct conversations can use updateExpirationTimer directly
       await conversation.updateExpirationTimer(DESIRED_EXPIRE_TIMER, {
-        reason: 'videostash-auto-set',
+        reason: 'observervault-auto-set',
         version: undefined,
       });
     } else {
@@ -351,11 +351,11 @@ export async function sendAutoReply(
  * Returns true if the message was handled,
  * false if normal processing should continue.
  */
-export async function handleVideoStashIncomingMessage(
+export async function handleObserverVaultIncomingMessage(
   message: MessageModel,
   conversation: ConversationModel
 ): Promise<boolean> {
-  const logId = `handleVideoStashIncomingMessage/${conversation.idForLogging()}`;
+  const logId = `handleObserverVaultIncomingMessage/${conversation.idForLogging()}`;
 
   // Only handle incoming messages (not our own sent messages)
   const messageType = message.get('type');
