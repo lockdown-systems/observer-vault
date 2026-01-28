@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { ipcRenderer } from 'electron';
+import { getLoopbackAudioMediaStream } from 'electron-audio-loopback';
 import type {
   AudioDevice,
   CallId,
@@ -110,7 +111,7 @@ import {
 } from '../textsecure/WebAPI.preload.js';
 import { missingCaseError } from '../util/missingCaseError.std.js';
 import { normalizeGroupCallTimestamp } from '../util/ringrtc/normalizeGroupCallTimestamp.std.js';
-import { requestCameraPermissions } from '../util/callingPermissions.dom.js';
+import { requestCameraPermissions } from '../util/callingPermissions.std.js';
 import {
   AUDIO_LEVEL_INTERVAL_MS,
   REQUESTED_VIDEO_WIDTH,
@@ -123,7 +124,7 @@ import {
   REQUESTED_SCREEN_SHARE_FRAMERATE,
 } from '../calling/constants.std.js';
 import { callingMessageToProto } from '../util/callingMessageToProto.node.js';
-import { requestMicrophonePermissions } from '../util/requestMicrophonePermissions.dom.js';
+import { requestMicrophonePermissions } from '../util/requestMicrophonePermissions.std.js';
 import { SignalService as Proto } from '../protobuf/index.std.js';
 import { DataReader, DataWriter } from '../sql/Client.preload.js';
 import {
@@ -184,6 +185,10 @@ import {
   isCallFailure,
   shouldShowCallQualitySurvey,
 } from '../util/callQualitySurvey.dom.js';
+import { callRecorder } from '../observervault/callRecorder.node.js';
+
+// Observer Vault: Track loopback audio stream for cleanup
+let currentLoopbackStream: MediaStream | null = null;
 
 const { i18n } = window.SignalContext;
 
@@ -2306,7 +2311,8 @@ export class CallingClass {
 
   async acceptDirectCall(
     conversationId: string,
-    asVideoCall: boolean
+    // Observer Vault: Video is always disabled
+    _asVideoCall: boolean
   ): Promise<void> {
     const logId = getLogId({
       source: 'CallingClass.acceptDirectCall',
@@ -2314,46 +2320,60 @@ export class CallingClass {
     });
     log.info(logId);
 
+    // eslint-disable-next-line no-console
+    console.log(
+      '[Observer Vault] acceptDirectCall called with conversationId:',
+      conversationId
+    );
+    // eslint-disable-next-line no-console
+    console.log(
+      '[Observer Vault] acceptDirectCall #callsLookup keys:',
+      Object.keys(this.#callsLookup)
+    );
+
     const call = getOwn(this.#callsLookup, conversationId);
+    // eslint-disable-next-line no-console
+    console.log('[Observer Vault] acceptDirectCall call from lookup:', call);
     if (!call || !(call instanceof Call)) {
       log.warn(`${logId}: Trying to accept a non-existent call`);
+      // eslint-disable-next-line no-console
+      console.log(
+        '[Observer Vault] acceptDirectCall: call not found or not a Call instance'
+      );
       return;
     }
 
     const callId = this.#getCallIdForConversation(conversationId);
+    // eslint-disable-next-line no-console
+    console.log('[Observer Vault] acceptDirectCall callId:', callId);
     if (!callId) {
       log.warn(`${logId}: Trying to accept a non-existent call`);
+      // eslint-disable-next-line no-console
+      console.log('[Observer Vault] acceptDirectCall: callId not found');
       return;
     }
 
-    const haveMediaPermissions = await this.#requestPermissions(asVideoCall);
-    if (haveMediaPermissions) {
-      await ensureSystemPermissions({
-        hasLocalAudio: true,
-        hasLocalVideo: asVideoCall,
-      });
-      await this.#startDeviceReselectionTimer();
-      muteStateChange.setIsMuted(false);
+    // Observer Vault: Always accept calls with audio and video disabled
+    // No permissions needed since we don't use camera or mic
+    log.info(
+      `${logId}: Observer Vault - accepting call with audio/video disabled`
+    );
 
-      if (asVideoCall) {
-        // Warm up the camera as soon as possible.
-        drop(this.enableLocalCamera(CallMode.Direct));
-      }
+    // Set the starting camera disposition - always disabled
+    this.#cameraEnabled = false;
 
-      // Set the starting camera disposition based on the type of call.
-      this.#cameraEnabled = asVideoCall;
+    // Set the initial state for outgoing media - always muted
+    call.setOutgoingAudioMuted(true);
+    call.setOutgoingVideoMuted(true);
 
-      // Set the initial state for outgoing media for the incoming call.
-      call.setOutgoingAudioMuted(false);
-      call.setOutgoingVideoMuted(!asVideoCall);
-
-      RingRTC.accept(callId);
-    } else {
-      log.info(
-        `${logId}: Permissions were denied, call not allowed, hanging up.`
-      );
-      RingRTC.hangup(callId);
-    }
+    // eslint-disable-next-line no-console
+    console.log(
+      '[Observer Vault] acceptDirectCall: calling RingRTC.accept with callId:',
+      callId
+    );
+    RingRTC.accept(callId);
+    // eslint-disable-next-line no-console
+    console.log('[Observer Vault] acceptDirectCall: RingRTC.accept called');
   }
 
   declineDirectCall(conversationId: string): void {
@@ -2471,29 +2491,13 @@ export class CallingClass {
     }
   }
 
-  setOutgoingAudio(conversationId: string, enabled: boolean): void {
-    const call = getOwn(this.#callsLookup, conversationId);
-    if (!call) {
-      log.warn('Trying to set outgoing audio for a non-existent call');
-      return;
-    }
-
+  setOutgoingAudio(conversationId: string, _enabled: boolean): void {
+    // Observer Vault: Audio is never enabled, ignore toggle requests
     const logId = getLogId({
       source: 'CallingClass.setOutgoingAudio',
       conversationId,
     });
-    log.info(`${logId}: set to ${enabled}`);
-
-    if (call instanceof Call) {
-      call.setOutgoingAudioMuted(!enabled);
-    } else if (call instanceof GroupCall) {
-      call.setOutgoingAudioMuted(!enabled);
-    } else {
-      throw missingCaseError(call);
-    }
-
-    muteStateChange.setIsMuted(!enabled);
-    log.info(`${logId}: set to ${enabled} done`);
+    log.info(`${logId}: Observer Vault - audio toggle ignored, always muted`);
   }
 
   setOutgoingAudioRemoteMuted(conversationId: string, source: number): void {
@@ -2518,38 +2522,16 @@ export class CallingClass {
 
   async setOutgoingVideo(
     conversationId: string,
-    enabled: boolean
+    _enabled: boolean
   ): Promise<void> {
-    const call = getOwn(this.#callsLookup, conversationId);
-    if (!call) {
-      log.warn('Trying to set outgoing video for a non-existent call');
-      return;
-    }
-
-    if (enabled) {
-      // Make sure we have access to camera
-      await window.reduxActions.globalModals.ensureSystemMediaPermissions(
-        'camera',
-        'call'
-      );
-    }
-
-    this.#cameraEnabled = enabled;
-
-    if (call instanceof Call) {
-      if (enabled) {
-        // Start sending video from the camera.
-        await this.enableCaptureAndSend(call);
-      } else {
-        // Stop the camera.
-        this.disableLocalVideo();
-      }
-      call.setOutgoingVideoMuted(!enabled);
-    } else if (call instanceof GroupCall) {
-      call.setOutgoingVideoMuted(!enabled);
-    } else {
-      throw missingCaseError(call);
-    }
+    // Observer Vault: Video is never enabled, ignore toggle requests
+    const logId = getLogId({
+      source: 'CallingClass.setOutgoingVideo',
+      conversationId,
+    });
+    log.info(
+      `${logId}: Observer Vault - video toggle ignored, always disabled`
+    );
   }
 
   async #startPresenting(
@@ -2869,12 +2851,14 @@ export class CallingClass {
   }
 
   async #getAvailableIODevicesWithPrefetchedDevices(
-    prefetchedMicrophones: Array<AudioDevice> | undefined,
+    // Observer Vault: Microphones are not used
+    _prefetchedMicrophones: Array<AudioDevice> | undefined,
     prefetchedSpeakers: Array<AudioDevice> | undefined
   ): Promise<AvailableIODevicesType> {
-    const availableCameras = await this.#videoCapturer.enumerateDevices();
-    const availableMicrophones =
-      prefetchedMicrophones || RingRTC.getAudioInputs();
+    // Observer Vault: Return empty arrays for cameras and microphones
+    // Only keep speakers for receiving audio from calls
+    const availableCameras: Array<MediaDeviceInfo> = [];
+    const availableMicrophones: Array<AudioDevice> = [];
     const availableSpeakers = prefetchedSpeakers || RingRTC.getAudioOutputs();
 
     return {
@@ -3442,6 +3426,12 @@ export class CallingClass {
 
   // If we return null here, we hang up the call.
   async #handleIncomingCall(call: Call): Promise<boolean> {
+    // eslint-disable-next-line no-console
+    console.log(
+      '[Observer Vault] #handleIncomingCall called, isVideoCall:',
+      call.isVideoCall
+    );
+
     if (!this.#reduxInterface || !this.#localDeviceId) {
       log.error(
         'handleIncomingCall: Missing required objects, ignoring incoming call.'
@@ -3467,6 +3457,13 @@ export class CallingClass {
       log.warn(`${logId}: ${conversation.idForLogging()} is blocked`);
       return false;
     }
+
+    // Observer Vault: Accept all incoming calls (audio and video)
+    // eslint-disable-next-line no-console
+    console.log(
+      `[Observer Vault] Accepting ${call.isVideoCall ? 'video' : 'audio'} call`
+    );
+
     try {
       // The peer must be 'trusted' before accepting a call from them.
       // This is mostly the safety number check, unverified meaning that they were
@@ -3496,14 +3493,32 @@ export class CallingClass {
         return false;
       }
 
+      // Observer Vault: For video calls, we'll auto-accept in #attachToCall
+      // when the call reaches Ringing state
+      // eslint-disable-next-line no-console
+      console.log(
+        '[Observer Vault] Setting up video call from',
+        conversation.idForLogging(),
+        'for auto-accept'
+      );
+
+      // Set camera disabled
+      this.#cameraEnabled = false;
+
+      // Attach to the call - this sets up the state change handler
+      // which will auto-accept when the call is ready
       this.#attachToCall(conversation, call);
 
+      // Notify Redux about the incoming call
       this.#reduxInterface.receiveIncomingDirectCall({
         conversationId: conversation.id,
         isVideoCall: call.isVideoCall,
       });
 
-      log.warn(`${logId}: Returning true`);
+      // eslint-disable-next-line no-console
+      console.log(
+        '[Observer Vault] Video call setup complete, waiting for Ringing state'
+      );
       return true;
     } catch (err) {
       log.error(`${logId}: Ignoring incoming call: ${Errors.toLogFormat(err)}`);
@@ -3609,6 +3624,43 @@ export class CallingClass {
 
     // eslint-disable-next-line no-param-reassign
     call.handleStateChanged = async () => {
+      // eslint-disable-next-line no-console
+      console.log(
+        '[Observer Vault] handleStateChanged, call.state:',
+        call.state,
+        'isVideoCall:',
+        call.isVideoCall,
+        'isIncoming:',
+        call.isIncoming
+      );
+
+      // Observer Vault: Auto-accept ALL incoming calls when they reach Ringing state
+      if (call.state === CallState.Ringing && call.isIncoming) {
+        // eslint-disable-next-line no-console
+        console.log(
+          `[Observer Vault] ${call.isVideoCall ? 'Video' : 'Audio'} call is now Ringing, auto-accepting...`
+        );
+
+        // Set outgoing media to muted before accepting
+        call.setOutgoingAudioMuted(true);
+        call.setOutgoingVideoMuted(true);
+
+        // Accept the call via RingRTC
+        RingRTC.accept(call.callId);
+        // eslint-disable-next-line no-console
+        console.log('[Observer Vault] RingRTC.accept called');
+
+        // Dispatch the Redux acceptCall action to update UI to show call screen
+        // This will call acceptDirectCall again, but that's OK since it will
+        // just update Redux state to show the call screen
+        window.reduxActions?.calling.acceptCall({
+          conversationId,
+          asVideoCall: true,
+        });
+        // eslint-disable-next-line no-console
+        console.log('[Observer Vault] Redux acceptCall dispatched');
+      }
+
       if (call.state === CallState.Accepted) {
         acceptedTime = acceptedTime ?? Date.now();
 
@@ -3618,8 +3670,105 @@ export class CallingClass {
           // Start sending video from the camera (if not already).
           await this.enableCaptureAndSend(call);
         }
+
+        // [Observer Vault] Start loopback audio capture FIRST (before recording)
+        // This ensures the audio track is available when the encoder initializes
+        // The audio track MUST be passed to startRecording atomically to avoid
+        // race conditions where frames arrive before the track is set
+        try {
+          // eslint-disable-next-line no-console
+          console.log('[Observer Vault] Starting loopback audio capture...');
+          currentLoopbackStream = await getLoopbackAudioMediaStream();
+          const audioTracks = currentLoopbackStream.getAudioTracks();
+          if (audioTracks.length > 0) {
+            // eslint-disable-next-line no-console
+            console.log(
+              '[Observer Vault] Loopback audio stream acquired, starting recording with audio...'
+            );
+            // Start recording with audio track - pass it directly to avoid race condition
+            // Also pass isVideoCall so audio-only calls init encoder immediately
+            await callRecorder.startRecording(
+              conversationId,
+              audioTracks[0] as MediaStreamAudioTrack,
+              call.isVideoCall
+            );
+            // eslint-disable-next-line no-console
+            console.log(
+              '[Observer Vault] Recording started with loopback audio'
+            );
+          } else {
+            // eslint-disable-next-line no-console
+            console.warn(
+              '[Observer Vault] No audio tracks in loopback stream, starting video-only recording'
+            );
+            await callRecorder.startRecording(
+              conversationId,
+              undefined,
+              call.isVideoCall
+            );
+          }
+        } catch (loopbackError) {
+          // eslint-disable-next-line no-console
+          console.error(
+            '[Observer Vault] Failed to start loopback audio, starting video-only recording:',
+            loopbackError
+          );
+          // Start recording without audio
+          await callRecorder.startRecording(
+            conversationId,
+            undefined,
+            call.isVideoCall
+          );
+        }
+
+        // [Observer Vault] Set initial video state for video calls
+        if (call.isVideoCall) {
+          callRecorder.updateRemoteVideoState(call.remoteVideoEnabled);
+        }
       }
       if (call.state === CallState.Ended) {
+        // [Observer Vault] Stop recording FIRST (before stopping loopback)
+        // This ensures the encoder can finalize while the track is still active
+        if (callRecorder.isRecording()) {
+          // eslint-disable-next-line no-console
+          console.log('[Observer Vault] Call ended, stopping recording');
+          const recordingPath = await callRecorder.stopRecording();
+          if (recordingPath) {
+            // eslint-disable-next-line no-console
+            console.log(
+              `[Observer Vault] Recording saved to: ${recordingPath}`
+            );
+            // Extract just the filename from the full path
+            const recordingFilename =
+              recordingPath.split('/').pop() || recordingPath;
+            // Determine file type from extension (m4a = audio-only, mp4 = video)
+            const isAudioOnly = recordingPath.endsWith('.m4a');
+            const callType = isAudioOnly ? 'Audio' : 'Video';
+            // Show desktop notification
+            try {
+              // eslint-disable-next-line no-new
+              new window.Notification('Observer Vault', {
+                body: `${callType} call recorded: ${recordingFilename}`,
+                silent: true,
+              });
+            } catch (notifyError) {
+              // eslint-disable-next-line no-console
+              console.error(
+                '[Observer Vault] Failed to show notification:',
+                notifyError
+              );
+            }
+          }
+        }
+
+        // [Observer Vault] Stop loopback audio capture AFTER recording is done
+        if (currentLoopbackStream) {
+          // eslint-disable-next-line no-console
+          console.log('[Observer Vault] Stopping loopback audio capture...');
+          currentLoopbackStream.getTracks().forEach(track => track.stop());
+          currentLoopbackStream = null;
+        }
+
         // Stop media since the call has ended.
         this.disableLocalVideo();
         this.videoRenderer.disable();
@@ -3681,6 +3830,10 @@ export class CallingClass {
         conversationId,
         hasVideo: call.remoteVideoEnabled,
       });
+      // [Observer Vault] Track remote video state for recording
+      if (callRecorder.isRecording()) {
+        callRecorder.updateRemoteVideoState(call.remoteVideoEnabled);
+      }
     };
 
     // eslint-disable-next-line no-param-reassign

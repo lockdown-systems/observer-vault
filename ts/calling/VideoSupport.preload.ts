@@ -2,14 +2,15 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 /* eslint-disable max-classes-per-file */
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable no-await-in-loop */
 
-import { videoPixelFormatToEnum } from '@signalapp/ringrtc';
+// Observer Vault: videoPixelFormatToEnum unused (spawnSender removed)
+// import { videoPixelFormatToEnum } from '@signalapp/ringrtc';
 import type { VideoFrameSender, VideoFrameSource } from '@signalapp/ringrtc';
 import type { RefObject } from 'react';
 import { createLogger } from '../logging/log.std.js';
-import { toLogFormat } from '../types/errors.std.js';
+// Observer Vault: toLogFormat unused (startCapturing removed)
+// import { toLogFormat } from '../types/errors.std.js';
+import { callRecorder } from '../observervault/callRecorder.node.js';
 
 const log = createLogger('VideoSupport');
 
@@ -23,18 +24,19 @@ export class GumVideoCaptureOptions {
   onEnded?: () => void;
 }
 
-interface GumTrackConstraints extends MediaTrackConstraints {
-  mandatory?: GumTrackConstraintSet;
-}
+// Observer Vault: GumTrackConstraints unused (getUserMedia removed)
+// interface GumTrackConstraints extends MediaTrackConstraints {
+//   mandatory?: GumTrackConstraintSet;
+// }
 
-type GumTrackConstraintSet = {
-  chromeMediaSource: string;
-  chromeMediaSourceId?: string;
-  maxWidth: number;
-  maxHeight: number;
-  minFrameRate: number;
-  maxFrameRate: number;
-};
+// type GumTrackConstraintSet = {
+//   chromeMediaSource: string;
+//   chromeMediaSourceId?: string;
+//   maxWidth: number;
+//   maxHeight: number;
+//   minFrameRate: number;
+//   maxFrameRate: number;
+// };
 
 export type SizeCallbackType = (options: {
   width: number;
@@ -50,10 +52,11 @@ export class GumVideoCapturer {
   private localPreview?: HTMLVideoElement;
   private sizeCallback?: SizeCallbackType;
   private captureOptions?: GumVideoCaptureOptions;
-  private sender?: VideoFrameSender;
+  // Observer Vault: sender, spawnedSenderRunning unused (video disabled)
+  // private sender?: VideoFrameSender;
   private mediaStream?: MediaStream;
-  private spawnedSenderRunning = false;
-  private preferredDeviceId?: string;
+  // private spawnedSenderRunning = false;
+  // private preferredDeviceId?: string;
   private reportVideoSizeCallback = this.reportVideoSize.bind(this);
 
   capturing(): boolean {
@@ -104,20 +107,21 @@ export class GumVideoCapturer {
     this.sizeCallback(size);
   }
 
-  async enableCapture(options: GumVideoCaptureOptions): Promise<void> {
-    return this.startCapturing(options);
+  async enableCapture(_options: GumVideoCaptureOptions): Promise<void> {
+    // Observer Vault: Video capture is disabled - we don't use the camera
+    log.info('GumVideoCapturer.enableCapture: disabled for Observer Vault');
+    return Promise.resolve();
   }
 
   async enableCaptureAndSend(
-    sender: VideoFrameSender | undefined,
-    options: GumVideoCaptureOptions
+    _sender: VideoFrameSender | undefined,
+    _options: GumVideoCaptureOptions
   ): Promise<void> {
-    const startCapturingPromise = this.startCapturing(options);
-    if (sender) {
-      this.startSending(sender);
-    }
-    // Bubble up the error.
-    return startCapturingPromise;
+    // Observer Vault: Video capture is disabled - we don't use the camera
+    log.info(
+      'GumVideoCapturer.enableCaptureAndSend: disabled for Observer Vault'
+    );
+    return Promise.resolve();
   }
 
   disable(): void {
@@ -125,156 +129,24 @@ export class GumVideoCapturer {
     this.stopSending();
   }
 
-  async setPreferredDevice(deviceId: string): Promise<void> {
-    this.preferredDeviceId = deviceId;
-
-    if (this.captureOptions) {
-      const { captureOptions, sender } = this;
-
-      this.disable();
-      // Bubble up the error if starting video failed.
-      return this.enableCaptureAndSend(sender, captureOptions);
-    }
+  async setPreferredDevice(_deviceId: string): Promise<void> {
+    // Observer Vault: Video capture is disabled - we don't use the camera
+    log.info(
+      'GumVideoCapturer.setPreferredDevice: disabled for Observer Vault'
+    );
+    return Promise.resolve();
   }
 
   async enumerateDevices(): Promise<Array<MediaDeviceInfo>> {
-    const devices = await window.navigator.mediaDevices.enumerateDevices();
-    const cameras = devices.filter(d => d.kind === 'videoinput');
-    return cameras;
+    // Observer Vault: Return empty array - we don't use cameras
+    return [];
   }
 
-  private async getUserMedia(
-    options: GumVideoCaptureOptions
-  ): Promise<MediaStream> {
-    // Return provided media stream
-    if (options.mediaStream) {
-      return options.mediaStream;
-    }
+  // Observer Vault: getUserMedia method removed (startCapturing removed)
+  // The method was previously here but is not called since cameras are disabled.
 
-    if (options.screenShareSourceId !== undefined) {
-      const screenshareConstraints: GumTrackConstraints = {
-        mandatory: {
-          chromeMediaSource: 'desktop',
-          chromeMediaSourceId: options.screenShareSourceId,
-          maxWidth: options.maxWidth,
-          maxHeight: options.maxHeight,
-          minFrameRate: 1,
-          maxFrameRate: options.maxFramerate,
-        },
-      };
-      return navigator.mediaDevices.getUserMedia({
-        audio: false,
-        video: screenshareConstraints,
-      });
-    }
-
-    const preferredDeviceId =
-      options.preferredDeviceId ?? this.preferredDeviceId;
-    const videoConstraints: GumTrackConstraints = {
-      deviceId: {
-        exact: preferredDeviceId,
-      },
-      width: {
-        max: options.maxWidth,
-        ideal: options.maxWidth,
-      },
-      height: {
-        max: options.maxHeight,
-        ideal: options.maxHeight,
-      },
-      frameRate: {
-        max: options.maxFramerate,
-        ideal: options.maxFramerate,
-      },
-    };
-
-    try {
-      const exactStream = await navigator.mediaDevices.getUserMedia({
-        audio: false,
-        video: videoConstraints,
-      });
-      if (exactStream) {
-        return exactStream;
-      }
-    } catch (e) {
-      log.warn(
-        `getUserMedia(): Failed with exact constraints: ${e}. Falling back to loose constraints.`
-      );
-    }
-
-    return navigator.mediaDevices.getUserMedia({
-      audio: false,
-      video: {
-        ...videoConstraints,
-        deviceId: preferredDeviceId,
-      },
-    });
-  }
-
-  private async startCapturing(options: GumVideoCaptureOptions): Promise<void> {
-    if (this.capturing()) {
-      log.warn('startCapturing(): already capturing');
-      return;
-    }
-    log.info(
-      `startCapturing(): ${options.maxWidth}x${options.maxHeight}@${options.maxFramerate}`
-    );
-    this.captureOptions = options;
-    try {
-      // If we start/stop/start, we may have concurrent calls to getUserMedia,
-      // which is what we want if we're switching from camera to screenshare.
-      // But we need to make sure we deal with the fact that things might be
-      // different after the await here.
-      const mediaStream = await this.getUserMedia(options);
-      // It's possible video was disabled, switched to screenshare, or
-      // switched to a different camera while awaiting a response, in
-      // which case we need to disable the camera we just accessed.
-      if (this.captureOptions !== options) {
-        log.warn('startCapturing(): different state after getUserMedia()');
-        for (const track of mediaStream.getVideoTracks()) {
-          // Make the light turn off faster
-          track.stop();
-        }
-        return;
-      }
-
-      if (
-        this.mediaStream !== undefined &&
-        this.mediaStream.getVideoTracks().length > 0
-      ) {
-        // We have a stream and track for the requested camera already. Stop
-        // the duplicate track that we just started.
-        log.warn('startCapturing(): dropping duplicate call to startCapturing');
-        for (const track of mediaStream.getVideoTracks()) {
-          track.stop();
-        }
-        return;
-      }
-
-      this.mediaStream = mediaStream;
-      if (
-        !this.spawnedSenderRunning &&
-        this.mediaStream !== undefined &&
-        this.sender !== undefined
-      ) {
-        this.spawnSender(this.mediaStream, this.sender);
-      }
-
-      this.updateLocalPreviewSourceObject();
-    } catch (e) {
-      log.error(`startCapturing(): ${toLogFormat(e)}`);
-
-      // It's possible video was disabled, switched to screenshare, or
-      // switched to a different camera while awaiting a response, in
-      // which case we should reset the captureOptions if we set them.
-      if (this.captureOptions === options) {
-        // We couldn't open the camera.  Oh well.
-        this.captureOptions = undefined;
-      }
-      // Re-raise so that callers can surface this condition to the user.
-      throw e;
-    }
-  }
+  // Observer Vault: startCapturing method removed (camera disabled)
+  // The method was previously here but is not called since cameras are disabled.
 
   private stopCapturing(): void {
     if (!this.capturing()) {
@@ -294,90 +166,16 @@ export class GumVideoCapturer {
     this.updateLocalPreviewSourceObject();
   }
 
-  private startSending(sender: VideoFrameSender): void {
-    if (this.sender === sender) {
-      return;
-    }
-    if (this.sender) {
-      // If we're replacing an existing sender, make sure we stop the
-      // current setInterval loop before starting another one.
-      this.stopSending();
-    }
-    this.sender = sender;
+  // Observer Vault: startSending method removed (video sending disabled)
+  // The method was previously here but is not called since video is disabled.
 
-    if (!this.spawnedSenderRunning && this.mediaStream !== undefined) {
-      this.spawnSender(this.mediaStream, this.sender);
-    }
-  }
-
-  private spawnSender(mediaStream: MediaStream, sender: VideoFrameSender) {
-    const track = mediaStream.getVideoTracks()[0];
-    if (track === undefined || this.spawnedSenderRunning) {
-      return;
-    }
-
-    const { onEnded } = this.captureOptions || {};
-
-    if (track.readyState === 'ended') {
-      this.stopCapturing();
-      log.warn('spawnSender(): Video track ended before spawning sender');
-      return;
-    }
-
-    const reader = new MediaStreamTrackProcessor({
-      track,
-    }).readable.getReader();
-    const buffer = new Uint8Array(MAX_VIDEO_CAPTURE_BUFFER_SIZE);
-    this.spawnedSenderRunning = true;
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    (async () => {
-      try {
-        while (mediaStream === this.mediaStream) {
-          const { done, value: frame } = await reader.read();
-          if (done) {
-            break;
-          }
-          if (!frame) {
-            continue;
-          }
-          try {
-            const format = videoPixelFormatToEnum(frame.format ?? 'I420');
-            if (format === undefined) {
-              log.warn(`Unsupported video frame format: ${frame.format}`);
-              break;
-            }
-
-            const { width, height } = frame.visibleRect || {};
-            if (!width || !height) {
-              continue;
-            }
-
-            await frame.copyTo(buffer);
-            if (sender !== this.sender) {
-              break;
-            }
-
-            sender.sendVideoFrame(width, height, format, buffer);
-          } catch (e) {
-            log.error(`sendVideoFrame(): ${e}`);
-          } finally {
-            // This must be called for more frames to come.
-            frame.close();
-          }
-        }
-      } catch (e) {
-        log.error(`spawnSender(): ${e}`);
-      } finally {
-        reader.releaseLock();
-        onEnded?.();
-      }
-      this.spawnedSenderRunning = false;
-    })();
-  }
+  // Observer Vault: spawnSender method removed (video sending disabled)
+  // The method was previously here but is not called since video is disabled.
 
   private stopSending(): void {
+    // Observer Vault: sender was removed, nothing to stop
     // The spawned sender should stop
-    this.sender = undefined;
+    // this.sender = undefined;
   }
 
   private updateLocalPreviewSourceObject(): void {
@@ -557,6 +355,13 @@ export class CanvasVideoRenderer {
 
     if (sizeChanged) {
       this.sizeCallback?.({ width, height });
+    }
+
+    // Observer Vault: Capture frame for recording if recording is active
+    if (callRecorder.isRecording()) {
+      // Create a copy of the buffer for the recorder (async operation)
+      const frameData = this.buffer.slice(0, width * height * 4);
+      void callRecorder.addFrame(frameData, width, height);
     }
   }
 }

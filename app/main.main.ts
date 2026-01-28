@@ -30,6 +30,7 @@ import {
   protocol as electronProtocol,
 } from 'electron';
 import type { MenuItemConstructorOptions, Settings } from 'electron';
+import { initMain as initAudioLoopback } from 'electron-audio-loopback';
 import { z } from 'zod';
 
 import {
@@ -78,7 +79,6 @@ import * as userConfig from './user_config.main.js';
 import * as attachments from './attachments.node.js';
 import * as attachmentChannel from './attachment_channel.main.js';
 import * as bounce from '../ts/services/bounce.main.js';
-import * as updater from '../ts/updater/index.main.js';
 import { updateDefaultSession } from './updateDefaultSession.main.js';
 import { PreventDisplaySleepService } from './PreventDisplaySleepService.std.js';
 import {
@@ -146,7 +146,6 @@ const { chmod, realpath, writeFile } = fsExtra;
 const { get, pick, isNumber, isBoolean, some, debounce, noop } = lodash;
 
 const log = createLogger('app/main');
-const updaterLog = log.child('updater');
 
 const animationSettings = systemPreferences.getAnimationSettings();
 
@@ -897,7 +896,6 @@ async function createWindow() {
       );
     }
     if (!shouldClose) {
-      updater.onRestartCanceled();
       return;
     }
 
@@ -1170,39 +1168,13 @@ async function readyForUpdates() {
   // Discard value even if we don't handle a saved URL.
   macInitialOpenUrlRoute = undefined;
 
-  // Second, start checking for app updates
-  try {
-    strictAssert(
-      settingsChannel !== undefined,
-      'SettingsChannel must be initialized'
-    );
-    await updater.start({
-      canRunSilently: () => {
-        return (
-          systemTrayService?.isVisible() === true &&
-          mainWindow?.isVisible() !== true &&
-          !preventDisplaySleepService.isEnabled()
-        );
-      },
-      getMainWindow,
-      logger: updaterLog,
-      sql,
-    });
-  } catch (error) {
-    updaterLog.error(
-      'Error starting update checks:',
-      Errors.toLogFormat(error)
-    );
-  }
+  // Updates are disabled for Observer Vault
+  log.info('Automatic updates are disabled');
 }
 
 async function forceUpdate() {
-  try {
-    updaterLog.info('starting force update');
-    await updater.force();
-  } catch (error) {
-    updaterLog.error('Error during force update:', Errors.toLogFormat(error));
-  }
+  // Updates are disabled for Observer Vault
+  log.info('Force update is disabled');
 }
 
 ipc.once('ready-for-updates', readyForUpdates);
@@ -1981,6 +1953,12 @@ electronProtocol.registerSchemesAsPrivileged([
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
+
+// Initialize electron-audio-loopback for system audio capture during calls
+// This must be called before app is ready
+initAudioLoopback();
+log.info('electron-audio-loopback initialized');
+
 let ready = false;
 app.on('ready', async () => {
   dns.setFallback(await getDNSFallback());
@@ -2162,6 +2140,41 @@ app.on('ready', async () => {
       getMediaAccessStatus('camera'),
       getMediaAccessStatus('screen')
     );
+  }
+
+  // [Observer Vault] Check for screen recording permission on macOS
+  // This is required for electron-audio-loopback to capture system audio
+  if (OS.isMacOS()) {
+    const screenStatus = systemPreferences.getMediaAccessStatus('screen');
+    log.info(
+      `[Observer Vault] Screen recording permission status: ${screenStatus}`
+    );
+
+    if (screenStatus !== 'granted') {
+      log.info(
+        '[Observer Vault] Screen recording permission not granted, prompting user'
+      );
+
+      const result = await dialog.showMessageBox({
+        type: 'warning',
+        title: 'Observer Vault - Permission Required',
+        message: 'Screen Recording Permission Required',
+        detail:
+          'Observer Vault needs Screen Recording permission to capture audio during calls.\n\n' +
+          'Please grant permission in System Settings > Privacy & Security > Screen Recording, ' +
+          'then restart Observer Vault.',
+        buttons: ['Open System Settings', 'Continue Anyway'],
+        defaultId: 0,
+        cancelId: 1,
+      });
+
+      if (result.response === 0) {
+        // Open System Settings to Screen Recording
+        await shell.openExternal(
+          'x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture'
+        );
+      }
+    }
   }
 
   GlobalErrors.updateLocale(resolvedTranslationsLocale);

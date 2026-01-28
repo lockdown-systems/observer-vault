@@ -203,6 +203,9 @@ importers:
       dom-accessibility-api:
         specifier: 0.7.0
         version: 0.7.0
+      electron-audio-loopback:
+        specifier: ^1.0.6
+        version: 1.0.6(electron@39.2.7)
       emoji-datasource:
         specifier: 16.0.0
         version: 16.0.0
@@ -278,6 +281,9 @@ importers:
       lru-cache:
         specifier: 11.0.2
         version: 11.0.2
+      mediabunny:
+        specifier: ^1.28.0
+        version: 1.28.0
       memoizee:
         specifier: 0.4.17
         version: 0.4.17
@@ -4027,6 +4033,9 @@ packages:
   '@types/dom-mediacapture-transform@0.1.11':
     resolution: {integrity: sha512-Y2p+nGf1bF2XMttBnsVPHUWzRRZzqUoJAKmiP10b5umnO6DDrWI0BrGDJy1pOHoOULVmGSfFNkQrAlC5dcj6nQ==}
 
+  '@types/dom-webcodecs@0.1.13':
+    resolution: {integrity: sha512-O5hkiFIcjjszPIYyUSyvScyvrBoV3NOEEZx/pMlsu44TKzWNkLVBBxnxJz42in5n3QIolYOcBYFCPZZ0h8SkwQ==}
+
   '@types/dom-webcodecs@0.1.14':
     resolution: {integrity: sha512-ba9aF0qARLLQpLihONIRbj8VvAdUxO+5jIxlscVcDAQTcJmq5qVr781+ino5qbQUJUmO21cLP2eLeXYWzao5Vg==}
 
@@ -5827,6 +5836,11 @@ packages:
     resolution: {integrity: sha512-UeJmFfOrAQS8OJWPZ4qtgHyWExa088/MtK5UEyoJGFH67cDEXkZSviOiKRCZ4Xij0zxI3JECgYs3oKx+AizQBA==}
     engines: {node: '>=0.10.0'}
     hasBin: true
+
+  electron-audio-loopback@1.0.6:
+    resolution: {integrity: sha512-QW0ogDqMpWHDAQHmQyssJ+Yh4qR3kWCP3Q4H9WuIXKwVlgkqOYGyt0v/JzbK3tBNTwfqbuHZy86kwCCajxqAdg==}
+    peerDependencies:
+      electron: '>=31.0.1'
 
   electron-builder-squirrel-windows@26.0.14:
     resolution: {integrity: sha512-1JvbMXtNJsElDZZaFMa3nIRV/diXBFeP0+JPhLLu1c7b21VWPcPbr3MCCL+lTchVDq+q2v0F5dmHN72CJnOTpg==}
@@ -8058,6 +8072,9 @@ packages:
   media-typer@0.3.0:
     resolution: {integrity: sha512-dq+qelQ9akHpcOl/gUVRTxVIOkAJ1wR3QAvb4RsVjS8oVoFjDGTc679wJYmUmknUF5HwMLOgb5O+a3KxfWapPQ==}
     engines: {node: '>= 0.6'}
+
+  mediabunny@1.28.0:
+    resolution: {integrity: sha512-D63nzvBRIBSUsRgaIfFugWCy2iOV5T/C6nHn2fW0aWqyRuSGzWsVMXzlNi3iCKieoA/WECYJg8oVGtUukpy3XQ==}
 
   memfs-or-file-map-to-github-branch@1.2.1:
     resolution: {integrity: sha512-I/hQzJ2a/pCGR8fkSQ9l5Yx+FQ4e7X6blNHyWBm2ojeFLT3GVzGkTj7xnyWpdclrr7Nq4dmx3xrvu70m3ypzAQ==}
@@ -14963,6 +14980,8 @@ snapshots:
     dependencies:
       '@types/dom-webcodecs': 0.1.14
 
+  '@types/dom-webcodecs@0.1.13': {}
+
   '@types/dom-webcodecs@0.1.14': {}
 
   '@types/eslint-scope@3.7.7':
@@ -17026,6 +17045,10 @@ snapshots:
   ejs@3.1.10:
     dependencies:
       jake: 10.9.2
+
+  electron-audio-loopback@1.0.6(electron@39.2.7):
+    dependencies:
+      electron: 39.2.7
 
   electron-builder-squirrel-windows@26.0.14(dmg-builder@26.0.14):
     dependencies:
@@ -19955,6 +19978,11 @@ snapshots:
   mdurl@2.0.0: {}
 
   media-typer@0.3.0: {}
+
+  mediabunny@1.28.0:
+    dependencies:
+      '@types/dom-mediacapture-transform': 0.1.11
+      '@types/dom-webcodecs': 0.1.13
 
   memfs-or-file-map-to-github-branch@1.2.1(encoding@0.1.13):
     dependencies:

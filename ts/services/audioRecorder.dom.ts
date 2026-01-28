@@ -3,7 +3,7 @@
 
 import { createLogger } from '../logging/log.std.js';
 import * as Errors from '../types/errors.std.js';
-import { requestMicrophonePermissions } from '../util/requestMicrophonePermissions.dom.js';
+import { requestMicrophonePermissions } from '../util/requestMicrophonePermissions.std.js';
 import { WebAudioRecorder } from '../WebAudioRecorder.std.js';
 
 const log = createLogger('audioRecorder');

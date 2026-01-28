@@ -55,7 +55,7 @@ import {
 } from '../../types/Calling.std.js';
 import { CallMode } from '../../types/CallDisposition.std.js';
 import { callingTones } from '../../util/callingTones.preload.js';
-import { requestCameraPermissions } from '../../util/callingPermissions.dom.js';
+import { requestCameraPermissions } from '../../util/callingPermissions.std.js';
 import {
   CALL_LINK_DEFAULT_STATE,
   toAdminKeyBytes,
