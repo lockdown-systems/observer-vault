@@ -38,8 +38,9 @@ const VIDEO_BITRATE = 10_000_000;
 // Audio bitrate: 128 kbps (good quality for voice)
 const AUDIO_BITRATE = 128_000;
 // Default dimensions for black frames when we haven't received any video yet
-const DEFAULT_WIDTH = 640;
-const DEFAULT_HEIGHT = 480;
+// Portrait orientation since most users are on phones
+const DEFAULT_WIDTH = 480;
+const DEFAULT_HEIGHT = 640;
 
 // Get the downloads directory
 function getRecordingsDirectory(): string {

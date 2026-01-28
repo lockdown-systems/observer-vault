@@ -607,6 +607,10 @@ export class CallingClass {
       drop(this.#enumerateMediaDevices());
     }
 
+    // Observer Vault: Set up audio output devices on startup so they're ready
+    // when a call comes in. This ensures RingRTC can play incoming audio.
+    drop(this.#initializeAudioOutputDevices());
+
     // This has effect only on macOS >= 14.0
     muteStateChange.subscribe(isMuted => {
       log.info(`muteState notification: isMuted=${isMuted}`);
@@ -2358,6 +2362,10 @@ export class CallingClass {
     log.info(
       `${logId}: Observer Vault - accepting call with audio/video disabled`
     );
+
+    // Observer Vault: We still need to set up audio OUTPUT device for receiving audio
+    // This polls for devices and sets RingRTC.setAudioOutput() for the speaker
+    await this.#startDeviceReselectionTimer();
 
     // Set the starting camera disposition - always disabled
     this.#cameraEnabled = false;
@@ -4371,6 +4379,50 @@ export class CallingClass {
       drop(window.navigator.mediaDevices.enumerateDevices());
     } catch (error) {
       log.error('enumerateMediaDevices failed:', Errors.toLogFormat(error));
+    }
+  }
+
+  // Observer Vault: Initialize audio output devices on startup so incoming
+  // call audio can be played immediately when a call is received.
+  async #initializeAudioOutputDevices(): Promise<void> {
+    try {
+      log.info('Observer Vault: Initializing audio output devices on startup');
+
+      // Get available speakers and set up the preferred one
+      const availableSpeakers = RingRTC.getAudioOutputs();
+      if (availableSpeakers.length === 0) {
+        log.warn(
+          'Observer Vault: No audio output devices found during initialization'
+        );
+        return;
+      }
+
+      // Find the preferred speaker or use the first available
+      const preferredSpeaker = getPreferredAudioOutputDevice();
+      const selectedSpeakerIndex = findBestMatchingAudioDeviceIndex(
+        {
+          available: availableSpeakers,
+          preferred: preferredSpeaker,
+        },
+        OS.isWindows()
+      );
+
+      const selectedSpeaker =
+        selectedSpeakerIndex !== undefined
+          ? availableSpeakers[selectedSpeakerIndex]
+          : availableSpeakers[0];
+
+      if (selectedSpeaker) {
+        log.info(
+          `Observer Vault: Setting audio output device on startup: ${truncateForLogging(selectedSpeaker.name)} (index ${selectedSpeaker.index})`
+        );
+        RingRTC.setAudioOutput(selectedSpeaker.index);
+      }
+    } catch (error) {
+      log.error(
+        'Observer Vault: initializeAudioOutputDevices failed:',
+        Errors.toLogFormat(error)
+      );
     }
   }
 }
