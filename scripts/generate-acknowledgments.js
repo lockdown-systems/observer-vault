@@ -110,8 +110,8 @@ async function getMarkdownForSignalLib(dependencyName) {
 
 async function main() {
   assert.deepStrictEqual(
-    Object.keys(optionalDependencies),
-    ['fs-xattr'],
+    Object.keys(optionalDependencies).sort(),
+    ['@indutny/mac-screen-share', 'fs-xattr'],
     'Unexpected optionalDependencies when generating acknowledgments file. To ensure that this file is generated deterministically, make sure to special-case it the acknowledgments generation script.'
   );
 
