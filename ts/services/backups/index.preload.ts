@@ -1268,9 +1268,8 @@ export class BackupsService {
       );
     }
 
-    // The QR code should be regenerated only after all data is cleared to prevent
-    // a race where the QR code doesn't show the backup capability
-    window.reduxActions.installer.startInstaller();
+    // Start registration flow after all data is cleared
+    window.reduxActions.installer.startRegistration();
   }
 
   async #waitForEmptyQueues(

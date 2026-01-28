@@ -1,0 +1,147 @@
+// Copyright 2024 Signal Messenger, LLC
+// SPDX-License-Identifier: AGPL-3.0-only
+
+@use '../mixins';
+@use '../variables';
+
+.module-InstallScreenVerificationCodeStep {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+  justify-content: center;
+  line-height: 30px;
+  user-select: none;
+  padding: 40px;
+
+  @include mixins.light-theme {
+    background: variables.$color-gray-02;
+    color: variables.$color-black;
+  }
+
+  @include mixins.dark-theme {
+    background: variables.$color-gray-95;
+    color: variables.$color-white;
+  }
+
+  &__card {
+    background: variables.$color-white;
+    border-radius: 16px;
+    padding: 48px;
+    max-width: 420px;
+    width: 100%;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+    text-align: center;
+
+    @include mixins.dark-theme {
+      background: variables.$color-gray-80;
+    }
+  }
+
+  &__title {
+    @include mixins.font-title-1;
+    color: variables.$color-black;
+    margin-block: 0 12px;
+    margin-inline: 0;
+
+    @include mixins.dark-theme {
+      color: variables.$color-white;
+    }
+  }
+
+  &__description {
+    @include mixins.font-body-1;
+    color: variables.$color-gray-60;
+    margin-block: 0 32px;
+    margin-inline: 0;
+    line-height: 1.5;
+
+    @include mixins.dark-theme {
+      color: variables.$color-gray-25;
+    }
+  }
+
+  &__error {
+    @include mixins.font-body-2;
+    color: variables.$color-accent-red;
+    padding-block: 12px;
+    padding-inline: 16px;
+    background: rgba(variables.$color-accent-red, 0.1);
+    border-radius: 8px;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  &__code-inputs {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 32px;
+  }
+
+  &__code-input {
+    width: 48px;
+    height: 56px;
+    border: 2px solid variables.$color-gray-15;
+    border-radius: 12px;
+    font-size: 24px;
+    font-weight: 600;
+    text-align: center;
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+    background: variables.$color-white;
+    color: variables.$color-black;
+
+    &:focus {
+      outline: none;
+      border-color: variables.$color-ultramarine;
+      box-shadow: 0 0 0 3px rgba(variables.$color-ultramarine, 0.2);
+    }
+
+    &:disabled {
+      background: variables.$color-gray-05;
+      cursor: not-allowed;
+    }
+
+    @include mixins.dark-theme {
+      background: variables.$color-gray-75;
+      border-color: variables.$color-gray-60;
+      color: variables.$color-white;
+
+      &:focus {
+        border-color: variables.$color-ultramarine-light;
+        box-shadow: 0 0 0 3px rgba(variables.$color-ultramarine-light, 0.3);
+      }
+
+      &:disabled {
+        background: variables.$color-gray-80;
+      }
+    }
+  }
+
+  &__buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+
+    .module-Button {
+      padding-block: 12px;
+      padding-inline: 24px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 12px;
+    }
+  }
+
+  &__status {
+    @include mixins.font-body-2;
+    color: variables.$color-gray-45;
+    margin-top: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+}

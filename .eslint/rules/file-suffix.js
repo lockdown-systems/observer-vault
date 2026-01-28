@@ -246,6 +246,7 @@ const STD_PACKAGES = new Set([
   'humanize-duration',
   'intl-tel-input',
   'js-yaml',
+  'libphonenumber-js',
   'linkify-it',
   'lodash',
   'long',

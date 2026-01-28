@@ -1,0 +1,121 @@
+// Copyright 2024 Signal Messenger, LLC
+// SPDX-License-Identifier: AGPL-3.0-only
+
+@use '../mixins';
+@use '../variables';
+
+.module-InstallScreenCaptchaStep {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+  justify-content: center;
+  line-height: 30px;
+  user-select: none;
+  padding: 40px;
+
+  @include mixins.light-theme {
+    background: variables.$color-gray-02;
+    color: variables.$color-black;
+  }
+
+  @include mixins.dark-theme {
+    background: variables.$color-gray-95;
+    color: variables.$color-white;
+  }
+
+  &__card {
+    background: variables.$color-white;
+    border-radius: 16px;
+    padding: 48px;
+    max-width: 480px;
+    width: 100%;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+    text-align: center;
+
+    @include mixins.dark-theme {
+      background: variables.$color-gray-80;
+    }
+  }
+
+  &__title {
+    @include mixins.font-title-1;
+    color: variables.$color-black;
+    margin-block: 0 12px;
+    margin-inline: 0;
+
+    @include mixins.dark-theme {
+      color: variables.$color-white;
+    }
+  }
+
+  &__description {
+    @include mixins.font-body-1;
+    color: variables.$color-gray-60;
+    margin-block: 0 32px;
+    margin-inline: 0;
+    line-height: 1.5;
+
+    @include mixins.dark-theme {
+      color: variables.$color-gray-25;
+    }
+  }
+
+  &__error {
+    @include mixins.font-body-2;
+    color: variables.$color-accent-red;
+    padding-block: 12px;
+    padding-inline: 16px;
+    background: rgba(variables.$color-accent-red, 0.1);
+    border-radius: 8px;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  &__waiting {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 32px;
+    padding: 24px;
+    border-radius: 12px;
+    background: rgba(variables.$color-ultramarine, 0.05);
+
+    @include mixins.dark-theme {
+      background: rgba(variables.$color-ultramarine-light, 0.1);
+    }
+  }
+
+  &__waiting-text {
+    @include mixins.font-body-1;
+    color: variables.$color-gray-60;
+
+    @include mixins.dark-theme {
+      color: variables.$color-gray-25;
+    }
+  }
+
+  &__buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    .module-Button {
+      width: 100%;
+      padding-block: 14px;
+      padding-inline: 24px;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 12px;
+    }
+  }
+
+  &__hint {
+    @include mixins.font-body-2;
+    color: variables.$color-gray-45;
+    margin-top: 24px;
+    line-height: 1.5;
+  }
+}

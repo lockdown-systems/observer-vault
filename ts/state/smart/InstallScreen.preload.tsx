@@ -2,39 +2,54 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import type { ComponentProps } from 'react';
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 
-import { getIntl } from '../selectors/user.std.js';
-import { getUpdatesState } from '../selectors/updates.std.js';
 import { getInstallerState } from '../selectors/installer.std.js';
 import { useInstallerActions } from '../ducks/installer.preload.js';
-import { useUpdatesActions } from '../ducks/updates.preload.js';
-import { hasExpired as hasExpiredSelector } from '../selectors/expiration.dom.js';
 import { missingCaseError } from '../../util/missingCaseError.std.js';
-import { backupsService } from '../../services/backups/index.preload.js';
 import { InstallScreen } from '../../components/InstallScreen.dom.js';
 import { WidthBreakpoint } from '../../components/_util.std.js';
 import { InstallScreenStep } from '../../types/InstallScreen.std.js';
-import OS from '../../util/os/osMain.node.js';
-import { isStagingServer } from '../../util/isStagingServer.dom.js';
 import { createLogger } from '../../logging/log.std.js';
 import { SmartToastManager } from './ToastManager.preload.js';
+import { challengeHandler } from '../../services/challengeHandler.preload.js';
+import type { IPCResponse } from '../../challenge.dom.js';
 
 const log = createLogger('InstallScreen');
 
 type PropsType = ComponentProps<typeof InstallScreen>;
 
 export const SmartInstallScreen = memo(function SmartInstallScreen() {
-  const i18n = useSelector(getIntl);
   const installerState = useSelector(getInstallerState);
-  const updates = useSelector(getUpdatesState);
-  const { startInstaller, retryBackupImport } = useInstallerActions();
-  const { startUpdate, forceUpdate } = useUpdatesActions();
-  const hasExpired = useSelector(hasExpiredSelector);
+  const {
+    startRegistration,
+    submitPhoneNumber,
+    submitCaptcha,
+    submitVerificationCode,
+    resendVerificationCode,
+    goBack,
+  } = useInstallerActions();
 
-  const onCancelBackupImport = useCallback((): void => {
-    backupsService.cancelDownloadAndImport();
+  // Set up the challenge response listener for captcha during install
+  useEffect(() => {
+    const handleChallengeResponse = (response: IPCResponse) => {
+      log.info('Received challenge response during install');
+      challengeHandler.onResponse(response);
+    };
+
+    window.Whisper.events.on('challengeResponse', handleChallengeResponse);
+
+    return () => {
+      window.Whisper.events.off('challengeResponse', handleChallengeResponse);
+    };
+  }, []);
+
+  // Function to request captcha token - waits for the signalcaptcha:// URL response
+  const requestCaptcha = useCallback(async (): Promise<string> => {
+    return challengeHandler.requestCaptcha({
+      reason: 'registration',
+    });
   }, []);
 
   let props: PropsType;
@@ -44,56 +59,73 @@ export const SmartInstallScreen = memo(function SmartInstallScreen() {
       log.error('Installer not started');
       return null;
 
-    case InstallScreenStep.QrCodeNotScanned:
+    case InstallScreenStep.PhoneNumberEntry:
       props = {
-        step: InstallScreenStep.QrCodeNotScanned,
+        step: InstallScreenStep.PhoneNumberEntry,
         screenSpecificProps: {
-          i18n,
-          provisioningUrl: installerState.provisioningUrl,
-          hasExpired,
-          updates,
-          currentVersion: window.getVersion(),
-          startUpdate,
-          forceUpdate,
-          retryGetQrCode: startInstaller,
-          OS: OS.getName(),
-          isStaging: isStagingServer(),
+          onSubmitPhoneNumber: submitPhoneNumber,
+          isSubmitting: installerState.isSubmitting,
+          error: installerState.error,
         },
       };
       break;
-    case InstallScreenStep.LinkInProgress:
+
+    case InstallScreenStep.CaptchaChallenge:
       props = {
-        step: InstallScreenStep.LinkInProgress,
-        screenSpecificProps: { i18n },
-      };
-      break;
-    case InstallScreenStep.BackupImport:
-      props = {
-        step: InstallScreenStep.BackupImport,
+        step: InstallScreenStep.CaptchaChallenge,
         screenSpecificProps: {
-          i18n,
-          ...installerState,
-          onCancel: onCancelBackupImport,
-          onRetry: retryBackupImport,
-          updates,
-          currentVersion: window.getVersion(),
-          forceUpdate,
-          startUpdate,
-          OS: OS.getName(),
+          phoneNumber: installerState.phoneNumber,
+          onCaptchaComplete: submitCaptcha,
+          onBack: goBack,
+          isSubmitting: installerState.isSubmitting,
+          error: installerState.error,
+          requestCaptcha,
         },
       };
       break;
+
+    case InstallScreenStep.VerificationCodeEntry:
+      props = {
+        step: InstallScreenStep.VerificationCodeEntry,
+        screenSpecificProps: {
+          phoneNumber: installerState.phoneNumber,
+          onSubmitCode: submitVerificationCode,
+          onResendCode: resendVerificationCode,
+          onBack: goBack,
+          isSubmitting: installerState.isSubmitting,
+          error: installerState.error,
+        },
+      };
+      break;
+
+    case InstallScreenStep.CreatingAccount:
+      props = {
+        step: InstallScreenStep.CreatingAccount,
+        screenSpecificProps: {
+          phoneNumber: installerState.phoneNumber,
+        },
+      };
+      break;
+
     case InstallScreenStep.Error:
       props = {
         step: InstallScreenStep.Error,
         screenSpecificProps: {
-          i18n,
           error: installerState.error,
           quit: () => window.IPC.shutdown(),
-          tryAgain: startInstaller,
+          tryAgain: startRegistration,
         },
       };
       break;
+
+    case InstallScreenStep.BackupImport:
+      // Backup import is not used in the new registration flow
+      // but we need to handle the case for compatibility
+      log.warn(
+        'BackupImport step should not be reached in new registration flow'
+      );
+      return null;
+
     default:
       throw missingCaseError(installerState);
   }
