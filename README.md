@@ -1,45 +1,37 @@
 <!-- Copyright 2014 Signal Messenger, LLC -->
 <!-- SPDX-License-Identifier: AGPL-3.0-only -->
 
-# Signal Desktop
+<p align="center">
+  <img src="build/icons/png/256x256.png" alt="Observer Vault Logo" width="256" height="256">
+</p>
 
-Signal Desktop links with Signal on [Android](https://github.com/signalapp/Signal-Android) or [iOS](https://github.com/signalapp/Signal-iOS) and lets you message from your Windows, macOS, and Linux computers.
+# Observer Vault
 
-[Install the production version](https://signal.org/download/) or help us out by [installing the beta version](https://support.signal.org/hc/articles/360007318471-Signal-Beta).
+Observer Vault is a fork of [Signal Desktop](https://github.com/signalapp/Signal-Desktop).
 
-## Got a question?
+Features:
 
-You can find answers to a number of frequently asked questions on our [support site](https://support.signal.org/).
-The [community forum](https://community.signalusers.org/) is another good place for questions.
+- Stream video and audio from the Signal app on your phone to the Observer Vault app on your computer, end-to-end encrypted using Signal.
+- Your footage is uploaded remotely to your computer immediately (saved in your Downloads folder), and it isn't saved to your phone.
+- Send photos, videos, or other files as attachments using Signal to Observer Vault and it will store them in the Downloads folder on your computer.
+- 30 second disappearing messages enforced.
 
-## Found a Bug?
+It works like this.
 
-Please search for any [existing issues](https://github.com/signalapp/Signal-Desktop/issues) that describe your bug in order to avoid duplicate submissions.
+You register a new Signal account within Observer Vault (you'll need an extra phone number), and then you'll keep it running on a computer somewhere safe, like at home. Or, have a trusted friend run Observer Vault for you from their home.
 
-## Have a feature request, question, comment?
+When you want to film ICE/DHS agents who are attacking and kidnapping your neighbors, open Signal and start a video call with your new Observer Vault Signal account. Observer Vault automatically accepts all calls and starts recording. When the call ends, Observer Vault will save the recording to your Downloads folder.
 
-Please use our community forum: https://community.signalusers.org/
+You can also take photos directly from the Signal app to send them to Observer Vault, without saving them in your phone's photo library. Observer Vault automatically downloads all attachments.
 
-## Contributing Code
-
-Please see [CONTRIBUTING.md](https://github.com/signalapp/Signal-Desktop/blob/main/CONTRIBUTING.md)
-for setup instructions and guidelines for new contributors. Don't forget to sign the [CLA](https://signal.org/cla/).
-
-## Contributing Funds
-
-You can donate to Signal development through the [Signal Technology Foundation](https://signal.org/donate), an independent 501c3 nonprofit.
-
-## Cryptography Notice
-
-This distribution includes cryptographic software. The country in which you currently reside may have restrictions on the import, possession, use, and/or re-export to another country, of encryption software.
-BEFORE using any encryption software, please check your country's laws, regulations and policies concerning the import, possession, or use, and re-export of encryption software, to see if this is permitted.
-See <http://www.wassenaar.org/> for more information.
-
-The U.S. Government Department of Commerce, Bureau of Industry and Security (BIS), has classified this software as Export Commodity Control Number (ECCN) 5D002.C.1, which includes information security software using or performing cryptographic functions with asymmetric algorithms.
-The form and manner of this distribution makes it eligible for export under the License Exception ENC Technology Software Unrestricted (TSU) exception (see the BIS Export Administration Regulations, Section 740.13) for both object code and source code.
+If the goons search your phone, they won't have access to the footage that you recorded. That's all saved remotely on the computer running Observer Vault.
 
 ## License
 
-Copyright 2013-2024 Signal Messenger, LLC
+Signal Desktop is Copyright Signal Messenger, LLC.
+
+Observer Vault is Copyright Lockdown Systems LLC.
 
 Licensed under the GNU AGPLv3: https://www.gnu.org/licenses/agpl-3.0.html
+
+Icon credit: [Nhor Phai from flaticons](https://www.flaticon.com/free-icon/dual-camera_1813228?related_id=1813206)

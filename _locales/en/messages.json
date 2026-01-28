@@ -212,7 +212,7 @@
     "description": "Application menu command to show all application windows"
   },
   "icu:appMenuQuit": {
-    "messageformat": "Quit Signal",
+    "messageformat": "Quit Observer Vault",
     "description": "Application menu command to close the application"
   },
   "icu:editMenuUndo": {
@@ -984,7 +984,7 @@
     "description": "Title of the window that pops up with Signal Desktop preferences in it"
   },
   "icu:aboutSignalDesktop": {
-    "messageformat": "About Signal Desktop",
+    "messageformat": "About Observer Vault",
     "description": "Item under the Help menu, which opens a small about window"
   },
   "icu:screenShareWindow": {
@@ -1008,7 +1008,7 @@
     "description": "Command in the tray icon menu, to quit the application"
   },
   "icu:signalDesktop": {
-    "messageformat": "Signal Desktop",
+    "messageformat": "Observer Vault",
     "description": "Tooltip for the tray icon"
   },
   "icu:search": {
@@ -1080,7 +1080,7 @@
     "description": "Shown when search could be a valid phone number, with one sub-item that will kick off the search"
   },
   "icu:welcomeToSignal": {
-    "messageformat": "Welcome to Signal"
+    "messageformat": "Welcome to Observer Vault"
   },
   "icu:whatsNew": {
     "messageformat": "See {whatsNew} in this update",
@@ -1195,15 +1195,15 @@
     "description": "Shown when the user represented is the current user."
   },
   "icu:audioPermissionNeeded": {
-    "messageformat": "To send voice messages, allow Signal Desktop to access your microphone.",
+    "messageformat": "To send voice messages, allow Observer Vault to access your microphone.",
     "description": "Shown if the user attempts to send an audio message without audio permissions turned on"
   },
   "icu:audioCallingPermissionNeeded": {
-    "messageformat": "For calling, you must allow Signal Desktop to access your microphone.",
+    "messageformat": "For calling, you must allow Observer Vault to access your microphone.",
     "description": "Shown if the user attempts access the microphone for calling without audio permissions turned on"
   },
   "icu:videoCallingPermissionNeeded": {
-    "messageformat": "For video calling, you must allow Signal Desktop to access your camera.",
+    "messageformat": "For video calling, you must allow Observer Vault to access your camera.",
     "description": "Shown if the user attempts access the camera for video calling without video permissions turned on"
   },
   "icu:allowAccess": {
@@ -1243,7 +1243,7 @@
     "description": "Shown if a general error happened while trying to install update package and manual update is required"
   },
   "icu:readOnlyVolume": {
-    "messageformat": "Signal Desktop is likely in a macOS quarantine, and will not be able to auto-update. Please try moving {app} to {folder} with Finder.",
+    "messageformat": "Observer Vault is likely in a macOS quarantine, and will not be able to auto-update. Please try moving {app} to {folder} with Finder.",
     "description": "Shown on MacOS if running on a read-only volume and we cannot update"
   },
   "icu:ok": {
@@ -1991,7 +1991,7 @@
     "description": "Shown on the install screen if the QR code fails to load due to an unknown error"
   },
   "icu:Install__qr-failed-load__error--network": {
-    "messageformat": "Signal cannot link this device using your current network.",
+    "messageformat": "Observer Vault cannot link this device using your current network.",
     "description": "Shown on the install screen if the QR code fails to load due to a network error"
   },
   "icu:Install__qr-failed-load__retry": {
@@ -2770,7 +2770,7 @@
     "description": "Header of the full-screen delete data confirmation screen"
   },
   "icu:deleteAllDataBody": {
-    "messageformat": "Delete all data and messages from this version of Signal Desktop? Your Signal account and data on your phone or other linked devices will not be deleted.",
+    "messageformat": "Delete all data and messages from this version of Observer Vault? Your Signal account and data on your phone or other linked devices will not be deleted.",
     "description": "Text describing what exactly will happen if the user clicks the button to delete all data"
   },
   "icu:deleteAllDataProgress": {
@@ -2778,8 +2778,8 @@
     "description": "Message shown to user when app is disconnected and data deleted"
   },
   "icu:deleteOldIndexedDBData": {
-    "messageformat": "You have obsolete data from a prior installation of Signal Desktop. If you choose to continue, it will be deleted and you will start from scratch.",
-    "description": "Shown if user last ran Signal Desktop before October 2018"
+    "messageformat": "You have obsolete data from a prior installation of Observer Vault. If you choose to continue, it will be deleted and you will start from scratch.",
+    "description": "Shown if user last ran Observer Vault previously"
   },
   "icu:deleteOldData": {
     "messageformat": "Delete Old Data",
@@ -2837,7 +2837,7 @@
     "description": "Shown on a message which was deleted for everyone if the delete wasn't successfully sent to everyone"
   },
   "icu:expiredWarning": {
-    "messageformat": "This version of Signal Desktop has expired. Please upgrade to the latest version to continue messaging.",
+    "messageformat": "This version of Observer Vault has expired. Please upgrade to the latest version to continue messaging.",
     "description": "Warning notification that this version of the app has expired"
   },
   "icu:upgrade": {
@@ -3193,7 +3193,7 @@
     "description": "Shown in the modal when we can't update a group"
   },
   "icu:unlinkedWarning": {
-    "messageformat": "Click to relink Signal Desktop to your mobile device to continue messaging."
+    "messageformat": "Click to relink Observer Vault to your mobile device to continue messaging."
   },
   "icu:unlinked": {
     "messageformat": "Unlinked"
@@ -5001,7 +5001,7 @@
     "description": "This group link is no longer valid."
   },
   "icu:GroupV2--join--unknown-link-version": {
-    "messageformat": "This link is not supported by this version of Signal Desktop.",
+    "messageformat": "This link is not supported by this version of Observer Vault.",
     "description": "Shown if you click a group link and we can't get information about it"
   },
   "icu:GroupV2--join--link-revoked--title": {
@@ -5969,7 +5969,7 @@
     "description": "Title for the composition area for the SMS-only contact"
   },
   "icu:CompositionArea--sms-only__body": {
-    "messageformat": "Signal Desktop does not support messaging non-Signal contacts. Ask this person to install Signal for a more secure messaging experience.",
+    "messageformat": "Observer Vault does not support messaging non-Signal contacts. Ask this person to install Signal for a more secure messaging experience.",
     "description": "Body for the composition area for the SMS-only contact"
   },
   "icu:CompositionArea--sms-only__spinner-label": {
@@ -8245,11 +8245,11 @@
     "description": "The body of the update dialog on install screen when manual update was downloaded."
   },
   "icu:InstallScreenUpdateDialog--cannot-update__body": {
-    "messageformat": "Signal Desktop failed to update, but there is a new version available. Go to {downloadUrl} and install the new version manually, then either contact support or file a bug about this problem.",
+    "messageformat": "Observer Vault failed to update, but there is a new version available. Go to {downloadUrl} and install the new version manually, then either contact support or file a bug about this problem.",
     "description": "The body of the update dialog on install screen when update cannot be installed."
   },
   "icu:NSIS__retry-dialog--first-line": {
-    "messageformat": "Signal cannot be closed.",
+    "messageformat": "Observer Vault cannot be closed.",
     "description": "First line of the dialog displayed when Windows installer can't close application automatically and needs user intervention to complete the installation.",
     "ignoreUnused": true
   },

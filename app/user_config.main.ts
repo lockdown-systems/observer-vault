@@ -17,7 +17,7 @@ if (config.has('storagePath')) {
 } else if (config.has('storageProfile')) {
   userData = join(
     app.getPath('appData'),
-    `Signal-${config.get('storageProfile')}`
+    `ObserverVault-${config.get('storageProfile')}`
   );
 } else if (OS.isAppImage()) {
   userData = join(app.getPath('appData'), `${app.getName()} AppImage`);
