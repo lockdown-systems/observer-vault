@@ -8,7 +8,8 @@ import { createPortal } from 'react-dom';
 import { SECOND } from '../util/durations/index.std.js';
 import { Toast } from './Toast.dom.js';
 import { WidthBreakpoint } from './_util.std.js';
-import { UsernameMegaphone } from './UsernameMegaphone.dom.js';
+// Observer Vault: UsernameMegaphone removed
+// import { UsernameMegaphone } from './UsernameMegaphone.dom.js';
 import { assertDev } from '../util/assert.std.js';
 import { missingCaseError } from '../util/missingCaseError.std.js';
 import { ToastType } from '../types/Toast.dom.js';
@@ -953,8 +954,9 @@ export function renderMegaphone({
     return null;
   }
 
+  // Username onboarding megaphone disabled for Observer Vault
   if (megaphone.type === MegaphoneType.UsernameOnboarding) {
-    return <UsernameMegaphone i18n={i18n} {...megaphone} />;
+    return null;
   }
 
   if (megaphone.type === MegaphoneType.Remote) {

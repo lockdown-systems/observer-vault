@@ -734,18 +734,8 @@ export function CallScreen({
     );
   }
 
-  let videoButtonType: CallingButtonType;
-  if (presentingSource) {
-    videoButtonType = CallingButtonType.VIDEO_DISABLED;
-  } else if (hasLocalVideo) {
-    videoButtonType = CallingButtonType.VIDEO_ON;
-  } else {
-    videoButtonType = CallingButtonType.VIDEO_OFF;
-  }
-
-  const audioButtonType = hasLocalAudio
-    ? CallingButtonType.AUDIO_ON
-    : CallingButtonType.AUDIO_OFF;
+  // Observer Vault: Video and audio buttons removed from call screen UI
+  // _videoButtonType and _audioButtonType are intentionally not computed
 
   const isGroupCall = isGroupOrAdhocActiveCall(activeCall);
 
@@ -1214,22 +1204,7 @@ export function CallScreen({
           )}
 
           <div className="CallControls__ButtonContainer">
-            <CallingButton
-              buttonType={videoButtonType}
-              i18n={i18n}
-              onMouseEnter={onControlsMouseEnter}
-              onMouseLeave={onControlsMouseLeave}
-              onClick={toggleVideo}
-              tooltipDirection={TooltipPlacement.Top}
-            />
-            <CallingButton
-              buttonType={audioButtonType}
-              i18n={i18n}
-              onMouseEnter={onControlsMouseEnter}
-              onMouseLeave={onControlsMouseLeave}
-              onClick={toggleAudio}
-              tooltipDirection={TooltipPlacement.Top}
-            />
+            {/* Observer Vault: Video/audio buttons removed */}
             {raiseHandButtonType && (
               <CallingButton
                 buttonType={raiseHandButtonType}

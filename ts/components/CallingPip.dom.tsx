@@ -133,10 +133,13 @@ export function CallingPip({
   setRendererCanvas,
   switchToPresentationView,
   switchFromPresentationView,
-  toggleAudio,
+  // Observer Vault: Audio/video toggle removed from PiP UI
+  toggleAudio: _toggleAudio,
   togglePip,
-  toggleVideo,
+  toggleVideo: _toggleVideo,
 }: PropsType): React.JSX.Element {
+  void _toggleAudio;
+  void _toggleVideo;
   const isRTL = i18n.getLocaleDirection() === 'rtl';
 
   const videoContainerRef = React.useRef<null | HTMLDivElement>(null);
@@ -411,17 +414,9 @@ export function CallingPip({
     callJoinRequests = activeCall.pendingParticipants.length;
   }
 
-  let videoButtonType: CallingButtonType;
-  if (activeCall.presentingSource) {
-    videoButtonType = CallingButtonType.VIDEO_DISABLED;
-  } else if (activeCall.hasLocalVideo) {
-    videoButtonType = CallingButtonType.VIDEO_ON;
-  } else {
-    videoButtonType = CallingButtonType.VIDEO_OFF;
-  }
-  const audioButtonType = activeCall.hasLocalAudio
-    ? CallingButtonType.AUDIO_ON
-    : CallingButtonType.AUDIO_OFF;
+  // Observer Vault: Video and audio buttons removed from PiP UI
+  // _videoButtonType and _audioButtonType are intentionally not computed
+
   const hangupButtonType =
     activeCall.callMode === CallMode.Direct
       ? CallingButtonType.HANGUP_DIRECT
@@ -676,26 +671,7 @@ export function CallingPip({
         )}
       >
         <div className="module-calling-pip__actions__spacer" />
-        <div className="module-calling-pip__actions__button">
-          <CallingButton
-            buttonType={videoButtonType}
-            i18n={i18n}
-            onMouseEnter={onControlsMouseEnter}
-            onMouseLeave={onControlsMouseLeave}
-            onClick={toggleVideo}
-            tooltipDirection={TooltipPlacement.Top}
-          />
-        </div>
-        <div className="module-calling-pip__actions__button module-calling-pip__actions__middle-button">
-          <CallingButton
-            buttonType={audioButtonType}
-            i18n={i18n}
-            onMouseEnter={onControlsMouseEnter}
-            onMouseLeave={onControlsMouseLeave}
-            onClick={toggleAudio}
-            tooltipDirection={TooltipPlacement.Top}
-          />
-        </div>
+        {/* Observer Vault: Video and audio buttons removed - we don't use camera/mic */}
         <div className="module-calling-pip__actions__button">
           <CallingButton
             buttonType={hangupButtonType}

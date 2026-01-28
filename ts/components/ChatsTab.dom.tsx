@@ -4,14 +4,12 @@
 import React from 'react';
 import type { LocalizerType } from '../types/I18N.std.js';
 import type { NavTabPanelProps } from './NavTabs.dom.js';
-import { WhatsNewLink } from './WhatsNewLink.dom.js';
 import type { UnreadStats } from '../util/countUnreadStats.std.js';
 import type { SmartConversationViewProps } from '../state/smart/ConversationView.preload.js';
 
 export type ChatsTabProps = Readonly<{
   otherTabsUnreadStats: UnreadStats;
   i18n: LocalizerType;
-  isStaging: boolean;
   hasPendingUpdate: boolean;
   hasFailedStorySends: boolean;
   navTabsCollapsed: boolean;
@@ -22,13 +20,11 @@ export type ChatsTabProps = Readonly<{
   renderLeftPane: (props: NavTabPanelProps) => React.JSX.Element;
   renderMiniPlayer: (options: { shouldFlow: boolean }) => React.JSX.Element;
   selectedConversationId: string | undefined;
-  showWhatsNewModal: () => unknown;
 }>;
 
 export function ChatsTab({
   otherTabsUnreadStats,
   i18n,
-  isStaging,
   hasPendingUpdate,
   hasFailedStorySends,
   navTabsCollapsed,
@@ -37,7 +33,6 @@ export function ChatsTab({
   renderLeftPane,
   renderMiniPlayer,
   selectedConversationId,
-  showWhatsNewModal,
 }: ChatsTabProps): React.JSX.Element {
   return (
     <>
@@ -65,14 +60,7 @@ export function ChatsTab({
           <div className="Inbox__no-conversation-open">
             {renderMiniPlayer({ shouldFlow: false })}
             <div className="module-splash-screen__logo module-splash-screen__logo--96" />
-            <h3 className="Inbox__welcome">
-              {isStaging
-                ? 'THIS IS A STAGING DESKTOP'
-                : i18n('icu:welcomeToSignal')}
-            </h3>
-            <p className="Inbox__whatsnew">
-              <WhatsNewLink i18n={i18n} showWhatsNewModal={showWhatsNewModal} />
-            </p>
+            <h3 className="Inbox__welcome">{i18n('icu:welcomeToSignal')}</h3>
             <div className="Inbox__padding" />
           </div>
         )}

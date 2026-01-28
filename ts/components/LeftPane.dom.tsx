@@ -241,14 +241,16 @@ export function LeftPane({
   hasNetworkDialog,
   hasPendingUpdate,
   hasRelinkDialog,
-  hasUpdateDialog,
+  // Observer Vault: Update dialog removed
+  hasUpdateDialog: _hasUpdateDialog,
   i18n,
   lookupConversationWithoutServiceId,
   isMacOS,
   isNotificationProfileActive,
   isChatFoldersEnabled,
   isOnline,
-  isUpdateDownloaded,
+  // Observer Vault: Update dialog removed
+  isUpdateDownloaded: _isUpdateDownloaded,
   modeSpecificProps,
   navTabsCollapsed,
   onChatFoldersOpenSettings,
@@ -270,7 +272,8 @@ export function LeftPane({
   renderNotificationProfilesMenu,
   renderUnsupportedOSDialog,
   renderRelinkDialog,
-  renderUpdateDialog,
+  // Observer Vault: Update dialog removed
+  renderUpdateDialog: _renderUpdateDialog,
   renderToastManager,
   resumeBackupMediaDownload,
   saveAlerts,
@@ -669,11 +672,11 @@ export function LeftPane({
     maybeYellowDialog = maybeServerAlert;
   }
 
-  // Update dialog
-  let maybeUpdateDialog: React.JSX.Element | undefined;
-  if (hasUpdateDialog && (!hasNetworkDialog || isUpdateDownloaded)) {
-    maybeUpdateDialog = renderUpdateDialog(commonDialogProps);
-  }
+  // Update dialog - disabled for Observer Vault
+  const maybeUpdateDialog: React.JSX.Element | undefined = undefined;
+  // if (hasUpdateDialog && (!hasNetworkDialog || isUpdateDownloaded)) {
+  //   maybeUpdateDialog = renderUpdateDialog(commonDialogProps);
+  // }
 
   // Red dialogs
   let maybeRedDialog: React.JSX.Element | undefined;

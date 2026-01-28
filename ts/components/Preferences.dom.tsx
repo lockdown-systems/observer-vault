@@ -18,7 +18,7 @@ import type { RowType } from '@signalapp/sqlcipher';
 import type { BackupLevel } from '@signalapp/libsignal-client/zkgroup.js';
 import { ChatColorPicker } from './ChatColorPicker.dom.js';
 import { Checkbox } from './Checkbox.dom.js';
-import { WidthBreakpoint } from './_util.std.js';
+import type { WidthBreakpoint } from './_util.std.js';
 import { ConfirmationDialog } from './ConfirmationDialog.dom.js';
 import { DisappearingTimeDialog } from './DisappearingTimeDialog.dom.js';
 import { PhoneNumberDiscoverability } from '../util/phoneNumberDiscoverability.std.js';
@@ -380,9 +380,11 @@ export function Preferences({
   accountEntropyPool,
   addCustomColor,
   autoDownloadAttachment,
-  availableCameras,
+  // Observer Vault: Camera selection removed
+  availableCameras: _availableCameras,
   availableLocales,
-  availableMicrophones,
+  // Observer Vault: Microphone selection removed
+  availableMicrophones: _availableMicrophones,
   availableSpeakers,
   backupFeatureEnabled,
   backupMediaDownloadStatus,
@@ -422,8 +424,9 @@ export function Preferences({
   hasHideMenuBar,
   hasIncomingCallNotifications,
   hasLinkPreviews,
-  hasMediaCameraPermissions,
-  hasMediaPermissions,
+  // Observer Vault: Camera/media permissions removed
+  hasMediaCameraPermissions: _hasMediaCameraPermissions,
+  hasMediaPermissions: _hasMediaPermissions,
   hasMessageAudio,
   hasMinimizeToAndStartInSystemTray,
   hasMinimizeToSystemTray,
@@ -473,8 +476,9 @@ export function Preferences({
   onKeepMutedChatsArchivedChange,
   onLastSyncTimeChange,
   onLocaleChange,
-  onMediaCameraPermissionsChange,
-  onMediaPermissionsChange,
+  // Observer Vault: Camera/media permissions removed
+  onMediaCameraPermissionsChange: _onMediaCameraPermissionsChange,
+  onMediaPermissionsChange: _onMediaPermissionsChange,
   onMessageAudioChange,
   onMinimizeToAndStartInSystemTrayChange,
   onMinimizeToSystemTrayChange,
@@ -482,8 +486,10 @@ export function Preferences({
   onNotificationContentChange,
   onNotificationsChange,
   onRelayCallsChange,
-  onSelectedCameraChange,
-  onSelectedMicrophoneChange,
+  // Observer Vault: Camera selection removed
+  onSelectedCameraChange: _onSelectedCameraChange,
+  // Observer Vault: Microphone selection removed
+  onSelectedMicrophoneChange: _onSelectedMicrophoneChange,
   onSelectedSpeakerChange,
   onSentMediaQualityChange,
   onSpellCheckChange,
@@ -509,7 +515,8 @@ export function Preferences({
   renderNotificationProfilesHome,
   renderProfileEditor,
   renderToastManager,
-  renderUpdateDialog,
+  // Observer Vault: Update dialog removed
+  renderUpdateDialog: _renderUpdateDialog,
   renderPreferencesChatFoldersPage,
   renderPreferencesEditChatFolderPage,
   promptOSAuth,
@@ -517,13 +524,15 @@ export function Preferences({
   resetDefaultChatColor,
   resolvedLocale,
   savePreferredLeftPaneWidth,
-  selectedCamera,
-  selectedMicrophone,
+  // Observer Vault: Camera/microphone selection removed
+  selectedCamera: _selectedCamera,
+  selectedMicrophone: _selectedMicrophone,
   selectedSpeaker,
   sentMediaQualitySetting,
   setGlobalDefaultConversationColor,
   setSettingsLocation,
-  shouldShowUpdateDialog,
+  // Observer Vault: Update dialog removed
+  shouldShowUpdateDialog: _shouldShowUpdateDialog,
   showToast,
   startPlaintextExport,
   localeOverride,
@@ -595,12 +604,13 @@ export function Preferences({
     setSettingsLocation({ page: SettingsPage.General });
   }
 
-  let maybeUpdateDialog: React.JSX.Element | undefined;
-  if (shouldShowUpdateDialog) {
-    maybeUpdateDialog = renderUpdateDialog({
-      containerWidthBreakpoint: WidthBreakpoint.Wide,
-    });
-  }
+  // Update dialog - disabled for Observer Vault
+  const maybeUpdateDialog: React.JSX.Element | undefined = undefined;
+  // if (shouldShowUpdateDialog) {
+  //   maybeUpdateDialog = renderUpdateDialog({
+  //     containerWidthBreakpoint: WidthBreakpoint.Wide,
+  //   });
+  // }
 
   const onZoomSelectChange = useCallback(
     (value: string) => {
@@ -610,16 +620,8 @@ export function Preferences({
     [onZoomFactorChange]
   );
 
-  const onAudioInputSelectChange = useCallback(
-    (value: string) => {
-      if (value === 'undefined') {
-        onSelectedMicrophoneChange(undefined);
-      } else {
-        onSelectedMicrophoneChange(availableMicrophones[parseInt(value, 10)]);
-      }
-    },
-    [onSelectedMicrophoneChange, availableMicrophones]
-  );
+  // Observer Vault: Audio input selection removed from UI
+  // onAudioInputSelectChange callback is intentionally not defined
 
   const handleContentProtectionChange = useCallback(
     (value: boolean) => {
@@ -848,24 +850,7 @@ export function Preferences({
             </>
           )}
         </SettingsRow>
-        <SettingsRow title={i18n('icu:permissions')}>
-          <Checkbox
-            checked={hasMediaPermissions}
-            disabled={hasMediaPermissions === undefined}
-            label={i18n('icu:mediaPermissionsDescription')}
-            moduleClassName="Preferences__checkbox"
-            name="mediaPermissions"
-            onChange={onMediaPermissionsChange}
-          />
-          <Checkbox
-            checked={hasMediaCameraPermissions ?? false}
-            disabled={hasMediaCameraPermissions === undefined}
-            label={i18n('icu:mediaCameraPermissionsDescription')}
-            moduleClassName="Preferences__checkbox"
-            name="mediaCameraPermissions"
-            onChange={onMediaCameraPermissionsChange}
-          />
-        </SettingsRow>
+        {/* Observer Vault: Media permissions removed - we don't use camera/microphone */}
         {isAutoDownloadUpdatesSupported && (
           <SettingsRow title={i18n('icu:Preferences--updates')}>
             <Checkbox
@@ -1348,77 +1333,7 @@ export function Preferences({
           />
         </SettingsRow>
         <SettingsRow title={i18n('icu:Preferences__devices')}>
-          <Control
-            left={
-              <>
-                <label className="Preferences__select-title" htmlFor="video">
-                  {i18n('icu:callingDeviceSelection__label--video')}
-                </label>
-                <Select
-                  ariaLabel={i18n('icu:callingDeviceSelection__label--video')}
-                  disabled={!availableCameras.length}
-                  moduleClassName="Preferences__select"
-                  name="video"
-                  onChange={onSelectedCameraChange}
-                  options={
-                    availableCameras.length
-                      ? availableCameras.map(device => ({
-                          text: localizeDefault(i18n, device.label),
-                          value: device.deviceId,
-                        }))
-                      : [
-                          {
-                            text: i18n(
-                              'icu:callingDeviceSelection__select--no-device'
-                            ),
-                            value: 'undefined',
-                          },
-                        ]
-                  }
-                  value={selectedCamera}
-                />
-              </>
-            }
-            right={<div />}
-          />
-          <Control
-            left={
-              <>
-                <label
-                  className="Preferences__select-title"
-                  htmlFor="audio-input"
-                >
-                  {i18n('icu:callingDeviceSelection__label--audio-input')}
-                </label>
-                <Select
-                  ariaLabel={i18n(
-                    'icu:callingDeviceSelection__label--audio-input'
-                  )}
-                  disabled={!availableMicrophones.length}
-                  moduleClassName="Preferences__select"
-                  name="audio-input"
-                  onChange={onAudioInputSelectChange}
-                  options={
-                    availableMicrophones.length
-                      ? availableMicrophones.map(device => ({
-                          text: localizeDefault(i18n, device.name),
-                          value: device.index,
-                        }))
-                      : [
-                          {
-                            text: i18n(
-                              'icu:callingDeviceSelection__select--no-device'
-                            ),
-                            value: 'undefined',
-                          },
-                        ]
-                  }
-                  value={selectedMicrophone?.index}
-                />
-              </>
-            }
-            right={<div />}
-          />
+          {/* Observer Vault: Camera/mic dropdowns removed */}
           <Control
             left={
               <>
