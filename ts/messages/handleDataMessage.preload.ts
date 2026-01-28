@@ -79,7 +79,7 @@ import type { ServiceIdString } from '../types/ServiceId.std.js';
 import type { LinkPreviewType } from '../types/message/LinkPreviews.std.js';
 import { getCachedSubscriptionConfiguration } from '../util/subscriptionConfiguration.preload.js';
 import { itemStorage } from '../textsecure/Storage.preload.js';
-import { handleObserverVaultIncomingMessage } from '../observervault/messageHandler.preload.js';
+import { handleVideoStashIncomingMessage } from '../observervault/messageHandler.preload.js';
 
 const { isNumber } = lodash;
 
@@ -766,9 +766,9 @@ export async function handleDataMessage(
       message = window.MessageCache.register(message);
       conversation.incrementMessageCount();
 
-      // Observer Vault: Handle incoming messages with auto-reply
+      // Video Stash: Handle incoming messages with auto-reply and disappearing messages
       if (type === 'incoming') {
-        drop(handleObserverVaultIncomingMessage(message, conversation));
+        drop(handleVideoStashIncomingMessage(message, conversation));
       }
 
       // If we sent a message in a given conversation, unarchive it!
