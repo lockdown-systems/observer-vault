@@ -55,11 +55,21 @@ jobs:
             exit 1
           fi
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
 
-      - name: Build Linux release (reproducible)
-        run: ./scripts/release-linux.sh --reproducible
+      - name: Install pnpm
+        run: npm install -g pnpm@10.18.1
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential git python3
+
+      - name: Build Linux release
+        run: ./scripts/release-linux.sh
 
       - name: Upload DEB artifacts
         uses: actions/upload-artifact@v4
