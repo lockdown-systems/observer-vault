@@ -6,7 +6,7 @@
   "description": "Secure video call recorder for community observers",
   "desktopName": "observervault.desktop",
   "repository": "https://github.com/micahflee/observer-vault.git",
-  "version": "7.86.0",
+  "version": "1.0.0",
   "license": "AGPL-3.0-only",
   "author": {
     "name": "Signal Messenger, LLC",
