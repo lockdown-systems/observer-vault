@@ -110,15 +110,55 @@ ENTITLEMENTS_INHERIT="build/entitlements.mac.inherit.plist"
 
 echo "Signing: $APP_PATH"
 
+# Sign native node modules in app.asar.unpacked first (required for notarization)
+UNPACKED_DIR="$APP_PATH/Contents/Resources/app.asar.unpacked"
+if [ -d "$UNPACKED_DIR" ]; then
+    echo "Signing native modules in app.asar.unpacked..."
+    
+    # Sign all .node files (native modules)
+    find "$UNPACKED_DIR" -type f -name "*.node" | while read -r file; do
+        echo "  Signing: $(basename "$file")"
+        codesign --force --options runtime --timestamp \
+            --entitlements "$ENTITLEMENTS_INHERIT" \
+            --sign "$IDENTITY" \
+            "$file"
+    done
+    
+    # Sign all .dylib files
+    find "$UNPACKED_DIR" -type f -name "*.dylib" | while read -r file; do
+        echo "  Signing: $(basename "$file")"
+        codesign --force --options runtime --timestamp \
+            --entitlements "$ENTITLEMENTS_INHERIT" \
+            --sign "$IDENTITY" \
+            "$file"
+    done
+    
+    # Sign any executable binaries (no extension, but executable)
+    find "$UNPACKED_DIR" -type f -perm +111 ! -name "*.node" ! -name "*.dylib" ! -name "*.js" ! -name "*.json" ! -name "*.txt" ! -name "*.md" | while read -r file; do
+        # Check if it's a Mach-O binary
+        if file "$file" | grep -q "Mach-O"; then
+            echo "  Signing: $(basename "$file")"
+            codesign --force --options runtime --timestamp \
+                --entitlements "$ENTITLEMENTS_INHERIT" \
+                --sign "$IDENTITY" \
+                "$file"
+        fi
+    done
+fi
+
 # Sign frameworks
 if [ -d "$APP_PATH/Contents/Frameworks" ]; then
-    find "$APP_PATH/Contents/Frameworks" -type f -perm +111 -o -name "*.dylib" | while read -r file; do
+    echo "Signing frameworks..."
+    
+    # Sign all executables and dylibs inside frameworks
+    find "$APP_PATH/Contents/Frameworks" -type f \( -perm +111 -o -name "*.dylib" \) | while read -r file; do
         codesign --force --options runtime --timestamp \
             --entitlements "$ENTITLEMENTS_INHERIT" \
             --sign "$IDENTITY" \
             "$file" 2>/dev/null || true
     done
 
+    # Sign framework bundles
     find "$APP_PATH/Contents/Frameworks" -type d -name "*.framework" | while read -r framework; do
         codesign --force --options runtime --timestamp \
             --entitlements "$ENTITLEMENTS_INHERIT" \
@@ -126,6 +166,7 @@ if [ -d "$APP_PATH/Contents/Frameworks" ]; then
             "$framework" 2>/dev/null || true
     done
 
+    # Sign helper apps
     find "$APP_PATH/Contents/Frameworks" -type d -name "*.app" | while read -r helper; do
         codesign --force --options runtime --timestamp \
             --entitlements "$ENTITLEMENTS_INHERIT" \
@@ -135,6 +176,7 @@ if [ -d "$APP_PATH/Contents/Frameworks" ]; then
 fi
 
 # Sign the main app
+echo "Signing main app bundle..."
 codesign --force --options runtime --timestamp \
     --entitlements "$ENTITLEMENTS_MAIN" \
     --sign "$IDENTITY" \
