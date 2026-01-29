@@ -51,8 +51,10 @@ function Find-LatestSigntoolPath {
         # Get the largest version directory
         $latestVersionDir = $directories[0].Name
 
-        # Construct the path to signtool.exe
-        $signtoolPath = Join-Path $baseDir $latestVersionDir "x64" "signtool.exe"
+        # Construct the path to signtool.exe (Join-Path only takes 2 args at a time)
+        $signtoolPath = Join-Path $baseDir $latestVersionDir
+        $signtoolPath = Join-Path $signtoolPath "x64"
+        $signtoolPath = Join-Path $signtoolPath "signtool.exe"
 
         # Check if signtool.exe exists
         if (-not (Test-Path $signtoolPath)) {
