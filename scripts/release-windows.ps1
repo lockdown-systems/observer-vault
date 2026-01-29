@@ -14,18 +14,15 @@
 #   - Code signing certificate on smartcard (for signed releases)
 #
 # Usage:
-#   .\scripts\release-windows.ps1 [-NoSign] [-Arch <x64|arm64|all>]
+#   .\scripts\release-windows.ps1 [-NoSign]
 #
 # Options:
 #   -NoSign     Skip code signing (builds unsigned)
-#   -Arch       Target architecture: x64, arm64, or all (default: all)
 #
 # Note: When signing is enabled, signtool will prompt for your smartcard PIN.
 
 param(
-    [switch]$NoSign,
-    [ValidateSet("x64", "arm64", "all")]
-    [string]$Arch = "all"
+    [switch]$NoSign
 )
 
 $ErrorActionPreference = "Stop"
@@ -127,12 +124,7 @@ param([string]`$FilePath)
     Write-Host ""
     Write-Host "Step 3: Building release..." -ForegroundColor Cyan
     
-    if ($Arch -eq "all") {
-        pnpm run build-win32-all
-    } else {
-        $env:npm_config_arch = $Arch
-        pnpm run build
-    }
+    pnpm run build:release -- --win --x64
     if ($LASTEXITCODE -ne 0) { throw "Build failed" }
 
     # Clean up temp files
