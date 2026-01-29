@@ -88,14 +88,14 @@ try {
     if (-not $NoSign) {
         $SigntoolPath = Find-LatestSigntoolPath
         if ($SigntoolPath) {
-            Write-Host "✓ Found signtool: $SigntoolPath" -ForegroundColor Green
-            Write-Host "  Signing will use smartcard - you will be prompted for PIN" -ForegroundColor Yellow
+            Write-Host "[OK] Found signtool: $SigntoolPath" -ForegroundColor Green
+            Write-Host "     Signing will use smartcard - you will be prompted for PIN" -ForegroundColor Yellow
             
             # Create signing script that uses smartcard (no certificate file needed)
             # Uses /a flag to auto-select best signing cert from store
             $SignScript = Join-Path $ProjectRoot ".tmp-sign-windows.sh"
             $SigntoolPathEscaped = $SigntoolPath -replace '\\', '/'
-            @"
+            $SignScriptContent = @"
 #!/bin/bash
 # Smartcard signing script for Observer Vault
 # signtool will prompt for smartcard PIN
@@ -103,16 +103,17 @@ try {
 FILE_PATH="`$1"
 
 "$SigntoolPathEscaped" sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /a "`$FILE_PATH"
-"@ | Out-File -FilePath $SignScript -Encoding ASCII -NoNewline
+"@
+            $SignScriptContent | Out-File -FilePath $SignScript -Encoding ASCII -NoNewline
             
             $env:SIGN_WINDOWS_SCRIPT = $SignScript
         } else {
-            Write-Host "⚠ signtool.exe not found. Building unsigned." -ForegroundColor Yellow
-            Write-Host "  Install Windows SDK to enable signing" -ForegroundColor Yellow
+            Write-Host "[WARNING] signtool.exe not found. Building unsigned." -ForegroundColor Yellow
+            Write-Host "          Install Windows SDK to enable signing" -ForegroundColor Yellow
             $NoSign = $true
         }
     } else {
-        Write-Host "⚠ Signing disabled" -ForegroundColor Yellow
+        Write-Host "[WARNING] Signing disabled" -ForegroundColor Yellow
     }
 
     Write-Host ""
@@ -152,7 +153,7 @@ FILE_PATH="`$1"
 
     if ($NoSign) {
         Write-Host ""
-        Write-Host "⚠ Note: The installer is unsigned. Windows SmartScreen may show warnings." -ForegroundColor Yellow
+        Write-Host "[WARNING] Note: The installer is unsigned. Windows SmartScreen may show warnings." -ForegroundColor Yellow
     }
 
 } finally {
