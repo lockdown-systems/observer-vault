@@ -1,4 +1,5 @@
 // Copyright 2019 Signal Messenger, LLC
+// Copyright 2026 Lockdown Systems LLC
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { execSync } from 'node:child_process';
@@ -29,8 +30,19 @@ export async function sign(
 
   const target = await realpath(configuration.path);
 
+  // Use appropriate shell based on script extension
+  let command: string;
+  if (scriptPath.endsWith('.ps1')) {
+    command = `powershell -ExecutionPolicy Bypass -File "${scriptPath}" "${target}"`;
+  } else if (scriptPath.endsWith('.cmd') || scriptPath.endsWith('.bat')) {
+    command = `"${scriptPath}" "${target}"`;
+  } else {
+    // Default to bash for .sh scripts
+    command = `bash "${scriptPath}" "${target}"`;
+  }
+
   // The script will update the file in-place
-  const returnCode = execSync(`bash "${scriptPath}" "${target}"`, {
+  const returnCode = execSync(command, {
     stdio: [null, process.stdout, process.stderr],
   });
 

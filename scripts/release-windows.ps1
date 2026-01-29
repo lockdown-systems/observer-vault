@@ -93,20 +93,16 @@ try {
             Write-Host "[OK] Found signtool: $SigntoolPath" -ForegroundColor Green
             Write-Host "     Signing will use smartcard - you will be prompted for PIN" -ForegroundColor Yellow
             
-            # Create signing script that uses smartcard (no certificate file needed)
+            # Create PowerShell signing script that uses smartcard (no certificate file needed)
             # Uses /a flag to auto-select best signing cert from store
-            $SignScript = Join-Path $ProjectRoot ".tmp-sign-windows.sh"
-            $SigntoolPathEscaped = $SigntoolPath -replace '\\', '/'
+            $SignScript = Join-Path $ProjectRoot ".tmp-sign-windows.ps1"
             $SignScriptContent = @"
-#!/bin/bash
 # Smartcard signing script for Observer Vault
 # signtool will prompt for smartcard PIN
-
-FILE_PATH="`$1"
-
-"$SigntoolPathEscaped" sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /a "`$FILE_PATH"
+param([string]`$FilePath)
+& "$SigntoolPath" sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /a "`$FilePath"
 "@
-            $SignScriptContent | Out-File -FilePath $SignScript -Encoding ASCII -NoNewline
+            $SignScriptContent | Out-File -FilePath $SignScript -Encoding ASCII
             
             $env:SIGN_WINDOWS_SCRIPT = $SignScript
         } else {
@@ -140,7 +136,7 @@ FILE_PATH="`$1"
     if ($LASTEXITCODE -ne 0) { throw "Build failed" }
 
     # Clean up temp files
-    $SignScript = Join-Path $ProjectRoot ".tmp-sign-windows.sh"
+    $SignScript = Join-Path $ProjectRoot ".tmp-sign-windows.ps1"
     if (Test-Path $SignScript) {
         Remove-Item $SignScript -Force
     }
