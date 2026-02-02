@@ -1,8 +1,8 @@
 // Copyright 2021 Signal Messenger, LLC
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import type { CallingMessage } from '@signalapp/ringrtc';
-import { CallMessageUrgency } from '@signalapp/ringrtc';
+import type { CallingMessage } from '@lockdown-systems/ringrtc';
+import { CallMessageUrgency } from '@lockdown-systems/ringrtc';
 import Long from 'long';
 import { SignalService as Proto } from '../protobuf/index.std.js';
 import { createLogger } from '../logging/log.std.js';

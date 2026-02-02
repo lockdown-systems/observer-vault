@@ -8,7 +8,7 @@ import pMap from 'p-map';
 import pTimeout from 'p-timeout';
 import { Readable } from 'node:stream';
 import lodash from 'lodash';
-import { CallLinkRootKey } from '@signalapp/ringrtc';
+import { CallLinkRootKey } from '@lockdown-systems/ringrtc';
 
 import { Backups, SignalService } from '../../protobuf/index.std.js';
 import {

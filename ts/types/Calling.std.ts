@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import type { ReadonlyDeep } from 'type-fest';
-import type { AudioDevice, Reaction as CallReaction } from '@signalapp/ringrtc';
+import type { AudioDevice, Reaction as CallReaction } from '@lockdown-systems/ringrtc';
 import type { ConversationType } from '../state/ducks/conversations.preload.js';
 import type { AciString, ServiceIdString } from './ServiceId.std.js';
 import type { CallLinkConversationType } from './CallLink.std.js';

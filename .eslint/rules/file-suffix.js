@@ -61,7 +61,7 @@ const NODE_PACKAGES = new Set([
   '@indutny/simple-windows-notifications',
   '@signalapp/libsignal-client',
   '@signalapp/mute-state-change',
-  '@signalapp/ringrtc',
+  '@lockdown-systems/ringrtc',
   '@signalapp/sqlcipher',
   '@signalapp/windows-ucv',
   'cirbuf',

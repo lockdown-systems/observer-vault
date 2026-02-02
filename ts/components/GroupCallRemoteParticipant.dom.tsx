@@ -11,7 +11,7 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 import lodash from 'lodash';
-import type { VideoFrameSource } from '@signalapp/ringrtc';
+import type { VideoFrameSource } from '@lockdown-systems/ringrtc';
 import type { GroupCallRemoteParticipantType } from '../types/Calling.std.js';
 import type { LocalizerType } from '../types/Util.std.js';
 import { AvatarColors } from '../types/Colors.std.js';

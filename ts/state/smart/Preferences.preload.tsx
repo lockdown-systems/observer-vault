@@ -4,7 +4,7 @@
 import React, { StrictMode, useCallback, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 
-import type { AudioDevice } from '@signalapp/ringrtc';
+import type { AudioDevice } from '@lockdown-systems/ringrtc';
 import type { MutableRefObject } from 'react';
 
 import { useItemsActions } from '../ducks/items.preload.js';

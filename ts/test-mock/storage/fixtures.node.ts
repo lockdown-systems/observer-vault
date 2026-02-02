@@ -13,7 +13,7 @@ import { StorageState, Proto } from '@signalapp/mock-server';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import lodash from 'lodash';
-import { CallLinkRootKey } from '@signalapp/ringrtc';
+import { CallLinkRootKey } from '@lockdown-systems/ringrtc';
 import { App } from '../playwright.node.js';
 import { Bootstrap } from '../bootstrap.node.js';
 import type { BootstrapOptions } from '../bootstrap.node.js';

@@ -18,7 +18,7 @@ const { dependencies = {}, optionalDependencies = {} } = packageJson;
 
 const SIGNAL_LIBS = [
   '@signalapp/libsignal-client',
-  '@signalapp/ringrtc',
+  '@lockdown-systems/ringrtc',
   '@signalapp/mute-state-change',
 ];
 

@@ -5,8 +5,8 @@ import {
   CallLinkRestrictions as RingRTCCallLinkRestrictions,
   CallLinkRootKey,
   CallLinkEpoch,
-} from '@signalapp/ringrtc';
-import type { CallLinkState as RingRTCCallLinkState } from '@signalapp/ringrtc';
+} from '@lockdown-systems/ringrtc';
+import type { CallLinkState as RingRTCCallLinkState } from '@lockdown-systems/ringrtc';
 import { z } from 'zod';
 import {
   CallLinkNameMaxByteLength,

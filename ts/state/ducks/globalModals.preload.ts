@@ -1,7 +1,7 @@
 // Copyright 2021 Signal Messenger, LLC
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import type { CallSummary } from '@signalapp/ringrtc';
+import type { CallSummary } from '@lockdown-systems/ringrtc';
 import type { ThunkAction } from 'redux-thunk';
 import type { ReadonlyDeep } from 'type-fest';
 import OS from '../../util/os/osMain.node.js';

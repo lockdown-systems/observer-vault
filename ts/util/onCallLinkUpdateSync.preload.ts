@@ -1,7 +1,7 @@
 // Copyright 2024 Signal Messenger, LLC
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { CallLinkRootKey } from '@signalapp/ringrtc';
+import { CallLinkRootKey } from '@lockdown-systems/ringrtc';
 import type { CallLinkUpdateSyncEvent } from '../textsecure/messageReceiverEvents.std.js';
 import { createLogger } from '../logging/log.std.js';
 import * as Errors from '../types/errors.std.js';

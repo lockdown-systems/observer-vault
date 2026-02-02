@@ -1,7 +1,7 @@
 // Copyright 2025 Signal Messenger, LLC
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import type { CallLinkRootKey } from '@signalapp/ringrtc';
+import type { CallLinkRootKey } from '@lockdown-systems/ringrtc';
 import { Aci } from '@signalapp/libsignal-client';
 import { getCheckedCallLinkAuthCredentialsForToday } from '../../services/groupCredentialFetcher.preload.js';
 import { itemStorage } from '../../textsecure/Storage.preload.js';

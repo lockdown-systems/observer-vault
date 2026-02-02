@@ -1,7 +1,7 @@
 // Copyright 2023 Signal Messenger, LLC
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { callIdFromEra } from '@signalapp/ringrtc';
+import { callIdFromEra } from '@lockdown-systems/ringrtc';
 import Long from 'long';
 import { v4 as generateUuid } from 'uuid';
 import lodash from 'lodash';

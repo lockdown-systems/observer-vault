@@ -47,4 +47,4 @@ Gruntfile.js
 
 # used for build:acknowledgements
 !@signalapp/libsignal-client/dist/acknowledgments.md
-!@signalapp/ringrtc/dist/acknowledgments.md
+!@lockdown-systems/ringrtc/dist/acknowledgments.md

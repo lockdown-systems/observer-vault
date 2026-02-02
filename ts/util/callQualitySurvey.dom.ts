@@ -1,7 +1,7 @@
 // Copyright 2025 Signal Messenger, LLC
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import type { CallSummary } from '@signalapp/ringrtc';
+import type { CallSummary } from '@lockdown-systems/ringrtc';
 // Observer Vault: DAY and MINUTE unused (survey disabled)
 // import { DAY, MINUTE } from './durations/index.std.js';
 import { isFeaturedEnabledNoRedux } from './isFeatureEnabled.dom.js';

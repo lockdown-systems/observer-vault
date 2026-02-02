@@ -13,7 +13,7 @@ import type {
   UserId,
   VideoFrameSource,
   VideoRequest,
-} from '@signalapp/ringrtc';
+} from '@lockdown-systems/ringrtc';
 import {
   AnswerMessage,
   BusyMessage,
@@ -42,7 +42,7 @@ import {
   RingUpdate,
   GroupCallKind,
   SpeechEvent,
-} from '@signalapp/ringrtc';
+} from '@lockdown-systems/ringrtc';
 import * as muteStateChange from '@signalapp/mute-state-change';
 import lodash from 'lodash';
 import Long from 'long';
@@ -195,7 +195,7 @@ const { i18n } = window.SignalContext;
 const { uniqBy, noop, compact } = lodash;
 
 const log = createLogger('calling');
-const ringrtcLog = createLogger('@signalapp/ringrtc');
+const ringrtcLog = createLogger('@lockdown-systems/ringrtc');
 
 const { wasGroupCallRingPreviouslyCanceled } = DataReader;
 const {

@@ -3,7 +3,7 @@
 
 import React, { useEffect } from 'react';
 import lodash from 'lodash';
-import type { VideoFrameSource } from '@signalapp/ringrtc';
+import type { VideoFrameSource } from '@lockdown-systems/ringrtc';
 import { Avatar, AvatarSize } from './Avatar.dom.js';
 import { CallBackgroundBlur } from './CallBackgroundBlur.dom.js';
 import { DirectCallRemoteParticipant } from './DirectCallRemoteParticipant.dom.js';

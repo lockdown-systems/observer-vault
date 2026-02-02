@@ -3,7 +3,7 @@
 
 import React, { useCallback, useState, useMemo, useEffect } from 'react';
 import lodash from 'lodash';
-import type { VideoFrameSource } from '@signalapp/ringrtc';
+import type { VideoFrameSource } from '@lockdown-systems/ringrtc';
 import { GroupCallRemoteParticipant } from './GroupCallRemoteParticipant.dom.js';
 import {
   GroupCallOverflowArea,
