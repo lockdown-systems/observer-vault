@@ -28,6 +28,7 @@ export const SmartInstallScreen = memo(function SmartInstallScreen() {
     submitCaptcha,
     submitVerificationCode,
     resendVerificationCode,
+    submitProfile,
     goBack,
   } = useInstallerActions();
 
@@ -103,6 +104,17 @@ export const SmartInstallScreen = memo(function SmartInstallScreen() {
         step: InstallScreenStep.CreatingAccount,
         screenSpecificProps: {
           phoneNumber: installerState.phoneNumber,
+        },
+      };
+      break;
+
+    case InstallScreenStep.ProfileNameEntry:
+      props = {
+        step: InstallScreenStep.ProfileNameEntry,
+        screenSpecificProps: {
+          onSubmitProfile: submitProfile,
+          isSubmitting: installerState.isSubmitting,
+          error: installerState.error,
         },
       };
       break;

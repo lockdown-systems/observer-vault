@@ -11,6 +11,7 @@ import { InstallScreenPhoneNumberStep } from './installScreen/InstallScreenPhone
 import { InstallScreenCaptchaStep } from './installScreen/InstallScreenCaptchaStep.dom.js';
 import { InstallScreenVerificationCodeStep } from './installScreen/InstallScreenVerificationCodeStep.dom.js';
 import { InstallScreenCreatingAccountStep } from './installScreen/InstallScreenCreatingAccountStep.dom.js';
+import { InstallScreenProfileNameStep } from './installScreen/InstallScreenProfileNameStep.dom.js';
 
 // We can't always use destructuring assignment because of the complexity of this props
 //   type.
@@ -37,6 +38,10 @@ type PropsType =
       >;
     }
   | {
+      step: InstallScreenStep.ProfileNameEntry;
+      screenSpecificProps: ComponentProps<typeof InstallScreenProfileNameStep>;
+    }
+  | {
       step: InstallScreenStep.Error;
       screenSpecificProps: ComponentProps<typeof InstallScreenErrorStep>;
     };
@@ -57,6 +62,8 @@ export function InstallScreen(props: Readonly<PropsType>): ReactElement {
       return (
         <InstallScreenCreatingAccountStep {...props.screenSpecificProps} />
       );
+    case InstallScreenStep.ProfileNameEntry:
+      return <InstallScreenProfileNameStep {...props.screenSpecificProps} />;
     default:
       throw missingCaseError(props);
   }

@@ -24,6 +24,9 @@ import { accountManager } from '../../textsecure/AccountManager.preload.js';
 import type { BoundActionCreatorsMapObject } from '../../hooks/useBoundActions.std.js';
 import { useBoundActions } from '../../hooks/useBoundActions.std.js';
 import { createLogger } from '../../logging/log.std.js';
+import { writeProfile } from '../../services/writeProfile.preload.js';
+import { getConversation } from '../../util/getConversation.preload.js';
+import { DataWriter } from '../../sql/Client.preload.js';
 
 const log = createLogger('installer');
 
@@ -59,6 +62,11 @@ export type InstallerStateType = ReadonlyDeep<
       verificationCode: string;
     }
   | {
+      step: InstallScreenStep.ProfileNameEntry;
+      isSubmitting: boolean;
+      error?: string;
+    }
+  | {
       step: InstallScreenStep.BackupImport;
       backupStep: InstallScreenBackupStep;
       currentBytes: number;
@@ -78,6 +86,7 @@ const SET_STEP_ERROR = 'installer/SET_STEP_ERROR';
 const SHOW_CAPTCHA = 'installer/SHOW_CAPTCHA';
 const SHOW_VERIFICATION_CODE = 'installer/SHOW_VERIFICATION_CODE';
 const SHOW_CREATING_ACCOUNT = 'installer/SHOW_CREATING_ACCOUNT';
+const SHOW_PROFILE_NAME_ENTRY = 'installer/SHOW_PROFILE_NAME_ENTRY';
 const SET_ERROR = 'installer/SET_ERROR';
 const RESET_TO_PHONE_NUMBER = 'installer/RESET_TO_PHONE_NUMBER';
 
@@ -113,6 +122,10 @@ type ShowVerificationCodeActionType = ReadonlyDeep<{
 type ShowCreatingAccountActionType = ReadonlyDeep<{
   type: typeof SHOW_CREATING_ACCOUNT;
   payload: { phoneNumber: string; sessionId: string; verificationCode: string };
+}>;
+
+type ShowProfileNameEntryActionType = ReadonlyDeep<{
+  type: typeof SHOW_PROFILE_NAME_ENTRY;
 }>;
 
 type SetErrorActionType = ReadonlyDeep<{
@@ -153,6 +166,7 @@ export type InstallerActionType = ReadonlyDeep<
   | ShowCaptchaActionType
   | ShowVerificationCodeActionType
   | ShowCreatingAccountActionType
+  | ShowProfileNameEntryActionType
   | SetErrorActionType
   | ResetToPhoneNumberActionType
   | ShowBackupImportActionType
@@ -166,6 +180,7 @@ export const actions = {
   submitCaptcha,
   submitVerificationCode,
   resendVerificationCode,
+  submitProfile,
   goBack,
   // Backup import actions - kept for compatibility
   showBackupImport,
@@ -324,10 +339,11 @@ function submitVerificationCode(
       // Register the account as a primary device
       await accountManager.registerSingleDevice(phoneNumber, code, sessionId);
 
-      log.info('Registration successful!');
+      log.info('Registration successful! Showing profile name entry.');
       window.IPC.removeSetupMenuItems();
 
-      // The app will automatically reload after registration completes
+      // Show profile name entry step instead of finishing
+      dispatch({ type: SHOW_PROFILE_NAME_ENTRY });
     } catch (error) {
       log.error('Registration failed:', Errors.toLogFormat(error));
 
@@ -407,6 +423,44 @@ function resendVerificationCode(): ThunkAction<
       type: SHOW_CAPTCHA,
       payload: { phoneNumber },
     });
+  };
+}
+
+function submitProfile(
+  firstName: string,
+  lastName: string
+): ThunkAction<void, RootStateType, unknown, InstallerActionType> {
+  return async (dispatch, getState) => {
+    const state = getState();
+    strictAssert(
+      state.installer.step === InstallScreenStep.ProfileNameEntry,
+      'Wrong step for profile submission'
+    );
+
+    log.info('Submitting profile name');
+    dispatch({ type: SET_SUBMITTING, payload: true });
+
+    try {
+      const us = window.ConversationController.getOurConversationOrThrow();
+      us.set({ profileName: firstName, profileFamilyName: lastName });
+      us.captureChange('registrationProfile');
+      await DataWriter.updateConversation(us.attributes);
+
+      await writeProfile(getConversation(us), {
+        keepAvatar: true,
+      });
+
+      log.info('Profile saved successfully!');
+
+      // Open the inbox to complete the registration flow
+      window.reduxActions.app.openInbox();
+    } catch (error) {
+      log.error('Failed to save profile:', Errors.toLogFormat(error));
+      dispatch({
+        type: SET_STEP_ERROR,
+        payload: 'Failed to save profile. Please try again.',
+      });
+    }
   };
 }
 
@@ -500,7 +554,8 @@ export function reducer(
     if (
       state.step === InstallScreenStep.PhoneNumberEntry ||
       state.step === InstallScreenStep.CaptchaChallenge ||
-      state.step === InstallScreenStep.VerificationCodeEntry
+      state.step === InstallScreenStep.VerificationCodeEntry ||
+      state.step === InstallScreenStep.ProfileNameEntry
     ) {
       return {
         ...state,
@@ -515,7 +570,8 @@ export function reducer(
     if (
       state.step === InstallScreenStep.PhoneNumberEntry ||
       state.step === InstallScreenStep.CaptchaChallenge ||
-      state.step === InstallScreenStep.VerificationCodeEntry
+      state.step === InstallScreenStep.VerificationCodeEntry ||
+      state.step === InstallScreenStep.ProfileNameEntry
     ) {
       return {
         ...state,
@@ -549,6 +605,13 @@ export function reducer(
       phoneNumber: action.payload.phoneNumber,
       sessionId: action.payload.sessionId,
       verificationCode: action.payload.verificationCode,
+    };
+  }
+
+  if (action.type === SHOW_PROFILE_NAME_ENTRY) {
+    return {
+      step: InstallScreenStep.ProfileNameEntry,
+      isSubmitting: false,
     };
   }
 
