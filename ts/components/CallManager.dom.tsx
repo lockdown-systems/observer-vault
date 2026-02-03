@@ -3,7 +3,7 @@
 
 import React, { useCallback, useEffect } from 'react';
 import lodash from 'lodash';
-import type { VideoFrameSource } from '@signalapp/ringrtc';
+import type { VideoFrameSource } from '@lockdown-systems/ringrtc';
 import { CallNeedPermissionScreen } from './CallNeedPermissionScreen.dom.js';
 import { CallScreen } from './CallScreen.dom.js';
 import { CallingLobby } from './CallingLobby.dom.js';

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import Long from 'long';
-import type { Call, PeekInfo, LocalDeviceState } from '@signalapp/ringrtc';
+import type { Call, PeekInfo, LocalDeviceState } from '@lockdown-systems/ringrtc';
 import {
   CallState,
   ConnectionState,
@@ -10,7 +10,7 @@ import {
   callIdFromEra,
   callIdFromRingId,
   RingUpdate,
-} from '@signalapp/ringrtc';
+} from '@lockdown-systems/ringrtc';
 import { ContentHint } from '@signalapp/libsignal-client';
 import lodash from 'lodash';
 import { strictAssert } from './assert.std.js';

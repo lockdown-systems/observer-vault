@@ -4,8 +4,8 @@
 /* eslint-disable max-classes-per-file */
 
 // Observer Vault: videoPixelFormatToEnum unused (spawnSender removed)
-// import { videoPixelFormatToEnum } from '@signalapp/ringrtc';
-import type { VideoFrameSender, VideoFrameSource } from '@signalapp/ringrtc';
+// import { videoPixelFormatToEnum } from '@lockdown-systems/ringrtc';
+import type { VideoFrameSender, VideoFrameSource } from '@lockdown-systems/ringrtc';
 import type { RefObject } from 'react';
 import { createLogger } from '../logging/log.std.js';
 // Observer Vault: toLogFormat unused (startCapturing removed)

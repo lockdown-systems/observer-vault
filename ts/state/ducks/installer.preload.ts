@@ -4,6 +4,10 @@
 import type { ThunkAction } from 'redux-thunk';
 import type { ReadonlyDeep } from 'type-fest';
 
+import {
+  ErrorCode,
+  LibSignalErrorBase,
+} from '@signalapp/libsignal-client';
 import type { StateType as RootStateType } from '../reducer.preload.js';
 import {
   InstallScreenStep,
@@ -249,6 +253,46 @@ function submitCaptcha(
         }
       }
 
+      // Check for libsignal errors
+      if (error instanceof LibSignalErrorBase) {
+        switch (error.code) {
+          case ErrorCode.RateLimitedError: {
+            const retryAfterSecs = (error as { retryAfterSecs?: number })
+              .retryAfterSecs;
+            if (retryAfterSecs != null && retryAfterSecs > 0) {
+              dispatch({
+                type: SET_STEP_ERROR,
+                payload: `Rate limited. Please try again in ${Math.ceil(retryAfterSecs)} seconds.`,
+              });
+            } else {
+              dispatch({
+                type: SET_ERROR,
+                payload: InstallScreenError.RateLimited,
+              });
+            }
+            return;
+          }
+          case ErrorCode.IoError:
+          case ErrorCode.ChatServiceInactive:
+          case ErrorCode.PossibleCaptiveNetwork:
+            dispatch({
+              type: SET_ERROR,
+              payload: InstallScreenError.ConnectionFailed,
+            });
+            return;
+          case ErrorCode.AppExpired:
+            dispatch({
+              type: SET_STEP_ERROR,
+              payload:
+                'This version of the app is no longer supported. Please update to continue.',
+            });
+            return;
+          default:
+            // Fall through to generic error handling
+            break;
+        }
+      }
+
       dispatch({
         type: SET_STEP_ERROR,
         payload: 'Failed to send verification code. Please try again.',
@@ -302,6 +346,35 @@ function submitVerificationCode(
             payload: InstallScreenError.RateLimited,
           });
           return;
+        }
+      }
+
+      // Check for libsignal errors
+      if (error instanceof LibSignalErrorBase) {
+        switch (error.code) {
+          case ErrorCode.RateLimitedError:
+            dispatch({
+              type: SET_ERROR,
+              payload: InstallScreenError.RateLimited,
+            });
+            return;
+          case ErrorCode.IoError:
+          case ErrorCode.ChatServiceInactive:
+          case ErrorCode.PossibleCaptiveNetwork:
+            dispatch({
+              type: SET_ERROR,
+              payload: InstallScreenError.ConnectionFailed,
+            });
+            return;
+          case ErrorCode.AppExpired:
+            dispatch({
+              type: SET_ERROR,
+              payload: InstallScreenError.RegistrationFailed,
+            });
+            return;
+          default:
+            // Fall through to generic error handling
+            break;
         }
       }
 

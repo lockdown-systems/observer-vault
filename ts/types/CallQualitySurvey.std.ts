@@ -1,7 +1,7 @@
 // Copyright 2025 Signal Messenger, LLC
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import type { CallEndReason } from '@signalapp/ringrtc';
+import type { CallEndReason } from '@lockdown-systems/ringrtc';
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace CallQualitySurvey {

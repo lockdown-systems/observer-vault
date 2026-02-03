@@ -3,7 +3,7 @@
 
 import lodash from 'lodash';
 
-import { CallLinkRootKey, CallLinkEpoch } from '@signalapp/ringrtc';
+import { CallLinkRootKey, CallLinkEpoch } from '@lockdown-systems/ringrtc';
 import type { LinkPreviewWithHydratedData } from '../types/message/LinkPreviews.std.js';
 import type {
   LinkPreviewImage,

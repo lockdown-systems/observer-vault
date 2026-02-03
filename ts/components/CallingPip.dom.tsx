@@ -5,7 +5,7 @@ import React from 'react';
 import classNames from 'classnames';
 import lodash, { clamp } from 'lodash';
 
-import type { VideoFrameSource } from '@signalapp/ringrtc';
+import type { VideoFrameSource } from '@lockdown-systems/ringrtc';
 
 import { missingCaseError } from '../util/missingCaseError.std.js';
 import { isGroupOrAdhocActiveCall } from '../util/isGroupOrAdhocCall.std.js';

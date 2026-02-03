@@ -3,7 +3,7 @@
 
 import assert from 'node:assert';
 import { v4 as generateGuid } from 'uuid';
-import { CallLinkRootKey } from '@signalapp/ringrtc';
+import { CallLinkRootKey } from '@lockdown-systems/ringrtc';
 
 import type { ConversationModel } from '../../models/conversations.preload.js';
 import type { MessageAttributesType } from '../../model-types.d.ts';

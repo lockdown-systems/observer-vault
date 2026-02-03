@@ -4,7 +4,7 @@
 import { assert } from 'chai';
 import * as sinon from 'sinon';
 import lodash from 'lodash';
-import type { PeekInfo } from '@signalapp/ringrtc';
+import type { PeekInfo } from '@lockdown-systems/ringrtc';
 import type {
   StateType as RootStateType,
   StateType,

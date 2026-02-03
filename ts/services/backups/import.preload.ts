@@ -10,7 +10,7 @@ import { v7 as generateUuid } from 'uuid';
 import pMap from 'p-map';
 import { Writable } from 'node:stream';
 import lodash from 'lodash';
-import { CallLinkRootKey } from '@signalapp/ringrtc';
+import { CallLinkRootKey } from '@lockdown-systems/ringrtc';
 import type Long from 'long';
 
 import { Backups, SignalService } from '../../protobuf/index.std.js';

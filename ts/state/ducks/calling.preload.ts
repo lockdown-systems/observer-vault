@@ -12,7 +12,7 @@ import {
   CallEndReason,
   type Reaction as CallReaction,
   type CallSummary,
-} from '@signalapp/ringrtc';
+} from '@lockdown-systems/ringrtc';
 import { getOwn } from '../../util/getOwn.std.js';
 import * as Errors from '../../types/errors.std.js';
 import { getIntl, getPlatform } from '../selectors/user.std.js';

@@ -4,7 +4,7 @@
 import type { ReactElement } from 'react';
 import React, { useRef, useState, useEffect } from 'react';
 import classNames from 'classnames';
-import type { VideoFrameSource } from '@signalapp/ringrtc';
+import type { VideoFrameSource } from '@lockdown-systems/ringrtc';
 import type { LocalizerType } from '../types/Util.std.js';
 import type { GroupCallRemoteParticipantType } from '../types/Calling.std.js';
 import { GroupCallRemoteParticipant } from './GroupCallRemoteParticipant.dom.js';

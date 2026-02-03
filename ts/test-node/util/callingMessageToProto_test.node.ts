@@ -2,14 +2,14 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { assert } from 'chai';
-import type { CallId } from '@signalapp/ringrtc';
+import type { CallId } from '@lockdown-systems/ringrtc';
 import {
   CallMessageUrgency,
   CallingMessage,
   HangupMessage,
   HangupType,
   OpaqueMessage,
-} from '@signalapp/ringrtc';
+} from '@lockdown-systems/ringrtc';
 import { SignalService as Proto } from '../../protobuf/index.std.js';
 
 import { callingMessageToProto } from '../../util/callingMessageToProto.node.js';

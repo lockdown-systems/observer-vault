@@ -64,7 +64,7 @@ const bundleDefaults = {
     // Native libraries
     '@signalapp/libsignal-client',
     '@signalapp/libsignal-client/zkgroup',
-    '@signalapp/ringrtc',
+    '@lockdown-systems/ringrtc',
     '@signalapp/sqlcipher',
     '@signalapp/mute-state-change',
     '@indutny/mac-screen-share',

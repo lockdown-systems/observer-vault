@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { assert } from 'chai';
-import type { PeekInfo } from '@signalapp/ringrtc';
+import type { PeekInfo } from '@lockdown-systems/ringrtc';
 import { v4 as uuid } from 'uuid';
 import {
   getPeerIdFromConversation,

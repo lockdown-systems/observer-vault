@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { ipcRenderer } from 'electron';
-import { getLoopbackAudioMediaStream } from 'electron-audio-loopback';
 import type {
   AudioDevice,
   CallId,
@@ -13,7 +12,7 @@ import type {
   UserId,
   VideoFrameSource,
   VideoRequest,
-} from '@signalapp/ringrtc';
+} from '@lockdown-systems/ringrtc';
 import {
   AnswerMessage,
   BusyMessage,
@@ -42,7 +41,7 @@ import {
   RingUpdate,
   GroupCallKind,
   SpeechEvent,
-} from '@signalapp/ringrtc';
+} from '@lockdown-systems/ringrtc';
 import * as muteStateChange from '@signalapp/mute-state-change';
 import lodash from 'lodash';
 import Long from 'long';
@@ -187,15 +186,12 @@ import {
 } from '../util/callQualitySurvey.dom.js';
 import { callRecorder } from '../observervault/callRecorder.node.js';
 
-// Observer Vault: Track loopback audio stream for cleanup
-let currentLoopbackStream: MediaStream | null = null;
-
 const { i18n } = window.SignalContext;
 
 const { uniqBy, noop, compact } = lodash;
 
 const log = createLogger('calling');
-const ringrtcLog = createLogger('@signalapp/ringrtc');
+const ringrtcLog = createLogger('@lockdown-systems/ringrtc');
 
 const { wasGroupCallRingPreviouslyCanceled } = DataReader;
 const {
@@ -3679,52 +3675,50 @@ export class CallingClass {
           await this.enableCaptureAndSend(call);
         }
 
-        // [Observer Vault] Start loopback audio capture FIRST (before recording)
-        // This ensures the audio track is available when the encoder initializes
-        // The audio track MUST be passed to startRecording atomically to avoid
-        // race conditions where frames arrive before the track is set
+        // [Observer Vault] Enable RingRTC audio capture and start recording
         try {
           // eslint-disable-next-line no-console
-          console.log('[Observer Vault] Starting loopback audio capture...');
-          currentLoopbackStream = await getLoopbackAudioMediaStream();
-          const audioTracks = currentLoopbackStream.getAudioTracks();
-          if (audioTracks.length > 0) {
-            // eslint-disable-next-line no-console
-            console.log(
-              '[Observer Vault] Loopback audio stream acquired, starting recording with audio...'
-            );
-            // Start recording with audio track - pass it directly to avoid race condition
-            // Also pass isVideoCall so audio-only calls init encoder immediately
-            await callRecorder.startRecording(
-              conversationId,
-              audioTracks[0] as MediaStreamAudioTrack,
-              call.isVideoCall
-            );
-            // eslint-disable-next-line no-console
-            console.log(
-              '[Observer Vault] Recording started with loopback audio'
-            );
-          } else {
-            // eslint-disable-next-line no-console
-            console.warn(
-              '[Observer Vault] No audio tracks in loopback stream, starting video-only recording'
-            );
-            await callRecorder.startRecording(
-              conversationId,
-              undefined,
-              call.isVideoCall
-            );
-          }
-        } catch (loopbackError) {
-          // eslint-disable-next-line no-console
-          console.error(
-            '[Observer Vault] Failed to start loopback audio, starting video-only recording:',
-            loopbackError
+          console.log(
+            '[Observer Vault] Enabling RingRTC audio capture and starting recording...'
           );
-          // Start recording without audio
+
+          // Enable audio capture in RingRTC - this starts buffering audio samples
+          call.setAudioCaptureEnabled(true);
+
+          // Create audio polling callback that reads samples from RingRTC
+          const audioBuffer = callRecorder.getAudioBuffer();
+          const audioPollCallback = (): void => {
+            const result = call.receiveAudioSamples(audioBuffer);
+            if (result) {
+              void callRecorder.addAudioSamples(
+                result.samplesWritten,
+                result.sampleRate
+              );
+            }
+          };
+
+          // Start recording with audio enabled and the polling callback
           await callRecorder.startRecording(
             conversationId,
-            undefined,
+            true, // enableAudio
+            call.isVideoCall,
+            audioPollCallback
+          );
+
+          // eslint-disable-next-line no-console
+          console.log(
+            '[Observer Vault] Recording started with RingRTC audio capture'
+          );
+        } catch (recordError) {
+          // eslint-disable-next-line no-console
+          console.error(
+            '[Observer Vault] Failed to start recording with audio:',
+            recordError
+          );
+          // Try to start recording without audio as fallback
+          await callRecorder.startRecording(
+            conversationId,
+            false, // no audio
             call.isVideoCall
           );
         }
@@ -3735,9 +3729,10 @@ export class CallingClass {
         }
       }
       if (call.state === CallState.Ended) {
-        // [Observer Vault] Stop recording FIRST (before stopping loopback)
-        // This ensures the encoder can finalize while the track is still active
+        // [Observer Vault] Stop recording when call ends
         if (callRecorder.isRecording()) {
+          // Disable audio capture in RingRTC
+          call.setAudioCaptureEnabled(false);
           // eslint-disable-next-line no-console
           console.log('[Observer Vault] Call ended, stopping recording');
           const recordingPath = await callRecorder.stopRecording();
@@ -3767,14 +3762,6 @@ export class CallingClass {
               );
             }
           }
-        }
-
-        // [Observer Vault] Stop loopback audio capture AFTER recording is done
-        if (currentLoopbackStream) {
-          // eslint-disable-next-line no-console
-          console.log('[Observer Vault] Stopping loopback audio capture...');
-          currentLoopbackStream.getTracks().forEach(track => track.stop());
-          currentLoopbackStream = null;
         }
 
         // Stop media since the call has ended.

@@ -33,7 +33,7 @@ export const callLinkNameSchema = z.string().refine(input => {
  * Restrictions
  */
 
-// Must match `CallLinkRestrictions` in @signalapp/ringrtc
+// Must match `CallLinkRestrictions` in @lockdown-systems/ringrtc
 export enum CallLinkRestrictions {
   None = 0,
   AdminApproval = 1,

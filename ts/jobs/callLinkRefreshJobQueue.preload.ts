@@ -3,7 +3,7 @@
 
 import * as z from 'zod';
 import PQueue from 'p-queue';
-import { CallLinkRootKey, CallLinkEpoch } from '@signalapp/ringrtc';
+import { CallLinkRootKey, CallLinkEpoch } from '@lockdown-systems/ringrtc';
 import { createLogger } from '../logging/log.std.js';
 import type { LoggerType } from '../types/Logging.std.js';
 import { exponentialBackoffMaxAttempts } from '../util/exponentialBackoff.std.js';

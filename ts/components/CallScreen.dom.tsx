@@ -5,7 +5,7 @@ import type { ReactNode } from 'react';
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import lodash from 'lodash';
 import classNames from 'classnames';
-import type { VideoFrameSource } from '@signalapp/ringrtc';
+import type { VideoFrameSource } from '@lockdown-systems/ringrtc';
 import type {
   ActiveCallStateType,
   BatchUserActionPayloadType,
