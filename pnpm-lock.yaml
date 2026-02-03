@@ -197,9 +197,6 @@ importers:
       dom-accessibility-api:
         specifier: 0.7.0
         version: 0.7.0
-      electron-audio-loopback:
-        specifier: ^1.0.6
-        version: 1.0.6(electron@39.2.7)
       emoji-datasource:
         specifier: 16.0.0
         version: 16.0.0
@@ -5980,11 +5977,6 @@ packages:
     resolution: {integrity: sha512-UeJmFfOrAQS8OJWPZ4qtgHyWExa088/MtK5UEyoJGFH67cDEXkZSviOiKRCZ4Xij0zxI3JECgYs3oKx+AizQBA==}
     engines: {node: '>=0.10.0'}
     hasBin: true
-
-  electron-audio-loopback@1.0.6:
-    resolution: {integrity: sha512-QW0ogDqMpWHDAQHmQyssJ+Yh4qR3kWCP3Q4H9WuIXKwVlgkqOYGyt0v/JzbK3tBNTwfqbuHZy86kwCCajxqAdg==}
-    peerDependencies:
-      electron: '>=31.0.1'
 
   electron-builder-squirrel-windows@26.0.14:
     resolution: {integrity: sha512-1JvbMXtNJsElDZZaFMa3nIRV/diXBFeP0+JPhLLu1c7b21VWPcPbr3MCCL+lTchVDq+q2v0F5dmHN72CJnOTpg==}
@@ -17299,10 +17291,6 @@ snapshots:
   ejs@3.1.10:
     dependencies:
       jake: 10.9.4
-
-  electron-audio-loopback@1.0.6(electron@39.2.7):
-    dependencies:
-      electron: 39.2.7
 
   electron-builder-squirrel-windows@26.0.14(dmg-builder@26.0.14):
     dependencies:

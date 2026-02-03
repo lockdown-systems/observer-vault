@@ -4,24 +4,28 @@
 /**
  * Observer Vault Call Recorder
  *
- * Records incoming audio and video call frames to MP4 or M4A files
+ * Records incoming audio and video call frames to WebM files
  * using WebCodecs + mediabunny. No external dependencies like ffmpeg required.
  *
  * Features:
- * - Video recording via VideoSampleSource
- * - Audio recording via MediaStreamAudioTrackSource (electron-audio-loopback)
+ * - Video recording via VideoSampleSource (VP9 codec)
+ * - Audio recording via AudioSampleSource (Opus codec - raw PCM samples from RingRTC)
  * - Black frame generation when remote camera is off
- * - MP4 output for video calls (with audio)
- * - M4A output for audio-only calls (AAC audio in MP4 container)
+ * - WebM output for both video and audio-only calls
+ *
+ * Note: We use WebM+Opus instead of MP4+AAC because AAC encoding is not
+ * supported via WebCodecs on Linux/Chromium due to licensing restrictions.
+ * Opus provides excellent audio quality and is universally supported.
  */
 
 import {
   Output,
-  Mp4OutputFormat,
+  WebMOutputFormat,
   BufferTarget,
   VideoSampleSource,
   VideoSample,
-  MediaStreamAudioTrackSource,
+  AudioSampleSource,
+  AudioSample,
 } from 'mediabunny';
 import { join } from 'node:path';
 import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
@@ -41,6 +45,24 @@ const AUDIO_BITRATE = 128_000;
 // Portrait orientation since most users are on phones
 const DEFAULT_WIDTH = 480;
 const DEFAULT_HEIGHT = 640;
+// Audio sample polling interval (10ms = 100Hz, faster than typical audio chunk sizes)
+const AUDIO_POLL_INTERVAL_MS = 10;
+// Audio buffer size: 48000 samples/sec * 0.1 sec = 4800 samples max per poll
+const AUDIO_BUFFER_SIZE = 4800;
+
+/**
+ * Convert mono audio data to stereo by duplicating the channel
+ * This is needed because some browsers (Linux/Chromium) don't support mono AAC encoding
+ */
+function monoToStereo(monoData: Int16Array): Int16Array {
+  const stereoData = new Int16Array(monoData.length * 2);
+  for (let i = 0; i < monoData.length; i += 1) {
+    // Duplicate each sample to left and right channels
+    stereoData[i * 2] = monoData[i]; // Left
+    stereoData[i * 2 + 1] = monoData[i]; // Right
+  }
+  return stereoData;
+}
 
 // Get the downloads directory
 function getRecordingsDirectory(): string {
@@ -86,9 +108,9 @@ type RecordingState = {
   filenameBase: string | null;
   output: Output | null;
   videoSource: VideoSampleSource | null;
-  audioSource: MediaStreamAudioTrackSource | null;
-  audioTrack: MediaStreamAudioTrack | null;
+  audioSource: AudioSampleSource | null;
   frameCount: number;
+  audioSampleCount: number;
   width: number;
   height: number;
   startTime: number;
@@ -97,13 +119,18 @@ type RecordingState = {
   // Media state tracking
   hasEverHadVideo: boolean; // True if we ever received a real video frame
   currentlyHasVideo: boolean; // True if remote camera is currently on
-  hasAudioTrack: boolean; // True if we have an audio track connected
+  hasAudioEnabled: boolean; // True if audio capture is enabled
+  audioSampleRate: number; // Sample rate from RingRTC (e.g., 48000)
   // Black frame timer
   blackFrameTimer: ReturnType<typeof setInterval> | null;
+  // Audio polling timer
+  audioPollTimer: ReturnType<typeof setInterval> | null;
+  // Audio polling callback (set by calling code)
+  audioPollCallback: (() => void) | null;
   // For audio calls: backup video+audio recording in case camera is enabled
   backupVideoOutput: Output | null;
   backupVideoSource: VideoSampleSource | null;
-  backupAudioSource: MediaStreamAudioTrackSource | null;
+  backupAudioSource: AudioSampleSource | null;
   backupBlackFrameTimer: ReturnType<typeof setInterval> | null;
   isAudioCallWithBackup: boolean; // True if this is an audio call with backup video
 };
@@ -115,8 +142,8 @@ class CallRecorder {
     output: null,
     videoSource: null,
     audioSource: null,
-    audioTrack: null,
     frameCount: 0,
+    audioSampleCount: 0,
     width: 0,
     height: 0,
     startTime: 0,
@@ -124,8 +151,11 @@ class CallRecorder {
     conversationId: '',
     hasEverHadVideo: false,
     currentlyHasVideo: false,
-    hasAudioTrack: false,
+    hasAudioEnabled: false,
+    audioSampleRate: 48000, // Default, will be updated from RingRTC
     blackFrameTimer: null,
+    audioPollTimer: null,
+    audioPollCallback: null,
     backupVideoOutput: null,
     backupVideoSource: null,
     backupAudioSource: null,
@@ -133,16 +163,21 @@ class CallRecorder {
     isAudioCallWithBackup: false,
   };
 
+  // Shared audio buffer for polling from RingRTC
+  private audioBuffer = new Int16Array(AUDIO_BUFFER_SIZE);
+
   /**
    * Start recording
    * @param conversationId - The conversation ID for the recording
-   * @param audioTrack - Optional audio track to include (from loopback audio)
+   * @param enableAudio - Whether audio capture is enabled via RingRTC
    * @param isVideoCall - Whether this is a video call (affects encoder choice)
+   * @param audioPollCallback - Callback to poll audio samples from RingRTC
    */
   async startRecording(
     conversationId: string,
-    audioTrack?: MediaStreamAudioTrack,
-    isVideoCall = true
+    enableAudio = true,
+    isVideoCall = true,
+    audioPollCallback?: () => void
   ): Promise<string | null> {
     if (this.state.isRecording) {
       log.warn('Already recording, ignoring start request');
@@ -168,8 +203,8 @@ class CallRecorder {
         output: null,
         videoSource: null,
         audioSource: null,
-        audioTrack: audioTrack ?? null,
         frameCount: 0,
+        audioSampleCount: 0,
         width: 0,
         height: 0,
         startTime: Date.now(),
@@ -177,8 +212,11 @@ class CallRecorder {
         conversationId,
         hasEverHadVideo: false,
         currentlyHasVideo: false,
-        hasAudioTrack: audioTrack != null,
+        hasAudioEnabled: enableAudio,
+        audioSampleRate: 48000,
         blackFrameTimer: null,
+        audioPollTimer: null,
+        audioPollCallback: audioPollCallback ?? null,
         backupVideoOutput: null,
         backupVideoSource: null,
         backupAudioSource: null,
@@ -188,13 +226,15 @@ class CallRecorder {
 
       // eslint-disable-next-line no-console
       console.log(`[Observer Vault] Recording started: ${filenameBasePath}`);
-      if (audioTrack) {
-        log.info('Audio track provided at recording start');
+      if (enableAudio) {
+        log.info('Audio capture enabled via RingRTC');
+        // Start audio polling timer
+        this.startAudioPollTimer();
       }
 
       // For audio-only calls, initialize the audio encoder immediately
       // AND start a backup video+audio encoder in case camera is enabled later
-      if (!isVideoCall && audioTrack) {
+      if (!isVideoCall && enableAudio) {
         log.info('Audio-only call detected, initializing audio encoder now');
         const success = await this.initializeAudioOnlyEncoder();
         if (!success) {
@@ -213,6 +253,107 @@ class CallRecorder {
     } catch (err) {
       log.error('Failed to start recording:', err);
       return null;
+    }
+  }
+
+  /**
+   * Start the audio polling timer
+   */
+  private startAudioPollTimer(): void {
+    if (this.state.audioPollTimer) {
+      return;
+    }
+
+    this.state.audioPollTimer = setInterval(() => {
+      if (this.state.audioPollCallback) {
+        this.state.audioPollCallback();
+      }
+    }, AUDIO_POLL_INTERVAL_MS);
+
+    log.info('Audio polling timer started');
+  }
+
+  /**
+   * Stop the audio polling timer
+   */
+  private stopAudioPollTimer(): void {
+    if (this.state.audioPollTimer) {
+      clearInterval(this.state.audioPollTimer);
+      this.state.audioPollTimer = null;
+    }
+  }
+
+  /**
+   * Get the audio buffer for RingRTC to write samples into
+   */
+  getAudioBuffer(): Int16Array {
+    return this.audioBuffer;
+  }
+
+  /**
+   * Add audio samples from RingRTC to the recording
+   * @param samplesWritten - Number of samples written to the buffer
+   * @param sampleRate - Sample rate from RingRTC
+   */
+  async addAudioSamples(
+    samplesWritten: number,
+    sampleRate: number
+  ): Promise<void> {
+    if (!this.state.isRecording || samplesWritten === 0) {
+      return;
+    }
+
+    // Update sample rate if changed
+    if (sampleRate !== this.state.audioSampleRate) {
+      log.info(`Audio sample rate updated: ${sampleRate}`);
+      this.state.audioSampleRate = sampleRate;
+    }
+
+    // Calculate timestamp in seconds
+    const timestampSec = (Date.now() - this.state.startTime) / 1000;
+
+    // Create audio sample from the buffer
+    // RingRTC provides mono Int16 PCM data - convert to stereo for AAC encoding
+    // (Some browsers like Chromium on Linux don't support mono AAC encoding)
+    const monoData = this.audioBuffer.slice(0, samplesWritten);
+    const stereoData = monoToStereo(monoData);
+
+    try {
+      // Add to main output if initialized
+      if (this.state.audioSource) {
+        const sample = new AudioSample({
+          data: stereoData.buffer.slice(
+            stereoData.byteOffset,
+            stereoData.byteOffset + stereoData.byteLength
+          ),
+          format: 's16',
+          numberOfChannels: 2, // Stereo (mono duplicated to both channels)
+          sampleRate,
+          timestamp: timestampSec,
+        });
+        await this.state.audioSource.add(sample);
+        sample.close();
+      }
+
+      // Also add to backup output if it exists
+      if (this.state.backupAudioSource) {
+        const sample = new AudioSample({
+          data: stereoData.buffer.slice(
+            stereoData.byteOffset,
+            stereoData.byteOffset + stereoData.byteLength
+          ),
+          format: 's16',
+          numberOfChannels: 2,
+          sampleRate,
+          timestamp: timestampSec,
+        });
+        await this.state.backupAudioSource.add(sample);
+        sample.close();
+      }
+
+      this.state.audioSampleCount += samplesWritten;
+    } catch (err) {
+      log.error('Error adding audio samples:', err);
     }
   }
 
@@ -288,34 +429,31 @@ class CallRecorder {
     log.info(`Initializing video encoder for ${width}x${height}`);
 
     try {
-      // Create video sample source
+      // Create video sample source with VP9 codec (WebM compatible)
       const videoSource = new VideoSampleSource({
-        codec: 'avc', // H.264
+        codec: 'vp9',
         bitrate: VIDEO_BITRATE,
         sizeChangeBehavior: 'contain',
       });
 
-      // Create the output with MP4 format
+      // Create the output with WebM format (better codec support on Linux)
       const output = new Output({
-        format: new Mp4OutputFormat(),
+        format: new WebMOutputFormat(),
         target: new BufferTarget(),
       });
 
       // Add the video track
       output.addVideoTrack(videoSource, { frameRate: TARGET_FPS });
 
-      // If we have an audio track, add it
-      if (this.state.audioTrack) {
-        const audioSource = new MediaStreamAudioTrackSource(
-          this.state.audioTrack,
-          {
-            codec: 'aac',
-            bitrate: AUDIO_BITRATE,
-          }
-        );
+      // If audio is enabled, add an audio track with Opus codec
+      if (this.state.hasAudioEnabled) {
+        const audioSource = new AudioSampleSource({
+          codec: 'opus',
+          bitrate: AUDIO_BITRATE,
+        });
         output.addAudioTrack(audioSource);
         this.state.audioSource = audioSource;
-        log.info('Added audio track to MP4 output');
+        log.info('Added audio track to WebM output');
       }
 
       // Start the output
@@ -335,34 +473,31 @@ class CallRecorder {
   }
 
   /**
-   * Initialize audio-only encoder (M4A - AAC audio in MP4 container)
-   * Note: MP3 encoding is not supported in Electron's WebCodecs, so we use AAC
+   * Initialize audio-only encoder (WebM with Opus audio)
+   * Note: We use Opus because AAC encoding is not supported on Linux via WebCodecs
    */
   private async initializeAudioOnlyEncoder(): Promise<boolean> {
     if (this.state.output) {
       return true;
     }
 
-    if (!this.state.audioTrack) {
-      log.error('Cannot initialize audio-only encoder without audio track');
+    if (!this.state.hasAudioEnabled) {
+      log.error('Cannot initialize audio-only encoder without audio enabled');
       return false;
     }
 
-    log.info('Initializing audio-only encoder (M4A/AAC)');
+    log.info('Initializing audio-only encoder (WebM/Opus)');
 
     try {
-      // Create audio source with AAC codec (MP3 is not supported in WebCodecs)
-      const audioSource = new MediaStreamAudioTrackSource(
-        this.state.audioTrack,
-        {
-          codec: 'aac',
-          bitrate: AUDIO_BITRATE,
-        }
-      );
+      // Create audio source with Opus codec (universally supported on Linux)
+      const audioSource = new AudioSampleSource({
+        codec: 'opus',
+        bitrate: AUDIO_BITRATE,
+      });
 
-      // Create the output with MP4 format (M4A is just MP4 with only audio)
+      // Create the output with WebM format
       const output = new Output({
-        format: new Mp4OutputFormat(),
+        format: new WebMOutputFormat(),
         target: new BufferTarget(),
       });
 
@@ -388,35 +523,30 @@ class CallRecorder {
    * This runs in parallel with the audio-only recording in case camera is enabled
    */
   private async initializeBackupVideoRecording(): Promise<boolean> {
-    if (!this.state.audioTrack) {
-      log.error('Cannot initialize backup video without audio track');
+    if (!this.state.hasAudioEnabled) {
+      log.error('Cannot initialize backup video without audio enabled');
       return false;
     }
 
     log.info('Initializing backup video+audio encoder with black frames');
 
     try {
-      // Create video sample source
+      // Create video sample source with VP9 codec
       const videoSource = new VideoSampleSource({
-        codec: 'avc', // H.264
+        codec: 'vp9',
         bitrate: VIDEO_BITRATE,
         sizeChangeBehavior: 'contain',
       });
 
-      // Create a SEPARATE audio source for the backup (can't share)
-      // Note: This is a limitation - we create a second audio source from
-      // the same track. mediabunny should handle this.
-      const audioSource = new MediaStreamAudioTrackSource(
-        this.state.audioTrack,
-        {
-          codec: 'aac',
-          bitrate: AUDIO_BITRATE,
-        }
-      );
+      // Create a SEPARATE audio source for the backup with Opus codec
+      const audioSource = new AudioSampleSource({
+        codec: 'opus',
+        bitrate: AUDIO_BITRATE,
+      });
 
-      // Create the output with MP4 format
+      // Create the output with WebM format
       const output = new Output({
-        format: new Mp4OutputFormat(),
+        format: new WebMOutputFormat(),
         target: new BufferTarget(),
       });
 
@@ -500,7 +630,7 @@ class CallRecorder {
 
       await this.state.backupVideoSource.add(videoSample);
       videoSample.close();
-    } catch (err) {
+    } catch (_err) {
       // Silently ignore errors for backup frames
     }
   }
@@ -618,24 +748,25 @@ class CallRecorder {
       return null;
     }
 
-    // Stop black frame generation
+    // Stop timers
     this.stopBlackFrameTimer();
+    this.stopAudioPollTimer();
+    this.stopBackupBlackFrameTimer();
 
     const {
       filenameBase,
       frameCount,
+      audioSampleCount,
       startTime,
       hasEverHadVideo,
-      hasAudioTrack,
+      hasAudioEnabled,
     } = this.state;
     const duration = (Date.now() - startTime) / 1000;
 
     log.info(
-      `Stopping recording: ${frameCount} frames, ${duration.toFixed(1)}s, hasVideo=${hasEverHadVideo}, hasAudio=${hasAudioTrack}`
+      `Stopping recording: ${frameCount} frames, ${audioSampleCount} audio samples, ` +
+        `${duration.toFixed(1)}s, hasVideo=${hasEverHadVideo}, hasAudio=${hasAudioEnabled}`
     );
-
-    // Stop backup black frame timer
-    this.stopBackupBlackFrameTimer();
 
     // For audio calls with backup: choose which recording to save
     if (this.state.isAudioCallWithBackup) {
@@ -645,7 +776,7 @@ class CallRecorder {
           'Audio call had video enabled, saving video+audio backup recording'
         );
 
-        const extension = '.mp4';
+        const extension = '.webm';
         const filePath = filenameBase ? `${filenameBase}${extension}` : null;
 
         try {
@@ -686,7 +817,7 @@ class CallRecorder {
     }
 
     // If we have audio but no video, and encoder wasn't initialized yet, do it now
-    if (!this.state.output && hasAudioTrack && !hasEverHadVideo) {
+    if (!this.state.output && hasAudioEnabled && !hasEverHadVideo) {
       const success = await this.initializeAudioOnlyEncoder();
       if (!success) {
         log.error('Failed to initialize audio-only encoder');
@@ -703,8 +834,8 @@ class CallRecorder {
     }
 
     // Determine file extension based on content
-    // Both video and audio-only use MP4 container (M4A is just MP4 with audio only)
-    const extension = hasEverHadVideo ? '.mp4' : '.m4a';
+    // All recordings use WebM container (VP9 video + Opus audio)
+    const extension = '.webm';
     const filePath = filenameBase ? `${filenameBase}${extension}` : null;
 
     try {
@@ -737,6 +868,7 @@ class CallRecorder {
    */
   private resetState(): void {
     this.stopBlackFrameTimer();
+    this.stopAudioPollTimer();
     this.stopBackupBlackFrameTimer();
     this.state = {
       isRecording: false,
@@ -744,8 +876,8 @@ class CallRecorder {
       output: null,
       videoSource: null,
       audioSource: null,
-      audioTrack: null,
       frameCount: 0,
+      audioSampleCount: 0,
       width: 0,
       height: 0,
       startTime: 0,
@@ -753,8 +885,11 @@ class CallRecorder {
       conversationId: '',
       hasEverHadVideo: false,
       currentlyHasVideo: false,
-      hasAudioTrack: false,
+      hasAudioEnabled: false,
+      audioSampleRate: 48000,
       blackFrameTimer: null,
+      audioPollTimer: null,
+      audioPollCallback: null,
       // Backup recording fields
       backupVideoOutput: null,
       backupVideoSource: null,
@@ -783,6 +918,7 @@ class CallRecorder {
    */
   getStats(): {
     frameCount: number;
+    audioSampleCount: number;
     duration: number;
     fps: number;
     hasVideo: boolean;
@@ -797,10 +933,11 @@ class CallRecorder {
 
     return {
       frameCount: this.state.frameCount,
+      audioSampleCount: this.state.audioSampleCount,
       duration,
       fps,
       hasVideo: this.state.hasEverHadVideo,
-      hasAudio: this.state.hasAudioTrack,
+      hasAudio: this.state.hasAudioEnabled,
     };
   }
 }

@@ -67,7 +67,6 @@ const NODE_PACKAGES = new Set([
   'cirbuf',
   'config',
   'dashdash',
-  'electron-audio-loopback',
   'encoding',
   'fast-glob',
   'fs-extra',
