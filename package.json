@@ -454,15 +454,8 @@
         }
       },
       "sign": "./ts/scripts/sign-macos.node.js",
-      "singleArchFiles": "node_modules/@signalapp/{libsignal-client/prebuilds/**,sqlcipher/prebuilds/**},node_modules/@lockdown-systems/ringrtc/build/**",
+      "singleArchFiles": "{node_modules/@signalapp/libsignal-client/prebuilds/**,node_modules/@signalapp/sqlcipher/prebuilds/**,node_modules/@lockdown-systems/ringrtc/build/**}",
       "target": [
-        {
-          "target": "zip",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        },
         {
           "target": "dmg",
           "arch": [
