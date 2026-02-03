@@ -552,6 +552,16 @@ export async function startApp(): Promise<void> {
     log.info('Observer Vault: Setting universal expire timer to 30 seconds');
     await universalExpireTimer.set(durations.DurationInSeconds.fromSeconds(30));
 
+    // Observer Vault: Initialize settings (stories off, camera/mic disabled)
+    drop(
+      (async () => {
+        const { initializeObserverVaultSettings } = await import(
+          './observervault/initializeSettings.preload.js'
+        );
+        await initializeObserverVaultSettings();
+      })()
+    );
+
     restoreRemoteConfigFromStorage({
       storage: itemStorage,
     });

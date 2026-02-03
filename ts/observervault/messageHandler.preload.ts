@@ -36,9 +36,6 @@ import { getMessageById } from '../messages/getMessageById.preload.js';
 
 const log = createLogger('observervault/messageHandler');
 
-// The auto-reply message for text messages
-const AUTO_REPLY_MESSAGE = "sorry I'm busy";
-
 // The desired disappearing messages timer (30 seconds)
 const DESIRED_EXPIRE_TIMER = DurationInSeconds.fromSeconds(30);
 
@@ -316,35 +313,6 @@ export async function ensureDisappearingMessagesTimer(
 }
 
 /**
- * Sends an auto-reply message to the conversation.
- */
-export async function sendAutoReply(
-  conversation: ConversationModel
-): Promise<void> {
-  const logId = `sendAutoReply/${conversation.idForLogging()}`;
-
-  log.info(`${logId}: Sending auto-reply message`);
-
-  try {
-    await conversation.enqueueMessageForSend(
-      {
-        attachments: [],
-        body: AUTO_REPLY_MESSAGE,
-      },
-      {
-        timestamp: Date.now(),
-      }
-    );
-    log.info(`${logId}: Auto-reply message sent successfully`);
-  } catch (error) {
-    log.error(
-      `${logId}: Failed to send auto-reply:`,
-      error instanceof Error ? error.message : String(error)
-    );
-  }
-}
-
-/**
  * Handles an incoming message for Observer Vault.
  * This is called from handleDataMessage for incoming messages.
  *
@@ -384,24 +352,8 @@ export async function handleObserverVaultIncomingMessage(
       `[Observer Vault] ${logId}: Message has ${attachments.length} attachment(s), starting download`
     );
     drop(downloadAllAttachments(message, conversation));
-    // Don't send auto-reply for attachment messages
-    return true;
   }
 
-  // Get the message body
-  const body = message.get('body');
-
-  // If the message has a text body, send an auto-reply
-  if (body && body.trim().length > 0) {
-    log.info(`${logId}: Received text message, sending auto-reply`);
-    drop(sendAutoReply(conversation));
-    return true;
-  }
-
-  // For messages without text or attachments (e.g., reactions), we still process them
-  // but don't send an auto-reply
-  log.info(
-    `${logId}: Received non-text/non-attachment message, no auto-reply needed`
-  );
-  return false;
+  // Message processed (no auto-reply sent)
+  return true;
 }
