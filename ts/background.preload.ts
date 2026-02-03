@@ -557,9 +557,8 @@ export async function startApp(): Promise<void> {
     // Observer Vault: Initialize settings (stories off, camera/mic disabled)
     drop(
       (async () => {
-        const { initializeObserverVaultSettings } = await import(
-          './observervault/initializeSettings.preload.js'
-        );
+        const { initializeObserverVaultSettings } =
+          await import('./observervault/initializeSettings.preload.js');
         await initializeObserverVaultSettings();
       })()
     );

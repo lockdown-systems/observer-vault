@@ -1,6 +1,7 @@
 // Copyright 2019 Signal Messenger, LLC
-// Copyright 2026 Lockdown Systems LLC
 // SPDX-License-Identifier: AGPL-3.0-only
+
+// Copyright 2026 Lockdown Systems LLC
 
 import { execSync } from 'node:child_process';
 

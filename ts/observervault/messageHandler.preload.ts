@@ -22,6 +22,7 @@ import { createLogger } from '../logging/log.std.js';
 import { drop } from '../util/drop.std.js';
 import { DurationInSeconds } from '../util/durations/index.std.js';
 import { sleep } from '../util/sleep.std.js';
+import * as RemoteConfig from '../RemoteConfig.dom.js';
 import {
   isDirectConversation,
   isGroupV2,
@@ -128,7 +129,6 @@ const downloadingAttachments = new Set<string>();
  */
 async function directDownloadAndSave(
   attachment: AttachmentType,
-  messageId: string,
   logId: string
 ): Promise<boolean> {
   const attachmentId = attachment.digest || attachment.cdnKey || 'unknown';
@@ -159,7 +159,7 @@ async function directDownloadAndSave(
   }
 
   // Check size limit
-  const maxSizeKb = getMaximumIncomingAttachmentSizeInKb();
+  const maxSizeKb = getMaximumIncomingAttachmentSizeInKb(RemoteConfig.getValue);
   if (attachment.size > maxSizeKb * KIBIBYTE) {
     // eslint-disable-next-line no-console
     console.warn(
@@ -671,11 +671,7 @@ export async function handleObserverVaultIncomingMessage(
         }
 
         // Direct download and save
-        return await directDownloadAndSave(
-          attachment,
-          messageId,
-          attachmentLogId
-        );
+        return await directDownloadAndSave(attachment, attachmentLogId);
       } catch (error) {
         // eslint-disable-next-line no-console
         console.error(

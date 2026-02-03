@@ -4,10 +4,7 @@
 import type { ThunkAction } from 'redux-thunk';
 import type { ReadonlyDeep } from 'type-fest';
 
-import {
-  ErrorCode,
-  LibSignalErrorBase,
-} from '@signalapp/libsignal-client';
+import { ErrorCode, LibSignalErrorBase } from '@signalapp/libsignal-client';
 import type { StateType as RootStateType } from '../reducer.preload.js';
 import {
   InstallScreenStep,
@@ -272,8 +269,7 @@ function submitCaptcha(
       if (error instanceof LibSignalErrorBase) {
         switch (error.code) {
           case ErrorCode.RateLimitedError: {
-            const retryAfterSecs = (error as { retryAfterSecs?: number })
-              .retryAfterSecs;
+            const { retryAfterSecs } = error as { retryAfterSecs?: number };
             if (retryAfterSecs != null && retryAfterSecs > 0) {
               dispatch({
                 type: SET_STEP_ERROR,

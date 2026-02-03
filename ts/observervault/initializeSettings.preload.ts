@@ -26,7 +26,7 @@ export async function initializeObserverVaultSettings(): Promise<void> {
   try {
     const { getStoriesDisabled } = await import('../util/stories.preload.js');
     const storiesDisabled = getStoriesDisabled();
-    
+
     if (!storiesDisabled) {
       log.info('Stories not disabled, disabling now...');
       await setStoriesDisabled(true);
@@ -41,7 +41,7 @@ export async function initializeObserverVaultSettings(): Promise<void> {
   // 2. Disable microphone access
   try {
     const hasMediaPermissions = await window.Events.getMediaPermissions();
-    
+
     if (hasMediaPermissions !== false) {
       log.info('Microphone access not disabled, disabling now...');
       await window.IPC.setMediaPermissions(false);
@@ -55,8 +55,9 @@ export async function initializeObserverVaultSettings(): Promise<void> {
 
   // 3. Disable camera access
   try {
-    const hasMediaCameraPermissions = await window.Events.getMediaCameraPermissions();
-    
+    const hasMediaCameraPermissions =
+      await window.Events.getMediaCameraPermissions();
+
     if (hasMediaCameraPermissions !== false) {
       log.info('Camera access not disabled, disabling now...');
       await window.IPC.setMediaCameraPermissions(false);
