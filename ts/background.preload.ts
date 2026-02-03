@@ -1733,8 +1733,15 @@ export async function startApp(): Promise<void> {
       // 8. Show inbox
       const state = window.reduxStore.getState();
       if (state.app.appView === AppViewType.Installer) {
-        log.info(`${logId}: switching from installer to inbox`);
-        window.reduxActions.app.openInbox();
+        // Don't switch to inbox if we're still in profile name entry step
+        if (state.installer.step === InstallScreenStep.ProfileNameEntry) {
+          log.info(
+            `${logId}: in ProfileNameEntry step, waiting for profile submission`
+          );
+        } else {
+          log.info(`${logId}: switching from installer to inbox`);
+          window.reduxActions.app.openInbox();
+        }
       }
 
       // 9. Start services requiring auth connection

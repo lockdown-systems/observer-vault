@@ -9,6 +9,7 @@ export enum InstallScreenStep {
   CaptchaChallenge = 'CaptchaChallenge',
   VerificationCodeEntry = 'VerificationCodeEntry',
   CreatingAccount = 'CreatingAccount',
+  ProfileNameEntry = 'ProfileNameEntry',
 
   // Legacy - kept for compatibility with existing components
   QrCodeNotScanned = 'QrCodeNotScanned',
