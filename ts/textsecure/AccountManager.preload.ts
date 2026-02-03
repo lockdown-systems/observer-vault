@@ -1255,28 +1255,6 @@ export default class AccountManager extends EventTarget {
       },
       ServiceIdKind.PNI
     );
-
-    const uploadKeys = async (kind: ServiceIdKind) => {
-      try {
-        const keys = await this._generateSingleUseKeys(kind);
-        await registerKeys(keys, kind);
-      } catch (error) {
-        if (kind === ServiceIdKind.PNI) {
-          log.error(
-            'Failed to upload PNI prekeys. Moving on',
-            Errors.toLogFormat(error)
-          );
-          return;
-        }
-
-        throw error;
-      }
-    };
-
-    await Promise.all([
-      uploadKeys(ServiceIdKind.ACI),
-      uploadKeys(ServiceIdKind.PNI),
-    ]);
   }
 
   // Exposed only for testing
