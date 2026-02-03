@@ -15,6 +15,7 @@ import { v4 as getGuid } from 'uuid';
 import { z } from 'zod';
 import type { Readable } from 'node:stream';
 import qs from 'node:querystring';
+import { LibSignalErrorBase, ErrorCode } from '@signalapp/libsignal-client';
 import type {
   KEMPublicKey,
   PublicKey,
@@ -22,6 +23,7 @@ import type {
   Pni,
 } from '@signalapp/libsignal-client';
 import { AccountAttributes } from '@signalapp/libsignal-client/dist/net.js';
+import { GroupSendFullToken } from '@signalapp/libsignal-client/zkgroup.js';
 
 import { assertDev, strictAssert } from '../util/assert.std.js';
 import * as durations from '../util/durations/index.std.js';
@@ -58,6 +60,7 @@ import {
   serviceIdSchema,
   aciSchema,
   untaggedPniSchema,
+  fromServiceIdObject,
 } from '../types/ServiceId.std.js';
 import type { BackupPresentationHeadersType } from '../types/backups.node.js';
 import { HTTPError } from '../types/HTTPError.std.js';
@@ -74,7 +77,6 @@ import {
 import type { CDSAuthType, CDSResponseType } from './cds/Types.d.ts';
 import { CDSI } from './cds/CDSI.node.js';
 import { SignalService as Proto } from '../protobuf/index.std.js';
-import { isEnabled as isRemoteConfigEnabled } from '../RemoteConfig.dom.js';
 
 import type {
   WebAPICredentials,
@@ -117,6 +119,7 @@ import {
   RemoteMegaphoneCtaDataSchema,
   type RemoteMegaphoneId,
 } from '../types/Megaphone.std.js';
+import { bindRemoteConfigToLibsignalNet } from '../LibsignalNetRemoteConfig.preload.js';
 
 const { escapeRegExp, isNumber, throttle } = lodash;
 
@@ -295,6 +298,9 @@ export const multiRecipient200ResponseSchema = z.object({
 export type MultiRecipient200ResponseType = z.infer<
   typeof multiRecipient200ResponseSchema
 >;
+export type SendMultiResponseType = {
+  uuids404: Array<ServiceIdString>;
+};
 
 export const multiRecipient409ResponseSchema = z.array(
   z.object({
@@ -642,11 +648,16 @@ async function _retry<R>(
   try {
     return await f();
   } catch (e) {
+    const httpNoNetwork = e instanceof HTTPError && e.code === -1;
+    const libsignalNoNetwork =
+      e instanceof LibSignalErrorBase &&
+      (e.code === ErrorCode.IoError ||
+        e.code === ErrorCode.ChatServiceInactive);
+
     if (
-      e instanceof HTTPError &&
-      e.code === -1 &&
       count < limit &&
-      !abortSignal?.aborted
+      !abortSignal?.aborted &&
+      (httpNoNetwork || libsignalNoNetwork)
     ) {
       return new Promise(resolve => {
         setTimeout(() => {
@@ -956,7 +967,7 @@ const getDevicesResultZod = z.object({
       id: z.number(),
       name: z.string().nullish(), // primary devices may not have a name
       lastSeen: z.number().nullish(),
-      created: z.number().nullish(),
+      createdAtCiphertext: z.string(),
     })
   ),
 });
@@ -1690,27 +1701,6 @@ const PARSE_RANGE_HEADER = /\/(\d+)$/;
 const PARSE_GROUP_LOG_RANGE_HEADER =
   /^versions\s+(\d{1,10})-(\d{1,10})\/(\d{1,10})/;
 
-const libsignalRemoteConfig = new Map();
-if (isRemoteConfigEnabled('desktop.libsignalNet.enforceMinimumTls')) {
-  log.info('libsignal net will require TLS 1.3');
-  libsignalRemoteConfig.set('enforceMinimumTls', 'true');
-}
-if (isRemoteConfigEnabled('desktop.libsignalNet.shadowUnauthChatWithNoise')) {
-  log.info('libsignal net will shadow unauth chat connections');
-  libsignalRemoteConfig.set('shadowUnauthChatWithNoise', 'true');
-}
-if (isRemoteConfigEnabled('desktop.libsignalNet.shadowAuthChatWithNoise')) {
-  log.info('libsignal net will shadow auth chat connections');
-  libsignalRemoteConfig.set('shadowAuthChatWithNoise', 'true');
-}
-const perMessageDeflateConfigKey = isProduction(version)
-  ? 'desktop.libsignalNet.chatPermessageDeflate.prod'
-  : 'desktop.libsignalNet.chatPermessageDeflate';
-if (isRemoteConfigEnabled(perMessageDeflateConfigKey)) {
-  libsignalRemoteConfig.set('chatPermessageDeflate', 'true');
-}
-libsignalNet.setRemoteConfig(libsignalRemoteConfig);
-
 const socketManager = new SocketManager(libsignalNet, {
   url: chatServiceUrl,
   certificateAuthority,
@@ -1765,6 +1755,8 @@ export async function connect({
   hasStoriesDisabled,
   hasBuildExpired,
 }: WebAPIConnectOptionsType): Promise<void> {
+  bindRemoteConfigToLibsignalNet(getLibsignalNet(), window.getVersion());
+
   username = initialUsername;
   password = initialPassword;
 
@@ -3583,7 +3575,51 @@ function booleanToString(value: boolean | undefined): string {
   return value ? 'true' : 'false';
 }
 
-export async function sendWithSenderKey(
+export async function sendMulti(
+  payload: Uint8Array,
+  groupSendToken: GroupSendToken | null,
+  timestamp: number,
+  {
+    online = false,
+    urgent = true,
+    story = false,
+  }: {
+    online?: boolean;
+    story?: boolean;
+    urgent?: boolean;
+  }
+): Promise<SendMultiResponseType> {
+  log.info(`send/${timestamp}/<multiple>/sendMulti`);
+
+  let auth: 'story' | GroupSendFullToken;
+  if (story) {
+    if (groupSendToken?.length) {
+      log.warn('sendMulti: story=true and groupSendToken was provided');
+    }
+    auth = 'story';
+  } else if (groupSendToken?.length) {
+    auth = new GroupSendFullToken(groupSendToken);
+  } else {
+    throw new Error('sendMulti: missing groupSendToken and story=false');
+  }
+
+  const result = await _retry(async () => {
+    const chat = await socketManager.getUnauthenticatedLibsignalApi();
+    return chat.sendMultiRecipientMessage({
+      payload,
+      timestamp,
+      auth,
+      onlineOnly: online,
+      urgent,
+    });
+  });
+
+  return {
+    uuids404: result.unregisteredIds.map(fromServiceIdObject),
+  };
+}
+
+export async function sendMultiLegacy(
   data: Uint8Array,
   accessKeys: Uint8Array | null,
   groupSendToken: GroupSendToken | null,
@@ -3602,7 +3638,7 @@ export async function sendWithSenderKey(
   const urgentParam = `&urgent=${booleanToString(urgent)}`;
   const storyParam = `&story=${booleanToString(story)}`;
 
-  log.info(`send/${timestamp}/<multiple>/sendWithSenderKey`);
+  log.info(`send/${timestamp}/<multiple>/sendMultiLegacy`);
   const response = await _ajax({
     host: 'chatService',
     call: 'multiRecipient',
@@ -3626,7 +3662,7 @@ export async function sendWithSenderKey(
   }
 
   log.error(
-    'invalid response from sendWithSenderKey',
+    'sendMultiLegacy: invalid response from server',
     toLogFormat(parseResult.error)
   );
   return response as MultiRecipient200ResponseType;

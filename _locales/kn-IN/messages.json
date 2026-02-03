@@ -1238,6 +1238,15 @@
   "icu:PinMessageDialog--HasMaxPinnedMessages__Continue": {
     "messageformat": "ಮುಂದುವರಿಸಿ"
   },
+  "icu:PinMessageDisappearingMessagesWarningDialog__Title": {
+    "messageformat": "ಮಾಯವಾಗುವ ಸಂದೇಶಗಳನ್ನು ಪಿನ್ ಮಾಡುವುದು"
+  },
+  "icu:PinMessageDisappearingMessagesWarningDialog__Description": {
+    "messageformat": "ಮಾಯವಾಗುವ ಸಂದೇಶಗಳ ಟೈಮರ್ ಅವಧಿ ಮುಗಿದಾಗ ಮತ್ತು ಮೆಸೇಜ್ ಅನ್ನು ಚಾಟ್‌ನಿಂದ ತೆಗೆದುಹಾಕಿದಾಗ ಅವುಗಳನ್ನು ಅನ್‌ಪಿನ್ ಮಾಡಲಾಗುತ್ತದೆ."
+  },
+  "icu:PinMessageDisappearingMessagesWarningDialog__Okay": {
+    "messageformat": "ಸರಿ"
+  },
   "icu:PinnedMessagesBar__AccessibilityLabel": {
     "messageformat": "{pinsCount, plural, one {ಪಿನ್ ಮಾಡಲಾದ ಮೆಸೇಜ್} other {ಪಿನ್ ಮಾಡಲಾದ ಮೆಸೇಜ್‌ಗಳು}}"
   },
@@ -1259,9 +1268,6 @@
   "icu:PinnedMessagesBar__ActionsMenu__SeeAllMessages": {
     "messageformat": "ಎಲ್ಲಾ ಮೆಸೇಜ್‌ಗಳನ್ನು ನೋಡಿ"
   },
-  "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--Address": {
-    "messageformat": "ವಿಳಾಸ"
-  },
   "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--VoiceMessage": {
     "messageformat": "ಧ್ವನಿ ಸಂದೇಶ"
   },
@@ -1270,9 +1276,6 @@
   },
   "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--File": {
     "messageformat": "ಫೈಲ್"
-  },
-  "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--Contact": {
-    "messageformat": "ಸಂಪರ್ಕ"
   },
   "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--Payment": {
     "messageformat": "ಪಾವತಿ"
@@ -5624,6 +5627,24 @@
   "icu:PlaintextExport--Error--DiskPermssions--Detail": {
     "messageformat": "Signal ಡಿಸ್ಕ್‌ಗೆ ಫೈಲ್‌ಗಳನ್ನು ಬರೆಯಲು ಅನುಮತಿ ಹೊಂದಿಲ್ಲದ ಕಾರಣ ನಿಮ್ಮ ಚಾಟ್ ಇತಿಹಾಸವನ್ನು ಎಕ್ಸ್‌ಪೋರ್ಟ್ ಮಾಡಲು ಸಾಧ್ಯವಿಲ್ಲ. ನಿಮ್ಮ ಡಿಸ್ಕ್‌ನ ಅನುಮತಿಗಳನ್ನು ಬದಲಾಯಿಸಲು ಅಥವಾ ನಿಮ್ಮ ಸಿಸ್ಟಂ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ಅಪ್‌ಡೇಟ್ ಮಾಡಲು ಪ್ರಯತ್ನಿಸಿ ಮತ್ತು ನಂತರ ಮತ್ತೆ ಎಕ್ಸ್‌ಪೋರ್ಟ್ ಮಾಡಿ."
   },
+  "icu:LocalBackupExport--ProgressDialog--Header": {
+    "messageformat": "ಬ್ಯಾಕಪ್ ಅನ್ನು ಎಕ್ಸ್‌ಪೋರ್ಟ್ ಮಾಡಲಾಗುತ್ತಿದೆ"
+  },
+  "icu:LocalBackupExport--CompleteDialog--Header": {
+    "messageformat": "ಬ್ಯಾಕಪ್ ಅನ್ನು ಎಕ್ಸ್‌ಪೋರ್ಟ್ ಮಾಡುವುದು ಪೂರ್ಣಗೊಂಡಿದೆ"
+  },
+  "icu:LocalBackupExport--CompleteDialog--RestoreInstructionsHeader": {
+    "messageformat": "ಈ ಬ್ಯಾಕಪ್ ಅನ್ನು ರಿಸ್ಟೋರ್ ಮಾಡಲು:"
+  },
+  "icu:LocalBackupExport--CompleteDialog--RestoreInstructionsTransfer": {
+    "messageformat": "ನಿಮ್ಮ ಬ್ಯಾಕಪ್ ಫೋಲ್ಡರ್ ಅನ್ನು ನಿಮ್ಮ ಫೋನ್‌ನ ಸಂಗ್ರಹಣೆಗೆ ವರ್ಗಾಯಿಸಿ"
+  },
+  "icu:LocalBackupExport--CompleteDialog--RestoreInstructionsInstall": {
+    "messageformat": "ನಿಮ್ಮ ಫೋನ್‌ನಲ್ಲಿ Signal ನ ಕಾಪಿಯನ್ನು ಇನ್‌ಸ್ಟಾಲ್ ಮಾಡಿ"
+  },
+  "icu:LocalBackupExport--CompleteDialog--RestoreInstructionsRestore": {
+    "messageformat": "\"ರಿಸ್ಟೋರ್ ಅಥವಾ ವರ್ಗಾಯಿಸಿ\" ಅನ್ನು ಟ್ಯಾಪ್ ಮಾಡಿ ಮತ್ತು \"ಆನ್ ಡಿವೈಸ್ ಬ್ಯಾಕಪ್\" ಅನ್ನು ಆಯ್ಕೆಮಾಡಿ"
+  },
   "icu:NotificationProfile--moon-icon": {
     "messageformat": "ಮೂನ್ ಐಕಾನ್"
   },
@@ -5980,6 +6001,15 @@
   },
   "icu:Preferences--local-backups-see-backup-key-again": {
     "messageformat": "ಕೀಯನ್ನು ಮತ್ತೊಮ್ಮೆ ನೋಡಿ"
+  },
+  "icu:Preferences__local-backups-last-backup": {
+    "messageformat": "ಕೊನೆಯ ಬ್ಯಾಕಪ್"
+  },
+  "icu:Preferences__local-backups-last-backup-never": {
+    "messageformat": "ಎಂದಿಗೂ ಇಲ್ಲ"
+  },
+  "icu:Preferences__local-backups-backup-now": {
+    "messageformat": "ಈಗ ಬ್ಯಾಕಪ್‌‌ ಮಾಡಿ"
   },
   "icu:Preferences__local-backups-folder": {
     "messageformat": "ಬ್ಯಾಕಪ್‌ ಫೋಲ್ಡರ್‌"
@@ -7581,6 +7611,9 @@
   "icu:CallQualitySurvey__ConfirmSubmission__PageDescription": {
     "messageformat": "ಇದು ಕರೆಗಳ ಬಗ್ಗೆ ಮತ್ತು ಯಾವುದು ಕೆಲಸ ಮಾಡುತ್ತಿದೆ ಅಥವಾ ಯಾವುದು ಕೆಲಸ ಮಾಡುತ್ತಿಲ್ಲ ಎಂಬುದರ ಕುರಿತು ಇನ್ನಷ್ಟು ತಿಳಿದುಕೊಳ್ಳಲು ನಮಗೆ ಸಹಾಯ ಮಾಡುತ್ತದೆ. ಸಲ್ಲಿಸುವ ಮೊದಲು ನಿಮ್ಮ ಡೀಬಗ್ ಲಾಗ್ ಅನ್ನು ನೀವು ವೀಕ್ಷಿಸಬಹುದು."
   },
+  "icu:CallQualitySurvey__ConfirmSubmission__PageDescriptionWithDiagnosticLink": {
+    "messageformat": "ಸಲ್ಲಿಸುವುದರಿಂದ <diagnosticInfoLink>ನಿಮ್ಮ ಕರೆಯ ಕುರಿತ ಡಯಾಗ್ನಾಸ್ಟಿಕ್ ಮಾಹಿತಿ</diagnosticInfoLink> ಜೊತೆಗೆ ನಿಮ್ಮ ಪ್ರತಿಕ್ರಿಯೆಯನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತದೆ . ಕರೆಯ ಗುಣಮಟ್ಟವನ್ನು ಸುಧಾರಿಸಲು ನಮಗೆ ಸಹಾಯ ಮಾಡುವುದಕ್ಕೆ ನೀವು ಐಚ್ಛಿಕವಾಗಿ ಡೀಬಗ್ ಲಾಗ್ ಅನ್ನು ಹಂಚಿಕೊಳ್ಳಬಹುದು."
+  },
   "icu:CallQualitySurvey__ConfirmSubmission__ShareDebugLog__Label": {
     "messageformat": "ಡೀಬಗ್ ಲಾಗ್ ಹಂಚಿಕೊಳ್ಳಿ"
   },
@@ -7589,6 +7622,12 @@
   },
   "icu:CallQualitySurvey__ConfirmSubmission__ShareDebugLog__HelpText": {
     "messageformat": "ಡೀಬಗ್ ಲಾಗ್‌ಗಳು ಕಡಿಮೆ ಪ್ರಮಾಣದ ಆ್ಯಪ್ ಮಾಹಿತಿಯನ್ನು ಒಳಗೊಂಡಿರುತ್ತವೆ ಮತ್ತು ನಿಮ್ಮ ಯಾವುದೇ ಮೆಸೇಜ್ ಕಂಟೆಂಟ್‌ಗಳನ್ನು ಬಹಿರಂಗಪಡಿಸುವುದಿಲ್ಲ."
+  },
+  "icu:CallQualitySurvey__ConfirmSubmission__PrivacyNote": {
+    "messageformat": "ನಮ್ಮೊಂದಿಗೆ ಹಂಚಿಕೊಳ್ಳಲಾದ ಮಾಹಿತಿಯು ಕೆಳಹಂತದ ಆ್ಯಪ್ ಮಾಹಿತಿಯನ್ನು ಒಳಗೊಂಡಿದೆ ಮತ್ತು ನಿಮ್ಮ ಕರೆಗಳ ವಿಷಯಗಳನ್ನು ಒಳಗೊಂಡಿಲ್ಲ."
+  },
+  "icu:CallDiagnosticWindow__title": {
+    "messageformat": "ಡಯಾಗ್ನಾಸ್ಟಿಕ್ ಮಾಹಿತಿ"
   },
   "icu:CallQualitySurvey__ConfirmSubmission__SubmitButton": {
     "messageformat": "ಸಲ್ಲಿಸಿ"
@@ -7604,6 +7643,9 @@
   },
   "icu:CallQualitySurvey__SubmissionSuccess": {
     "messageformat": "ನಿಮ್ಮ ಫೀಡ್‌ಬ್ಯಾಕ್‌ಗೆ ಧನ್ಯವಾದಗಳು!"
+  },
+  "icu:Megaphone__ExpandNarrowSidebar": {
+    "messageformat": "ಮೆಗಾಫೋನ್‌ನೊಂದಿಗೆ ಸಂವಹನ ನಡೆಸಲು ಸೈಡ್‌ಬಾರ್ ಅನ್ನು ವಿಸ್ತರಿಸಿ"
   },
   "icu:WhatsNew__bugfixes": {
     "messageformat": " Signal ಅನ್ನು ಸರಾಗವಾಗಿ ಚಾಲ್ತಿಯಲ್ಲಿಡಲು ಈ ಆವೃತ್ತಿಯು ಸಾಕಷ್ಟು ಸಣ್ಣ ಟ್ವೀಕ್‌ಗಳನ್ನು ಹೊಂದಿದೆ ಮತ್ತು ಬಗ್ ಫಿಕ್ಸ್‌ಗಳನ್ನು ಹೊಂದಿದೆ.",
@@ -7633,10 +7675,10 @@
     "messageformat": "ಸಣ್ಣ ಟ್ವೀಕ್‌ಗಳು, ಬಗ್ ಫಿಕ್ಸ್‌ಗಳು ಮತ್ತು ಕಾರ್ಯಕ್ಷಮತೆ ವರ್ಧನೆಗಳು. Signal ಬಳಸುತ್ತಿರುವುದಕ್ಕಾಗಿ ಧನ್ಯವಾದಗಳು!",
     "ignoreUnused": true
   },
-  "icu:WhatsNew__7.84--0": {
-    "messageformat": "ಡೆಸ್ಕ್‌ಟಾಪ್‌ನಲ್ಲಿನ Signal ಸಮೀಕ್ಷೆಗಳು ಈಗ ನಿಮ್ಮ ಫೋನ್‌ನಲ್ಲಿ ಈಗಾಗಲೇ ಕಾಣಿಸಿಕೊಳ್ಳುತ್ತಿದ್ದ ಅದೇ ಸೂಕ್ಷ್ಮ ಅನಿಮೇಷನ್ ಎಫೆಕ್ಟ್‌ಗಳನ್ನು ಒಳಗೊಂಡಿವೆ. ನಿಮ್ಮ ನೆಚ್ಚಿನ ಆಯ್ಕೆಯನ್ನು ಹಿಂಪಡೆಯುವುದನ್ನು ವೀಕ್ಷಿಸುವುದು ಕೇವಲ ಒಂದು ಸಮೀಕ್ಷೆಯ ದೂರದಲ್ಲಿದೆ."
-  },
   "icu:WhatsNew__7.86--0": {
     "messageformat": "ನಂತರದ ವಿಚಿತ್ರವಾದ ಮೌನವನ್ನು ನಾವು ಸರಿಪಡಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ, ಆದರೆ ಯಾರಾದರೂ ನಿಜವಾಗಿಯೂ ಬೇಗನೆ ಕೈ ಎತ್ತಿ ಕೆಳಕ್ಕೆ ಇಳಿಸಿದರೆ ಕೆಲವೊಮ್ಮೆ ಎತ್ತಿದ ಕೈ ಸೂಚಕವು ಗೋಚರಿಸುವುದಕ್ಕೆ (ಶೂನ್ಯ ಎಣಿಕೆಯೊಂದಿಗೆ) ಕಾರಣವಾಗುವ ಬಗ್ ಅನ್ನು ನಾವು ಸರಿಪಡಿಸಿದ್ದೇವೆ."
+  },
+  "icu:WhatsNew__7.87--0": {
+    "messageformat": "ಪಿನ್ ಮಾಡಿದ ಮೆಸೇಜ್‌ಗಳ ಮೂಲಕ ಪ್ರಮುಖ ಮಾಹಿತಿಯನ್ನು ಸುಲಭವಾಗಿ ಆ್ಯಕ್ಸೆಸ್ ಮಾಡಲು ಸಹಾಯ ಮಾಡಿ. ನಿಮ್ಮ ಪದೇ ಪದೇ ಕೇಳಲಾಗುವ ಪ್ರಶ್ನೆಗಳು, ಡಿನ್ನರ್ ಕಾಯ್ದಿರಿಸುವಿಕೆಗಳು ಮತ್ತು ರಜೆಯ ಪ್ರಯಾಣದ ವಿವರಗಳು ಈಗಾಗಲೇ ನಿಮ್ಮ ಮನಸ್ಸಿನಲ್ಲಿವೆ. ಈಗ ಅವುಗಳು ಚಾಟ್‍ನ ಟಾಪ್‍ನಲ್ಲೂ ಇರಬಹುದು."
   }
 }

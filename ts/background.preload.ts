@@ -265,7 +265,7 @@ import { ReleaseNoteAndMegaphoneFetcher } from './services/releaseNoteAndMegapho
 import { initMegaphoneCheckService } from './services/megaphone.preload.js';
 import { BuildExpirationService } from './services/buildExpiration.preload.js';
 import {
-  maybeQueueDeviceNameFetch,
+  maybeQueueDeviceInfoFetch,
   onDeviceNameChangeSync,
 } from './util/onDeviceNameChangeSync.preload.js';
 import { postSaveUpdates } from './util/cleanup.preload.js';
@@ -286,6 +286,8 @@ import {
 import { JobCancelReason } from './jobs/types.std.js';
 import { itemStorage } from './textsecure/Storage.preload.js';
 import { isPinnedMessagesReceiveEnabled } from './util/isPinnedMessagesEnabled.dom.js';
+import { initMessageCleanup } from './services/messageStateCleanup.dom.js';
+import { MessageCache } from './services/MessageCache.preload.js';
 
 const { isNumber, throttle } = lodash;
 
@@ -565,6 +567,9 @@ export async function startApp(): Promise<void> {
     restoreRemoteConfigFromStorage({
       storage: itemStorage,
     });
+
+    MessageCache.install();
+    initMessageCleanup();
 
     window.Whisper.events.on('firstEnvelope', checkFirstEnvelope);
 
@@ -1829,7 +1834,7 @@ export async function startApp(): Promise<void> {
     //   after connect on every startup
     drop(registerCapabilities());
     drop(ensureAEP());
-    drop(maybeQueueDeviceNameFetch());
+    drop(maybeQueueDeviceInfoFetch());
     Stickers.downloadQueuedPacks();
   }
 

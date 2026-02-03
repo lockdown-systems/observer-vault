@@ -1238,6 +1238,15 @@
   "icu:PinMessageDialog--HasMaxPinnedMessages__Continue": {
     "messageformat": "Nadaljuj"
   },
+  "icu:PinMessageDisappearingMessagesWarningDialog__Title": {
+    "messageformat": "Pripenjanje izginjajočih sporočil"
+  },
+  "icu:PinMessageDisappearingMessagesWarningDialog__Description": {
+    "messageformat": "Izginjajoča sporočila bodo odpeta, ko se bo iztekel njihov časovnik, sporočilo pa bo odstranjeno iz klepeta."
+  },
+  "icu:PinMessageDisappearingMessagesWarningDialog__Okay": {
+    "messageformat": "Okej"
+  },
   "icu:PinnedMessagesBar__AccessibilityLabel": {
     "messageformat": "{pinsCount, plural, one {Pripeto sporočilo} two {Pripeti sporočili} few {Pripeta sporočila} other {Pripeta sporočila}}"
   },
@@ -1259,9 +1268,6 @@
   "icu:PinnedMessagesBar__ActionsMenu__SeeAllMessages": {
     "messageformat": "Prikaži vsa sporočila"
   },
-  "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--Address": {
-    "messageformat": "Naslov"
-  },
   "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--VoiceMessage": {
     "messageformat": "Glasovno sporočilo"
   },
@@ -1270,9 +1276,6 @@
   },
   "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--File": {
     "messageformat": "Datoteka"
-  },
-  "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--Contact": {
-    "messageformat": "Stik"
   },
   "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--Payment": {
     "messageformat": "Plačilo"
@@ -5624,6 +5627,24 @@
   "icu:PlaintextExport--Error--DiskPermssions--Detail": {
     "messageformat": "Zgodovine klepeta ni mogoče izvoziti, ker Signal nima dovoljenja za zapisovanje datotek na disk. Poskusite spremeniti dovoljenja diska ali posodobiti sistemske nastavitve in nato znova izvozite."
   },
+  "icu:LocalBackupExport--ProgressDialog--Header": {
+    "messageformat": "Izvoz varnostne kopije"
+  },
+  "icu:LocalBackupExport--CompleteDialog--Header": {
+    "messageformat": "Izvoz varnostne kopije je končan"
+  },
+  "icu:LocalBackupExport--CompleteDialog--RestoreInstructionsHeader": {
+    "messageformat": "Če želite obnoviti to varnostno kopijo:"
+  },
+  "icu:LocalBackupExport--CompleteDialog--RestoreInstructionsTransfer": {
+    "messageformat": "Prenesite mapo z varnostnimi kopijami v pomnilnik telefona"
+  },
+  "icu:LocalBackupExport--CompleteDialog--RestoreInstructionsInstall": {
+    "messageformat": "Namestite novo kopijo Signala v telefon"
+  },
+  "icu:LocalBackupExport--CompleteDialog--RestoreInstructionsRestore": {
+    "messageformat": "Tapnite »Obnovi ali prenesi« in izberite »Varnostno kopiranje v napravi«"
+  },
   "icu:NotificationProfile--moon-icon": {
     "messageformat": "Ikona lune"
   },
@@ -5980,6 +6001,15 @@
   },
   "icu:Preferences--local-backups-see-backup-key-again": {
     "messageformat": "Ponovni ogled ključa"
+  },
+  "icu:Preferences__local-backups-last-backup": {
+    "messageformat": "Zadnja varnostna kopija"
+  },
+  "icu:Preferences__local-backups-last-backup-never": {
+    "messageformat": "Nikoli"
+  },
+  "icu:Preferences__local-backups-backup-now": {
+    "messageformat": "Izdelaj varnostno kopijo"
   },
   "icu:Preferences__local-backups-folder": {
     "messageformat": "Mesto za varnostne kopije"
@@ -7581,6 +7611,9 @@
   "icu:CallQualitySurvey__ConfirmSubmission__PageDescription": {
     "messageformat": "To nam pomaga izvedeti več o klicih in o tem, kaj deluje oziroma ne deluje. Pred oddajo si lahko ogledate dnevnik sistemskih zabeležb."
   },
+  "icu:CallQualitySurvey__ConfirmSubmission__PageDescriptionWithDiagnosticLink": {
+    "messageformat": "Z oddajo boste delili svoje povratne informacije skupaj z <diagnosticInfoLink>diagnostičnimi informacijami o vašem klicu</diagnosticInfoLink>. Po želji lahko delite dnevnik sistemskih zabeležb, da nam pomagate izboljšati kakovost klicev."
+  },
   "icu:CallQualitySurvey__ConfirmSubmission__ShareDebugLog__Label": {
     "messageformat": "Delite sistemske zabeležbe"
   },
@@ -7589,6 +7622,12 @@
   },
   "icu:CallQualitySurvey__ConfirmSubmission__ShareDebugLog__HelpText": {
     "messageformat": "Sistemske zabeležbe vsebujejo informacije o aplikaciji na nizki ravni in ne razkrivajo vsebine vaših sporočil."
+  },
+  "icu:CallQualitySurvey__ConfirmSubmission__PrivacyNote": {
+    "messageformat": "Informacije, ki jih delite z nami, vsebujejo informacije o aplikacijah nizke ravni in ne vključujejo vsebine vaših klicev."
+  },
+  "icu:CallDiagnosticWindow__title": {
+    "messageformat": "Diagnostične informacije"
   },
   "icu:CallQualitySurvey__ConfirmSubmission__SubmitButton": {
     "messageformat": "Objavi"
@@ -7604,6 +7643,9 @@
   },
   "icu:CallQualitySurvey__SubmissionSuccess": {
     "messageformat": "Hvala za vaše povratne informacije!"
+  },
+  "icu:Megaphone__ExpandNarrowSidebar": {
+    "messageformat": "Razširite stransko vrstico za interakcijo z megafonom"
   },
   "icu:WhatsNew__bugfixes": {
     "messageformat": "Ta različica vsebuje majhne spremembe in popravke, ki omogočajo, da Signal teče brez težav.",
@@ -7633,10 +7675,10 @@
     "messageformat": "Majhne prilagoditve, popravki napak in izboljšave zmogljivosti. Hvala, da uporabljate Signal!",
     "ignoreUnused": true
   },
-  "icu:WhatsNew__7.84--0": {
-    "messageformat": "Izboljšana animacija za Ankete Signal."
-  },
   "icu:WhatsNew__7.86--0": {
     "messageformat": "Odpravili smo manjšo napako v zvezi s prikazom dvignjene roke v skupinskih klicih."
+  },
+  "icu:WhatsNew__7.87--0": {
+    "messageformat": "Pomembne informacije naj bodo vedno enostavno dostopne s pripetimi sporočili. Vaša najpogostejša vprašanja, rezervacije večerij in načrti potovanj so že v vaših mislih. Zdaj so lahko tudi na vrhu klepeta."
   }
 }

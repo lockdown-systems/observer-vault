@@ -15,6 +15,7 @@ import { createLogger } from '../../logging/log.std.js';
 import { SmartToastManager } from './ToastManager.preload.js';
 import { challengeHandler } from '../../services/challengeHandler.preload.js';
 import type { IPCResponse } from '../../challenge.dom.js';
+import { shouldNeverBeCalled } from '../../util/shouldNeverBeCalled.std.js';
 
 const log = createLogger('InstallScreen');
 
@@ -147,6 +148,7 @@ export const SmartInstallScreen = memo(function SmartInstallScreen() {
       <InstallScreen {...props} />
       <SmartToastManager
         disableMegaphone
+        expandNarrowLeftPane={shouldNeverBeCalled}
         containerWidthBreakpoint={WidthBreakpoint.Narrow}
       />
     </>

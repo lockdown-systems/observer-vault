@@ -1238,6 +1238,15 @@
   "icu:PinMessageDialog--HasMaxPinnedMessages__Continue": {
     "messageformat": "Συνέχεια"
   },
+  "icu:PinMessageDisappearingMessagesWarningDialog__Title": {
+    "messageformat": "Καρφίτσωμα μηνυμάτων που εξαφανίζονται"
+  },
+  "icu:PinMessageDisappearingMessagesWarningDialog__Description": {
+    "messageformat": "Τα μηνύματα που εξαφανίζονται θα ξεκαρφιτσώνονται όταν λήξει ο χρόνος τους και το μήνυμα αφαιρεθεί από τη συνομιλία."
+  },
+  "icu:PinMessageDisappearingMessagesWarningDialog__Okay": {
+    "messageformat": "Εντάξει"
+  },
   "icu:PinnedMessagesBar__AccessibilityLabel": {
     "messageformat": "{pinsCount, plural, one {Καρφιτσωμένo μήνυμα} other {Καρφιτσωμένα μηνύματα}}"
   },
@@ -1259,9 +1268,6 @@
   "icu:PinnedMessagesBar__ActionsMenu__SeeAllMessages": {
     "messageformat": "Προβολή όλων των μηνυμάτων"
   },
-  "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--Address": {
-    "messageformat": "Διεύθυνση"
-  },
   "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--VoiceMessage": {
     "messageformat": "Μήνυμα φωνής"
   },
@@ -1270,9 +1276,6 @@
   },
   "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--File": {
     "messageformat": "Αρχείο"
-  },
-  "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--Contact": {
-    "messageformat": "Επαφή"
   },
   "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--Payment": {
     "messageformat": "Πληρωμή"
@@ -5624,6 +5627,24 @@
   "icu:PlaintextExport--Error--DiskPermssions--Detail": {
     "messageformat": "Δεν είναι δυνατή η εξαγωγή του ιστορικού συνομιλιών σου επειδή το Signal δεν έχει άδεια εγγραφής αρχείων στον δίσκο. Δοκίμασε να αλλάξεις τα δικαιώματα του δίσκου σου ή να ενημερώσεις τις ρυθμίσεις του συστήματός σου και, στη συνέχεια, επανάλαβε την εξαγωγή."
   },
+  "icu:LocalBackupExport--ProgressDialog--Header": {
+    "messageformat": "Εξαγωγή αντιγράφου ασφαλείας"
+  },
+  "icu:LocalBackupExport--CompleteDialog--Header": {
+    "messageformat": "Η εξαγωγή αντιγράφου ασφαλείας ολοκληρώθηκε"
+  },
+  "icu:LocalBackupExport--CompleteDialog--RestoreInstructionsHeader": {
+    "messageformat": "Για να επαναφορά αυτού του αντίγραφου ασφαλείας:"
+  },
+  "icu:LocalBackupExport--CompleteDialog--RestoreInstructionsTransfer": {
+    "messageformat": "Μετάφερε τον φάκελο αντιγράφων ασφαλείας στον χώρο αποθήκευσης του τηλεφώνου σου"
+  },
+  "icu:LocalBackupExport--CompleteDialog--RestoreInstructionsInstall": {
+    "messageformat": "Κάνε εγκατάσταση ενός νέου αντίγραφου του Signal στο τηλέφωνό σου"
+  },
+  "icu:LocalBackupExport--CompleteDialog--RestoreInstructionsRestore": {
+    "messageformat": "Πάτα «Επαναφορά ή Μεταφορά» και επίλεξε «Δημιουργία αντιγράφων ασφαλείας στη συσκευή»"
+  },
   "icu:NotificationProfile--moon-icon": {
     "messageformat": "Εικονίδιο φεγγαριού"
   },
@@ -5980,6 +6001,15 @@
   },
   "icu:Preferences--local-backups-see-backup-key-again": {
     "messageformat": "Επαναπροβολή κλειδιού"
+  },
+  "icu:Preferences__local-backups-last-backup": {
+    "messageformat": "Τελευταίο αντίγραφο ασφαλείας"
+  },
+  "icu:Preferences__local-backups-last-backup-never": {
+    "messageformat": "Ποτέ"
+  },
+  "icu:Preferences__local-backups-backup-now": {
+    "messageformat": "Δημιουργία αντίγραφου τώρα"
   },
   "icu:Preferences__local-backups-folder": {
     "messageformat": "Φάκελος αντίγραφου ασφαλείας"
@@ -7581,6 +7611,9 @@
   "icu:CallQualitySurvey__ConfirmSubmission__PageDescription": {
     "messageformat": "Αυτό μας βοηθά να μάθουμε περισσότερα για τις κλήσεις και τι λειτουργεί ή δεν λειτουργεί. Μπορείς να δεις το αρχείο καταγραφής αποσφαλμάτωσης πριν από την υποβολή."
   },
+  "icu:CallQualitySurvey__ConfirmSubmission__PageDescriptionWithDiagnosticLink": {
+    "messageformat": "Με την υποβολή θα μοιραστείς τα σχόλιά σου μαζί με <diagnosticInfoLink>διαγνωστικές πληροφορίες σχετικά με την κλήση σου</diagnosticInfoLink>. Μπορείς προαιρετικά να κοινοποιήσεις ένα αρχείο καταγραφής αποσφαλμάτωσης για να μας βοηθήσεις να βελτιώσουμε την ποιότητα των κλήσεων."
+  },
   "icu:CallQualitySurvey__ConfirmSubmission__ShareDebugLog__Label": {
     "messageformat": "Κοινή χρήση αρχείου καταγραφής αποσφαλμάτωσης"
   },
@@ -7589,6 +7622,12 @@
   },
   "icu:CallQualitySurvey__ConfirmSubmission__ShareDebugLog__HelpText": {
     "messageformat": "Τα αρχεία καταγραφής αποσφαλμάτωσης περιέχουν πληροφορίες εφαρμογής χαμηλού επιπέδου και δεν αποκαλύπτουν κανένα από τα περιεχόμενα των μηνυμάτων σου."
+  },
+  "icu:CallQualitySurvey__ConfirmSubmission__PrivacyNote": {
+    "messageformat": "Οι πληροφορίες που κοινοποιούνται σε εμάς περιέχουν πληροφορίες χαμηλού επιπέδου της εφαρμογής και δεν περιλαμβάνουν το περιεχόμενο των κλήσεών σου."
+  },
+  "icu:CallDiagnosticWindow__title": {
+    "messageformat": "Πληροφορίες διαγνωστικών"
   },
   "icu:CallQualitySurvey__ConfirmSubmission__SubmitButton": {
     "messageformat": "Υποβολή"
@@ -7604,6 +7643,9 @@
   },
   "icu:CallQualitySurvey__SubmissionSuccess": {
     "messageformat": "Ευχαριστούμε για τα σχόλιά σου!"
+  },
+  "icu:Megaphone__ExpandNarrowSidebar": {
+    "messageformat": "Ανάπτυξη της πλαϊνής μπάρας για αλληλεπίδραση με το μεγάφωνο"
   },
   "icu:WhatsNew__bugfixes": {
     "messageformat": "Αυτή η έκδοση περιλαμβάνει διάφορες μικρές βελτιώσεις και αποσφαλματώσεις για να συνεχίσει το Signal να λειτουργεί ομαλά.",
@@ -7633,10 +7675,10 @@
     "messageformat": "Μικρές τροποποιήσεις, επιδιορθώσεις σφαλμάτων και βελτιώσεις απόδοσης. Ευχαριστούμε που χρησιμοποιείς το Signal!",
     "ignoreUnused": true
   },
-  "icu:WhatsNew__7.84--0": {
-    "messageformat": "Οι δημοσκοπήσεις Signal στην επιφάνεια εργασίας περιλαμβάνουν πλέον τα ίδια ανεπαίσθητα εφέ κίνησης που εμφανίζονταν ήδη στο τηλέφωνό σου."
-  },
   "icu:WhatsNew__7.86--0": {
     "messageformat": "Διορθώσαμε ένα μικρό σφάλμα στην οθόνη με την ένδειξη σηκωμένου χεριού στις ομαδικές κλήσεις."
+  },
+  "icu:WhatsNew__7.87--0": {
+    "messageformat": "Τα καρφιτσωμένα μηνύματα μπορούν να σε βοηθήσουν να διατηρήσεις τις σημαντικές πληροφορίες εύκολα προσβάσιμες στην κορυφή μιας συνομιλίας. Οι πιο συχνές ερωτήσεις, οι κρατήσεις για δείπνο και τα προγράμματα διακοπών σου είναι ήδη στο κεφάλι σου. Τώρα μπορούν να είναι και στην κορυφή της συζήτησης.\n\n"
   }
 }

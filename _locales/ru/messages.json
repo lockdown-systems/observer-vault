@@ -1238,6 +1238,15 @@
   "icu:PinMessageDialog--HasMaxPinnedMessages__Continue": {
     "messageformat": "Продолжить"
   },
+  "icu:PinMessageDisappearingMessagesWarningDialog__Title": {
+    "messageformat": "Закрепление исчезающих сообщений"
+  },
+  "icu:PinMessageDisappearingMessagesWarningDialog__Description": {
+    "messageformat": "Исчезающие сообщения будут откреплены, когда истечёт таймер и сообщение будет удалено из чата."
+  },
+  "icu:PinMessageDisappearingMessagesWarningDialog__Okay": {
+    "messageformat": "Хорошо"
+  },
   "icu:PinnedMessagesBar__AccessibilityLabel": {
     "messageformat": "{pinsCount, plural, one {Закреплённое сообщение} few {Закреплённых сообщения} many {Закреплённых сообщений} other {Закреплённых сообщения}}"
   },
@@ -1259,9 +1268,6 @@
   "icu:PinnedMessagesBar__ActionsMenu__SeeAllMessages": {
     "messageformat": "Просмотреть все сообщения"
   },
-  "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--Address": {
-    "messageformat": "Адрес"
-  },
   "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--VoiceMessage": {
     "messageformat": "Голосовое сообщение"
   },
@@ -1270,9 +1276,6 @@
   },
   "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--File": {
     "messageformat": "Файл"
-  },
-  "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--Contact": {
-    "messageformat": "Контакт"
   },
   "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--Payment": {
     "messageformat": "Платёж"
@@ -5624,6 +5627,24 @@
   "icu:PlaintextExport--Error--DiskPermssions--Detail": {
     "messageformat": "Историю чата нельзя экспортировать, потому что у Signal нет разрешения на запись файлов на диск. Попробуйте изменить права доступа к диску или обновить системные настройки, а затем экспортировать ещё раз."
   },
+  "icu:LocalBackupExport--ProgressDialog--Header": {
+    "messageformat": "Экспорт резервной копии"
+  },
+  "icu:LocalBackupExport--CompleteDialog--Header": {
+    "messageformat": "Экспорт резервной копии завершён"
+  },
+  "icu:LocalBackupExport--CompleteDialog--RestoreInstructionsHeader": {
+    "messageformat": "Чтобы восстановить эту резервную копию:"
+  },
+  "icu:LocalBackupExport--CompleteDialog--RestoreInstructionsTransfer": {
+    "messageformat": "Перенесите папку с резервной копией в хранилище вашего телефона"
+  },
+  "icu:LocalBackupExport--CompleteDialog--RestoreInstructionsInstall": {
+    "messageformat": "Установите новую копию Signal на свой телефон"
+  },
+  "icu:LocalBackupExport--CompleteDialog--RestoreInstructionsRestore": {
+    "messageformat": "Нажмите «Восстановить или перенести» и выберите «Резервное копирование на устройстве»"
+  },
   "icu:NotificationProfile--moon-icon": {
     "messageformat": "Значок луны"
   },
@@ -5980,6 +6001,15 @@
   },
   "icu:Preferences--local-backups-see-backup-key-again": {
     "messageformat": "Просмотреть ключ ещё раз"
+  },
+  "icu:Preferences__local-backups-last-backup": {
+    "messageformat": "Последняя резервная копия"
+  },
+  "icu:Preferences__local-backups-last-backup-never": {
+    "messageformat": "Никогда"
+  },
+  "icu:Preferences__local-backups-backup-now": {
+    "messageformat": "Создать резервную копию"
   },
   "icu:Preferences__local-backups-folder": {
     "messageformat": "Папка резервных копий"
@@ -7581,6 +7611,9 @@
   "icu:CallQualitySurvey__ConfirmSubmission__PageDescription": {
     "messageformat": "Это помогает нам получить более подробную информацию о звонках и понять, что работает, а что нет. Вы можете просмотреть свой журнал отладки перед отправкой."
   },
+  "icu:CallQualitySurvey__ConfirmSubmission__PageDescriptionWithDiagnosticLink": {
+    "messageformat": "Отправьте свой отзыв вместе с <diagnosticInfoLink>диагностической информацией о вашем звонке</diagnosticInfoLink>. Вы можете, если хотите, поделиться с нами журналом отладки. Это поможет улучшить качество звонков."
+  },
   "icu:CallQualitySurvey__ConfirmSubmission__ShareDebugLog__Label": {
     "messageformat": "Поделиться журналом отладки"
   },
@@ -7589,6 +7622,12 @@
   },
   "icu:CallQualitySurvey__ConfirmSubmission__ShareDebugLog__HelpText": {
     "messageformat": "Журналы отладки содержат низкоуровневую информацию о приложении и не раскрывают содержание вашего сообщения."
+  },
+  "icu:CallQualitySurvey__ConfirmSubmission__PrivacyNote": {
+    "messageformat": "Предоставленная нам информация содержит низкоуровневые данные приложения и не включает содержание ваших звонков."
+  },
+  "icu:CallDiagnosticWindow__title": {
+    "messageformat": "Диагностическая информация"
   },
   "icu:CallQualitySurvey__ConfirmSubmission__SubmitButton": {
     "messageformat": "Отправить"
@@ -7604,6 +7643,9 @@
   },
   "icu:CallQualitySurvey__SubmissionSuccess": {
     "messageformat": "Спасибо за ваш отзыв!"
+  },
+  "icu:Megaphone__ExpandNarrowSidebar": {
+    "messageformat": "Расширьте боковую панель для взаимодействия с мегафоном"
   },
   "icu:WhatsNew__bugfixes": {
     "messageformat": "Эта версия содержит несколько небольших изменений и исправлений ошибок.",
@@ -7633,10 +7675,10 @@
     "messageformat": "Небольшие изменения, исправления ошибок и улучшения производительности. Спасибо за то, что пользуетесь Signal!",
     "ignoreUnused": true
   },
-  "icu:WhatsNew__7.84--0": {
-    "messageformat": "Опросы Signal на ПК теперь включают те же тонкие анимационные эффекты, что и на вашем телефоне. Это не волшебство — это ваш ответ на вопрос превращается в опрос."
-  },
   "icu:WhatsNew__7.86--0": {
     "messageformat": "Мы не можем исправить неловкую тишину, но зато исправили ошибку, из-за которой индикатор поднятой руки временами оставался видимым (с нулевым счётчиком), если кто-то очень быстро поднимал и опускал руку."
+  },
+  "icu:WhatsNew__7.87--0": {
+    "messageformat": "Помогите сохранить важную информацию легкодоступной с помощью закреплённых сообщений. Ваши самые часто задаваемые вопросы, бронь столиков и маршруты отпуска уже в центре внимания. Теперь они могут быть и в топе чата."
   }
 }

@@ -34,7 +34,12 @@ import { SmartProfileNameWarningModal } from './ProfileNameWarningModal.preload.
 import { SmartDraftGifMessageSendModal } from './DraftGifMessageSendModal.preload.js';
 import { DebugLogErrorModal } from '../../components/DebugLogErrorModal.dom.js';
 import { SmartPlaintextExportWorkflow } from './PlaintextExportWorkflow.preload.js';
-import { shouldShowPlaintextWorkflow } from '../selectors/backups.std.js';
+import { SmartLocalBackupExportWorkflow } from './LocalBackupExportWorkflow.preload.js';
+import {
+  shouldShowPlaintextWorkflow,
+  shouldShowLocalBackupWorkflow,
+} from '../selectors/backups.std.js';
+import { SmartPinMessageDialog } from './PinMessageDialog.preload.js';
 
 function renderCallLinkAddNameModal(): React.JSX.Element {
   return <SmartCallLinkAddNameModal />;
@@ -96,8 +101,16 @@ function renderNotePreviewModal(): React.JSX.Element {
   return <SmartNotePreviewModal />;
 }
 
+function renderPinMessageDialog(): React.JSX.Element {
+  return <SmartPinMessageDialog />;
+}
+
 function renderPlaintextExportWorkflow(): React.JSX.Element {
   return <SmartPlaintextExportWorkflow />;
+}
+
+function renderLocalBackupExportWorkflow(): React.JSX.Element {
+  return <SmartLocalBackupExportWorkflow />;
 }
 
 function renderStoriesSettings(): React.JSX.Element {
@@ -124,6 +137,9 @@ export const SmartGlobalModalContainer = memo(
     const shouldShowPlaintextExportWorkflow = useSelector(
       shouldShowPlaintextWorkflow
     );
+    const shouldShowLocalBackupExportWorkflow = useSelector(
+      shouldShowLocalBackupWorkflow
+    );
 
     const hasSafetyNumberChangeModal = conversationsStoppingSend.length > 0;
 
@@ -149,6 +165,7 @@ export const SmartGlobalModalContainer = memo(
       mediaPermissionsModalProps,
       messageRequestActionsConfirmationProps,
       notePreviewModalProps,
+      pinMessageDialogData,
       isProfileNameWarningModalVisible,
       profileNameWarningModalConversationType,
       isShortcutGuideModalVisible,
@@ -267,6 +284,7 @@ export const SmartGlobalModalContainer = memo(
         closeMediaPermissionsModal={closeMediaPermissionsModal}
         openSystemMediaPermissions={window.IPC.openSystemMediaPermissions}
         notePreviewModalProps={notePreviewModalProps}
+        pinMessageDialogData={pinMessageDialogData}
         hasSafetyNumberChangeModal={hasSafetyNumberChangeModal}
         hideBackfillFailureModal={hideBackfillFailureModal}
         hideUserNotFoundModal={hideUserNotFoundModal}
@@ -299,7 +317,9 @@ export const SmartGlobalModalContainer = memo(
           renderMessageRequestActionsConfirmation
         }
         renderNotePreviewModal={renderNotePreviewModal}
+        renderPinMessageDialog={renderPinMessageDialog}
         renderPlaintextExportWorkflow={renderPlaintextExportWorkflow}
+        renderLocalBackupExportWorkflow={renderLocalBackupExportWorkflow}
         renderProfileNameWarningModal={renderProfileNameWarningModal}
         renderUsernameOnboarding={renderUsernameOnboarding}
         renderSafetyNumber={renderSafetyNumber}
@@ -310,6 +330,9 @@ export const SmartGlobalModalContainer = memo(
         safetyNumberChangedBlockingData={safetyNumberChangedBlockingData}
         safetyNumberModalContactId={safetyNumberModalContactId}
         shouldShowPlaintextExportWorkflow={shouldShowPlaintextExportWorkflow}
+        shouldShowLocalBackupExportWorkflow={
+          shouldShowLocalBackupExportWorkflow
+        }
         stickerPackPreviewId={stickerPackPreviewId}
         tapToViewNotAvailableModalProps={tapToViewNotAvailableModalProps}
         theme={theme}

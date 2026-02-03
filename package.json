@@ -6,7 +6,7 @@
   "description": "Secure video call recorder for community observers",
   "desktopName": "observervault.desktop",
   "repository": "https://github.com/micahflee/observer-vault.git",
-  "version": "7.86.0",
+  "version": "7.87.0",
   "license": "AGPL-3.0-only",
   "author": {
     "name": "Signal Messenger, LLC",
@@ -134,7 +134,7 @@
     "@react-aria/utils": "3.25.3",
     "@react-spring/web": "10.0.3",
     "@react-types/shared": "3.27.0",
-    "@signalapp/libsignal-client": "0.86.9",
+    "@signalapp/libsignal-client": "0.86.12",
     "@signalapp/minimask": "1.0.1",
     "@signalapp/mute-state-change": "workspace:1.0.0",
     "@signalapp/quill-cjs": "2.1.2",
@@ -596,6 +596,7 @@
       "permissions_popup.html",
       "debug_log.html",
       "loading.html",
+      "call_diagnostic.html",
       {
         "from": "build/compact-locales",
         "to": "_locales",

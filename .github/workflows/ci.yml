@@ -1,6 +1,5 @@
 # Copyright 2020 Signal Messenger, LLC
 # SPDX-License-Identifier: AGPL-3.0-only
-# Copyright 2026 Lockdown Systems LLC
 
 name: CI
 on:
@@ -121,13 +120,12 @@ jobs:
 
     - run: pnpm run generate
     - run: pnpm run prepare-beta-build
-    # Tests disabled for Observer Vault
-    # - run: pnpm run test-node
-    # - run: pnpm run test-electron
-    #   env:
-    #     ARTIFACTS_DIR: artifacts/macos
-    #     WORKER_COUNT: 4
-    #   timeout-minutes: 5
+    - run: pnpm run test-node
+    - run: pnpm run test-electron
+      env:
+        ARTIFACTS_DIR: artifacts/macos
+        WORKER_COUNT: 4
+      timeout-minutes: 5
     - run: touch noop.sh && chmod +x noop.sh
     - run: pnpm run build
       env:
@@ -230,24 +228,23 @@ jobs:
       env:
         DD_API_KEY: ${{ secrets.DATADOG_API_KEY }}
 
-    # Tests disabled for Observer Vault
-    # - run: xvfb-run --auto-servernum pnpm run test-node
+    - run: xvfb-run --auto-servernum pnpm run test-node
 
-    # - name: Clone backup integration tests
-    #   uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-    #   with:
-    #     repository: 'signalapp/Signal-Message-Backup-Tests'
-    #     ref: '50336e18dc0171551b1684ff81690b2f515dd217'
-    #     path: 'backup-integration-tests'
+    - name: Clone backup integration tests
+      uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      with:
+        repository: 'signalapp/Signal-Message-Backup-Tests'
+        ref: '50336e18dc0171551b1684ff81690b2f515dd217'
+        path: 'backup-integration-tests'
 
-    # - run: xvfb-run --auto-servernum pnpm run test-electron
-    #   timeout-minutes: 5
-    #   env:
-    #     ARTIFACTS_DIR: artifacts/linux
-    #     LANG: en_US
-    #     LANGUAGE: en_US
-    #     BACKUP_INTEGRATION_DIR: 'backup-integration-tests/test-cases'
-    #     WORKER_COUNT: 8
+    - run: xvfb-run --auto-servernum pnpm run test-electron
+      timeout-minutes: 5
+      env:
+        ARTIFACTS_DIR: artifacts/linux
+        LANG: en_US
+        LANGUAGE: en_US
+        BACKUP_INTEGRATION_DIR: 'backup-integration-tests/test-cases'
+        WORKER_COUNT: 8
     - run: xvfb-run --auto-servernum pnpm run test-release
       env:
         NODE_ENV: production
@@ -283,8 +280,7 @@ jobs:
         NPM_CONFIG_LOGLEVEL: verbose
 
     - run: pnpm run generate
-    # Tests disabled for Observer Vault
-    # - run: pnpm run test-node
+    - run: pnpm run test-node
     - run: copy package.json temp.json
     - run: del package.json
     - run: type temp.json | findstr /v certificateSubjectName | findstr /v certificateSha1 > package.json
@@ -314,12 +310,11 @@ jobs:
       env:
         DD_API_KEY: ${{ secrets.DATADOG_API_KEY }}
 
-    # Tests disabled for Observer Vault
-    # - run: pnpm run test-electron
-    #   env:
-    #     ARTIFACTS_DIR: artifacts/windows
-    #     WORKER_COUNT: 4
-    #   timeout-minutes: 5
+    - run: pnpm run test-electron
+      env:
+        ARTIFACTS_DIR: artifacts/windows
+        WORKER_COUNT: 4
+      timeout-minutes: 5
     - run: pnpm run test-release
       env:
         SIGNAL_ENV: production
