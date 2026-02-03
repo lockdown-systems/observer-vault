@@ -9,6 +9,9 @@
  * 1. Auto-reply functionality for text messages
  * 2. Automatic disappearing messages timer configuration
  * 3. Auto-download of all attachments to Downloads folder
+ *
+ * IMPORTANT: Attachments are downloaded DIRECTLY (bypassing Signal's queue)
+ * to ensure they are saved before the 30-second disappearing timer expires.
  */
 
 import { homedir } from 'node:os';
@@ -23,16 +26,25 @@ import {
   isDirectConversation,
   isGroupV2,
 } from '../util/whatTypeOfConversation.dom.js';
-import { isDownloaded } from '../util/Attachment.std.js';
+import {
+  isDownloaded,
+  hasRequiredInformationToDownloadFromTransitTier,
+} from '../util/Attachment.std.js';
 import {
   loadAttachmentData,
   saveAttachmentToDisk,
   getUnusedFilename,
+  processNewAttachment,
 } from '../util/migrations.preload.js';
+import { downloadAttachment } from '../util/downloadAttachment.preload.js';
 import type { AttachmentType } from '../types/Attachment.std.js';
 import type { ConversationModel } from '../models/conversations.preload.js';
 import type { MessageModel } from '../models/messages.preload.js';
 import { getMessageById } from '../messages/getMessageById.preload.js';
+import {
+  getMaximumIncomingAttachmentSizeInKb,
+  KIBIBYTE,
+} from '../types/AttachmentSize.std.js';
 
 const log = createLogger('observervault/messageHandler');
 
@@ -104,9 +116,288 @@ function getExtensionFromContentType(
   return 'bin';
 }
 
+// Track which attachments we've already saved to avoid duplicates
+const savedAttachmentPaths = new Set<string>();
+// Track which attachment digests we've already started downloading
+const downloadingAttachments = new Set<string>();
+
+/**
+ * Directly downloads an attachment from Signal's servers and saves it to disk.
+ * This bypasses Signal's download queue to ensure the attachment is saved
+ * before the 30-second disappearing message timer expires.
+ */
+async function directDownloadAndSave(
+  attachment: AttachmentType,
+  messageId: string,
+  logId: string
+): Promise<boolean> {
+  const attachmentId = attachment.digest || attachment.cdnKey || 'unknown';
+
+  // Skip if already downloading or downloaded
+  if (downloadingAttachments.has(attachmentId)) {
+    // eslint-disable-next-line no-console
+    console.log(
+      `[Observer Vault] ${logId}: Already downloading ${attachmentId}`
+    );
+    return false;
+  }
+
+  // Skip if already downloaded (has a path)
+  if (attachment.path && savedAttachmentPaths.has(attachment.path)) {
+    // eslint-disable-next-line no-console
+    console.log(`[Observer Vault] ${logId}: Already saved ${attachment.path}`);
+    return true;
+  }
+
+  // Check if we have enough info to download
+  if (!hasRequiredInformationToDownloadFromTransitTier(attachment)) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      `[Observer Vault] ${logId}: Attachment missing download info (cdnKey/key/digest)`
+    );
+    return false;
+  }
+
+  // Check size limit
+  const maxSizeKb = getMaximumIncomingAttachmentSizeInKb();
+  if (attachment.size > maxSizeKb * KIBIBYTE) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      `[Observer Vault] ${logId}: Attachment too large (${attachment.size} > ${maxSizeKb * KIBIBYTE})`
+    );
+    return false;
+  }
+
+  downloadingAttachments.add(attachmentId);
+
+  try {
+    // eslint-disable-next-line no-console
+    console.log(
+      `[Observer Vault] ${logId}: Direct downloading attachment ${attachmentId} (${attachment.size} bytes)`
+    );
+
+    // Create an abort controller with a 2-minute timeout
+    const abortController = new AbortController();
+    const timeoutId = setTimeout(() => abortController.abort(), 120000);
+
+    try {
+      // Download the attachment directly
+      const downloadedAttachment = await downloadAttachment({
+        attachment,
+        options: {
+          onSizeUpdate: () => {
+            // We don't need progress updates
+          },
+          abortSignal: abortController.signal,
+          hasMediaBackups: false,
+          logId: `${logId}/direct`,
+          messageExpiresAt: null, // Don't check expiration - we want to download anyway
+        },
+      });
+
+      clearTimeout(timeoutId);
+
+      // eslint-disable-next-line no-console
+      console.log(
+        `[Observer Vault] ${logId}: Download complete, processing attachment`
+      );
+
+      // Process the attachment (decrypt and save to Signal's storage)
+      const processedAttachment = await processNewAttachment(
+        {
+          ...attachment,
+          ...downloadedAttachment,
+        },
+        'attachment'
+      );
+
+      // eslint-disable-next-line no-console
+      console.log(
+        `[Observer Vault] ${logId}: Processed, path=${processedAttachment.path}`
+      );
+
+      if (!processedAttachment.path) {
+        // eslint-disable-next-line no-console
+        console.error(`[Observer Vault] ${logId}: No path after processing`);
+        return false;
+      }
+
+      // Now load the data and save to ObserverVault folder
+      const attachmentWithData = await loadAttachmentData(processedAttachment);
+
+      if (!attachmentWithData.data) {
+        // eslint-disable-next-line no-console
+        console.error(`[Observer Vault] ${logId}: No data after loading`);
+        return false;
+      }
+
+      // Generate filename
+      const timestamp = Date.now();
+      const ext = getExtensionFromContentType(
+        attachment.contentType,
+        attachment.fileName
+      );
+      const baseName =
+        attachment.fileName || `signal-attachment-${timestamp}.${ext}`;
+
+      const uniqueName = getUnusedFilename({
+        filename: baseName,
+        baseDir: DOWNLOADS_DIR,
+      });
+
+      // Save to disk
+      const result = await saveAttachmentToDisk({
+        data: attachmentWithData.data,
+        name: uniqueName,
+        baseDir: DOWNLOADS_DIR,
+      });
+
+      if (result) {
+        savedAttachmentPaths.add(processedAttachment.path);
+
+        // eslint-disable-next-line no-console
+        console.log(
+          `[Observer Vault] ${logId}: SUCCESS - Saved to ${result.fullPath}`
+        );
+
+        // Show notification
+        try {
+          // eslint-disable-next-line no-new
+          new window.Notification('Observer Vault', {
+            body: `File saved: ${uniqueName}`,
+            silent: true,
+          });
+        } catch {
+          // Notification may fail in some contexts
+        }
+
+        return true;
+      }
+
+      return false;
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(`[Observer Vault] ${logId}: Direct download failed:`, error);
+    return false;
+  } finally {
+    downloadingAttachments.delete(attachmentId);
+  }
+}
+
+/**
+ * Immediately saves a downloaded attachment to the ObserverVault folder.
+ * This is called directly from addAttachmentToMessage when an attachment
+ * download completes, ensuring the file is saved before the message can expire.
+ *
+ * This is the primary save mechanism - it runs synchronously with download completion.
+ */
+export async function saveAttachmentToObserverVault(
+  attachment: AttachmentType,
+  messageId: string
+): Promise<void> {
+  const logId = `saveAttachmentToObserverVault/${messageId}`;
+
+  // Skip if no path or already saved
+  if (!attachment.path) {
+    // eslint-disable-next-line no-console
+    console.warn(`[Observer Vault] ${logId}: Attachment has no path`);
+    return;
+  }
+
+  // Check if we've already saved this attachment
+  if (savedAttachmentPaths.has(attachment.path)) {
+    // eslint-disable-next-line no-console
+    console.log(
+      `[Observer Vault] ${logId}: Already saved ${attachment.path}, skipping`
+    );
+    return;
+  }
+
+  try {
+    // eslint-disable-next-line no-console
+    console.log(
+      `[Observer Vault] ${logId}: Saving attachment immediately from ${attachment.path}`
+    );
+
+    // Load the decrypted attachment data
+    const attachmentWithData = await loadAttachmentData(attachment);
+
+    if (!attachmentWithData.data) {
+      // eslint-disable-next-line no-console
+      console.error(`[Observer Vault] ${logId}: No data in attachment`);
+      return;
+    }
+
+    // Generate filename
+    const timestamp = Date.now();
+    const ext = getExtensionFromContentType(
+      attachment.contentType,
+      attachment.fileName
+    );
+    const baseName =
+      attachment.fileName || `signal-attachment-${timestamp}.${ext}`;
+
+    const uniqueName = getUnusedFilename({
+      filename: baseName,
+      baseDir: DOWNLOADS_DIR,
+    });
+
+    // eslint-disable-next-line no-console
+    console.log(`[Observer Vault] ${logId}: Saving as ${uniqueName}`);
+
+    // Save to disk
+    const result = await saveAttachmentToDisk({
+      data: attachmentWithData.data,
+      name: uniqueName,
+      baseDir: DOWNLOADS_DIR,
+    });
+
+    if (result) {
+      // Mark as saved to prevent duplicate saves
+      savedAttachmentPaths.add(attachment.path);
+
+      // eslint-disable-next-line no-console
+      console.log(
+        `[Observer Vault] ${logId}: SUCCESS - Saved to ${result.fullPath}`
+      );
+
+      // Show notification
+      try {
+        // eslint-disable-next-line no-new
+        new window.Notification('Observer Vault', {
+          body: `File saved: ${uniqueName}`,
+          silent: true,
+        });
+      } catch {
+        // Notification may fail in some contexts, that's OK
+      }
+
+      // Clean up old entries from the set to prevent memory leaks
+      // Keep the last 1000 entries
+      if (savedAttachmentPaths.size > 1000) {
+        const entries = Array.from(savedAttachmentPaths);
+        entries.slice(0, entries.length - 1000).forEach(path => {
+          savedAttachmentPaths.delete(path);
+        });
+      }
+    }
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(`[Observer Vault] ${logId}: Error saving attachment:`, error);
+    throw error;
+  }
+}
+
 /**
  * Waits for attachments to be downloaded by Signal's normal flow,
  * then saves them to the Downloads folder.
+ *
+ * NOTE: This is now a BACKUP mechanism. The primary save happens in
+ * saveAttachmentToObserverVault which is called directly when attachments
+ * are downloaded. This function catches any attachments that were missed.
  */
 export async function downloadAllAttachments(
   message: MessageModel,
@@ -155,8 +446,17 @@ export async function downloadAllAttachments(
 
     // Save any newly downloaded attachments to Downloads folder
     for (const attachment of downloadedAttachments) {
-      // Skip if already saved or no path
-      if (savedFiles.some(f => f === attachment.path) || !attachment.path) {
+      // Skip if already saved by the primary save mechanism or no path
+      if (!attachment.path) {
+        continue;
+      }
+      if (savedFiles.some(f => f === attachment.path)) {
+        continue;
+      }
+      if (savedAttachmentPaths.has(attachment.path)) {
+        // Already saved by saveAttachmentToObserverVault
+        savedFiles.push(attachment.path);
+        downloadedCount += 1;
         continue;
       }
 
@@ -207,6 +507,7 @@ export async function downloadAllAttachments(
             `[Observer Vault] ${logId}: SUCCESS - Saved to ${result.fullPath}`
           );
           savedFiles.push(attachment.path);
+          savedAttachmentPaths.add(attachment.path);
           downloadedCount += 1;
         }
       } catch (error) {
@@ -344,13 +645,57 @@ export async function handleObserverVaultIncomingMessage(
   });
   log.info(`${logId}: Auto-selected conversation to mark as read`);
 
-  // Check for attachments and download them
+  // Check for attachments and download them IMMEDIATELY
+  // We use direct download to bypass Signal's queue and ensure attachments
+  // are saved before the 30-second disappearing timer expires
   const attachments = message.get('attachments') || [];
   if (attachments.length > 0) {
+    const messageId = message.get('id');
     // eslint-disable-next-line no-console
     console.log(
-      `[Observer Vault] ${logId}: Message has ${attachments.length} attachment(s), starting download`
+      `[Observer Vault] ${logId}: Message has ${attachments.length} attachment(s), starting DIRECT download`
     );
+
+    // Download all attachments in parallel, directly bypassing Signal's queue
+    const downloadPromises = attachments.map(async (attachment, index) => {
+      const attachmentLogId = `${logId}/attachment-${index}`;
+      try {
+        // First check if already downloaded
+        if (isDownloaded(attachment) && attachment.path) {
+          // eslint-disable-next-line no-console
+          console.log(
+            `[Observer Vault] ${attachmentLogId}: Already downloaded, saving`
+          );
+          await saveAttachmentToObserverVault(attachment, messageId);
+          return true;
+        }
+
+        // Direct download and save
+        return await directDownloadAndSave(
+          attachment,
+          messageId,
+          attachmentLogId
+        );
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error(
+          `[Observer Vault] ${attachmentLogId}: Failed to download:`,
+          error
+        );
+        return false;
+      }
+    });
+
+    // Wait for all downloads to complete (don't use drop() here!)
+    const results = await Promise.all(downloadPromises);
+    const successCount = results.filter(Boolean).length;
+
+    // eslint-disable-next-line no-console
+    console.log(
+      `[Observer Vault] ${logId}: Downloaded ${successCount}/${attachments.length} attachments`
+    );
+
+    // Also start the backup polling mechanism in case direct download fails
     drop(downloadAllAttachments(message, conversation));
   }
 
