@@ -2,7 +2,11 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import Long from 'long';
-import type { Call, PeekInfo, LocalDeviceState } from '@lockdown-systems/ringrtc';
+import type {
+  Call,
+  PeekInfo,
+  LocalDeviceState,
+} from '@lockdown-systems/ringrtc';
 import {
   CallState,
   ConnectionState,

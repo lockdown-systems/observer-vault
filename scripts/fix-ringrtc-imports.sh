@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Copyright 2026 Lockdown Systems LLC
+# SPDX-License-Identifier: AGPL-3.0-only
 #
 # Fix RingRTC imports after merge
 #

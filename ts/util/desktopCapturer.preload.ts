@@ -258,7 +258,8 @@ export class DesktopCapturer {
 
     // process.dlopen() for the addon takes roughly 34ms so avoid running it
     // until requested by user.
-    // eslint-disable-next-line global-require, @typescript-eslint/no-var-requires
+    /* eslint-disable-next-line global-require, @typescript-eslint/no-var-requires,
+       import/no-extraneous-dependencies */
     const macScreenShare = require('@indutny/mac-screen-share');
     const stream: Stream = new macScreenShare.Stream({
       width: REQUESTED_SCREEN_SHARE_WIDTH,
@@ -371,6 +372,7 @@ function isScreenSource(source: DesktopCapturerSource): boolean {
 export function isNativeMacScreenShareSupported(): boolean {
   // process.dlopen() for the addon takes roughly 34ms so avoid running it
   // until requested by user.
-  // eslint-disable-next-line global-require, @typescript-eslint/no-var-requires
+  /* eslint-disable-next-line global-require, @typescript-eslint/no-var-requires,
+     import/no-extraneous-dependencies */
   return require('@indutny/mac-screen-share').isSupported;
 }

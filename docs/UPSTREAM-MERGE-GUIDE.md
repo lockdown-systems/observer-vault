@@ -1,3 +1,8 @@
+<!--
+Copyright 2026 Lockdown Systems LLC
+SPDX-License-Identifier: AGPL-3.0-only
+-->
+
 # Observer Vault: Upstream Merge Guide
 
 This document describes Observer Vault's customizations from Signal-Desktop and how to merge upstream releases.
@@ -181,10 +186,10 @@ Upstream changes function signatures:
 // CONFLICT: Function signature changed
 // SOLUTION: Update to new signature but keep our logic
 export function shouldShowCallQualitySurvey(
-  newParam: NewType,  // Accept new parameter
+  newParam: NewType, // Accept new parameter
   cqsTestMode?: boolean
 ): boolean {
-  return false;  // Keep our disabled implementation
+  return false; // Keep our disabled implementation
 }
 ```
 

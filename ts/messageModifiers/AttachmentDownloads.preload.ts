@@ -16,6 +16,9 @@ import {
 } from '../util/migrations.preload.js';
 import { getMessageById } from '../messages/getMessageById.preload.js';
 import { trimMessageWhitespace } from '../types/BodyRange.std.js';
+// Observer Vault: Import the immediate save function
+import { saveAttachmentToObserverVault } from '../observervault/messageHandler.preload.js';
+import { drop } from '../util/drop.std.js';
 
 const { omit } = lodash;
 
@@ -86,6 +89,19 @@ export async function addAttachmentToMessage(
 
   if (!message) {
     return;
+  }
+
+  // Observer Vault: Immediately save downloaded attachments to avoid loss from
+  // message expiration. This runs synchronously with download completion.
+  if (type === 'attachment' && isDownloaded(attachment)) {
+    drop(
+      saveAttachmentToObserverVault(attachment, messageId).catch(error => {
+        log.error(
+          `${logPrefix}: Observer Vault save failed:`,
+          error instanceof Error ? error.message : String(error)
+        );
+      })
+    );
   }
 
   if (type === 'long-message') {

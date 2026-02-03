@@ -50,6 +50,14 @@ const FILES_TO_IGNORE = new Set(
     'js/WebAudioRecorderMp3.js',
     'sticker-creator/src/util/protos.d.ts',
     'sticker-creator/src/util/protos.js',
+    // Observer Vault specific files with Lockdown Systems LLC copyright
+    '.github/workflows/linux-release.yml',
+    'docs/UPSTREAM-MERGE-GUIDE.md',
+    'scripts/audit-customizations.sh',
+    'scripts/fix-ringrtc-imports.sh',
+    'scripts/merge-upstream.sh',
+    'scripts/release-linux.sh',
+    'scripts/release-macos.sh',
   ].map(
     // This makes sure the files are correct on Windows.
     path.normalize
