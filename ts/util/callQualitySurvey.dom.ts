@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import type { CallSummary } from '@lockdown-systems/ringrtc';
-// Observer Vault: DAY and MINUTE unused (survey disabled)
-// import { DAY, MINUTE } from './durations/index.std.js';
+// Observer Vault: DAY and SECOND unused (survey disabled)
+// import { DAY, SECOND } from './durations/index.std.js';
 import { isFeaturedEnabledNoRedux } from './isFeatureEnabled.dom.js';
 // Observer Vault: isMockEnvironment unused (survey disabled)
 // import { isMockEnvironment } from '../environment.std.js';
@@ -26,8 +26,8 @@ const FAILURE_END_REASONS: ReadonlySet<string> = new Set([
   'iceFailedAfterConnected',
 ]);
 
-// Observer Vault: Survey disabled, SURVEY_COOLDOWN, SHORT_CALL_THRESHOLD,
-// LONG_CALL_THRESHOLD, and DEFAULT_PPM constants are intentionally not defined
+// Observer Vault: Survey disabled, SURVEY_COOLDOWN, TEST_SHORT_CALL_THRESHOLD,
+// and DEFAULT_PPM constants are intentionally not defined
 
 export function isCallFailure(callEndReasonText: string): boolean {
   return FAILURE_END_REASONS.has(callEndReasonText);
@@ -47,11 +47,11 @@ export function shouldShowCallQualitySurvey(
     lastSurveyTime: number | null;
     lastFailureSurveyTime: number | null;
     e164: string | undefined;
-    bypassCooldown?: boolean;
+    cqsTestMode?: boolean;
   }
 ): boolean {
   // Observer Vault: Disable call quality survey entirely
   return false;
 }
 
-// Observer Vault: Survey disabled, _getCallQualitySurveyPPM function removed
+// Observer Vault: Survey disabled, getCallQualitySurveyPPM function removed

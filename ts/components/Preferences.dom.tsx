@@ -98,6 +98,7 @@ import type { SmartPreferencesEditChatFolderPageProps } from '../state/smart/Pre
 import type { SmartPreferencesChatFoldersPageProps } from '../state/smart/PreferencesChatFoldersPage.preload.js';
 import { AxoButton } from '../axo/AxoButton.dom.js';
 import type { ExternalProps as SmartNotificationProfilesProps } from '../state/smart/PreferencesNotificationProfiles.preload.js';
+import type { LocalBackupExportMetadata } from '../types/LocalExport.std.js';
 
 const { isNumber, noop, partition } = lodash;
 
@@ -113,6 +114,7 @@ export type PropsDataType = {
   backupKeyViewed: boolean;
   backupLocalBackupsEnabled: boolean;
   backupTier: BackupLevel | null;
+  lastLocalBackup: LocalBackupExportMetadata | undefined;
   localBackupFolder: string | undefined;
   chatFoldersFeatureEnabled: boolean;
   currentChatFoldersCount: number;
@@ -240,7 +242,6 @@ type PropsFunctionType = {
   addCustomColor: (color: CustomColorType) => unknown;
   doDeleteAllData: () => unknown;
   editCustomColor: (colorId: string, color: CustomColorType) => unknown;
-  exportLocalBackup: () => Promise<BackupValidationResultType>;
   getMessageCountBySchemaVersion: () => Promise<MessageCountBySchemaVersionType>;
   getMessageSampleForSchemaVersion: (
     version: number
@@ -270,6 +271,7 @@ type PropsFunctionType = {
   ) => unknown;
   setSettingsLocation: (settingsLocation: SettingsLocation) => unknown;
   showToast: (toast: AnyToast) => unknown;
+  startLocalBackupExport: () => void;
   startPlaintextExport: () => unknown;
   validateBackup: () => Promise<BackupValidationResultType>;
 
@@ -329,8 +331,8 @@ type PropsFunctionType = {
   __dangerouslyRunAbitraryReadOnlySqlQuery: (
     readonlySqlQuery: string
   ) => Promise<ReadonlyArray<RowType<object>>>;
-  callQualitySurveyCooldownDisabled: boolean;
-  setCallQualitySurveyCooldownDisabled: (value: boolean) => void;
+  cqsTestMode: boolean;
+  setCqsTestMode: (value: boolean) => void;
 
   // Localization
   i18n: LocalizerType;
@@ -407,7 +409,6 @@ export function Preferences({
   doDeleteAllData,
   editCustomColor,
   emojiSkinToneDefault,
-  exportLocalBackup,
   getConversationsWithCustomColor,
   getMessageCountBySchemaVersion,
   getMessageSampleForSchemaVersion,
@@ -452,6 +453,7 @@ export function Preferences({
   isSystemTraySupported,
   isMinimizeToAndStartInSystemTraySupported,
   isInternalUser,
+  lastLocalBackup,
   lastSyncTime,
   localBackupFolder,
   makeSyncRequest,
@@ -534,6 +536,7 @@ export function Preferences({
   // Observer Vault: Update dialog removed
   shouldShowUpdateDialog: _shouldShowUpdateDialog,
   showToast,
+  startLocalBackupExport,
   startPlaintextExport,
   localeOverride,
   theme,
@@ -549,8 +552,8 @@ export function Preferences({
   generateDonationReceiptBlob,
   internalDeleteAllMegaphones,
   __dangerouslyRunAbitraryReadOnlySqlQuery,
-  callQualitySurveyCooldownDisabled,
-  setCallQualitySurveyCooldownDisabled,
+  cqsTestMode,
+  setCqsTestMode,
 }: PropsType): React.JSX.Element {
   const storiesId = useId();
   const themeSelectId = useId();
@@ -2158,6 +2161,7 @@ export function Preferences({
         i18n={i18n}
         isLocalBackupsEnabled={backupLocalBackupsEnabled}
         isRemoteBackupsEnabled={backupFeatureEnabled}
+        lastLocalBackup={lastLocalBackup}
         locale={resolvedLocale}
         localBackupFolder={localBackupFolder}
         onBackupKeyViewedChange={onBackupKeyViewedChange}
@@ -2168,6 +2172,7 @@ export function Preferences({
         refreshBackupSubscriptionStatus={refreshBackupSubscriptionStatus}
         setSettingsLocation={setSettingsLocation}
         showToast={showToast}
+        startLocalBackupExport={startLocalBackupExport}
       />
     );
     content = (
@@ -2196,7 +2201,6 @@ export function Preferences({
         contents={
           <PreferencesInternal
             i18n={i18n}
-            exportLocalBackup={exportLocalBackup}
             validateBackup={validateBackup}
             getMessageCountBySchemaVersion={getMessageCountBySchemaVersion}
             getMessageSampleForSchemaVersion={getMessageSampleForSchemaVersion}
@@ -2208,12 +2212,8 @@ export function Preferences({
             __dangerouslyRunAbitraryReadOnlySqlQuery={
               __dangerouslyRunAbitraryReadOnlySqlQuery
             }
-            callQualitySurveyCooldownDisabled={
-              callQualitySurveyCooldownDisabled
-            }
-            setCallQualitySurveyCooldownDisabled={
-              setCallQualitySurveyCooldownDisabled
-            }
+            cqsTestMode={cqsTestMode}
+            setCqsTestMode={setCqsTestMode}
           />
         }
         contentsRef={settingsPaneRef}

@@ -36,6 +36,7 @@ import type { SmartDraftGifMessageSendModalProps } from '../state/smart/DraftGif
 import { CriticalIdlePrimaryDeviceModal } from './CriticalIdlePrimaryDeviceModal.dom.js';
 import { LowDiskSpaceBackupImportModal } from './LowDiskSpaceBackupImportModal.dom.js';
 import { isUsernameValid } from '../util/Username.dom.js';
+import type { PinMessageDialogData } from '../state/smart/PinMessageDialog.preload.js';
 
 // NOTE: All types should be required for this component so that the smart
 // component gives you type errors when adding/removing props.
@@ -112,6 +113,9 @@ export type PropsType = {
   // MessageRequestActionsConfirmation
   messageRequestActionsConfirmationProps: MessageRequestActionsConfirmationPropsType | null;
   renderMessageRequestActionsConfirmation: () => React.JSX.Element;
+  // PinMessageDialog
+  pinMessageDialogData: PinMessageDialogData | null;
+  renderPinMessageDialog: () => React.JSX.Element;
   // NotePreviewModal
   notePreviewModalProps: { conversationId: string } | null;
   renderNotePreviewModal: () => React.JSX.Element;
@@ -166,6 +170,9 @@ export type PropsType = {
   // PlaintextExportWorkflow
   shouldShowPlaintextExportWorkflow: boolean;
   renderPlaintextExportWorkflow: () => React.JSX.Element;
+  // LocalBackupExportWorkflow
+  shouldShowLocalBackupExportWorkflow: boolean;
+  renderLocalBackupExportWorkflow: () => React.JSX.Element;
 };
 
 export function GlobalModalContainer({
@@ -222,6 +229,9 @@ export function GlobalModalContainer({
   // NotePreviewModal
   notePreviewModalProps,
   renderNotePreviewModal,
+  // PinMessageDialog
+  pinMessageDialogData,
+  renderPinMessageDialog,
   // SafetyNumberModal
   safetyNumberModalContactId,
   renderSafetyNumber,
@@ -271,6 +281,9 @@ export function GlobalModalContainer({
   // PlaintextExportWorkflow
   shouldShowPlaintextExportWorkflow,
   renderPlaintextExportWorkflow,
+  // LocalBackupExportWorkflow
+  shouldShowLocalBackupExportWorkflow,
+  renderLocalBackupExportWorkflow,
 }: PropsType): React.JSX.Element | null {
   // We want the following dialogs to show in this order:
   // 0. Stateful multi-modal workflows
@@ -281,6 +294,10 @@ export function GlobalModalContainer({
 
   if (shouldShowPlaintextExportWorkflow) {
     return renderPlaintextExportWorkflow();
+  }
+
+  if (shouldShowLocalBackupExportWorkflow) {
+    return renderLocalBackupExportWorkflow();
   }
 
   // Errors
@@ -359,6 +376,10 @@ export function GlobalModalContainer({
 
   if (notePreviewModalProps) {
     return renderNotePreviewModal();
+  }
+
+  if (pinMessageDialogData) {
+    return renderPinMessageDialog();
   }
 
   if (isProfileNameWarningModalVisible) {

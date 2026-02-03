@@ -642,7 +642,7 @@
     "messageformat": "Failed to send message with endorsements"
   },
   "icu:Toast--SQLError": {
-    "messageformat": "Databasefout: deel je logs."
+    "messageformat": "Databasefout: deel alsjeblieft je logs."
   },
   "icu:Toast--InvalidStorageServiceHeaders": {
     "messageformat": "Ongeldige reactie van de opslagservice ontvangen. Deel alsjeblieft je logs."
@@ -1238,6 +1238,15 @@
   "icu:PinMessageDialog--HasMaxPinnedMessages__Continue": {
     "messageformat": "Doorgaan"
   },
+  "icu:PinMessageDisappearingMessagesWarningDialog__Title": {
+    "messageformat": "Verdwijnende berichten vastzetten"
+  },
+  "icu:PinMessageDisappearingMessagesWarningDialog__Description": {
+    "messageformat": "Verdwijnende berichten worden losgemaakt zodra hun timer afloopt en het bericht uit de chat wordt verwijderd."
+  },
+  "icu:PinMessageDisappearingMessagesWarningDialog__Okay": {
+    "messageformat": "Oké"
+  },
   "icu:PinnedMessagesBar__AccessibilityLabel": {
     "messageformat": "{pinsCount, plural, one {Vastgezet bericht} other {Vastgezette berichten}}"
   },
@@ -1259,9 +1268,6 @@
   "icu:PinnedMessagesBar__ActionsMenu__SeeAllMessages": {
     "messageformat": "Alle berichten bekijken"
   },
-  "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--Address": {
-    "messageformat": "Adres"
-  },
   "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--VoiceMessage": {
     "messageformat": "Spraakbericht"
   },
@@ -1270,9 +1276,6 @@
   },
   "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--File": {
     "messageformat": "Bestand"
-  },
-  "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--Contact": {
-    "messageformat": "Contact"
   },
   "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--Payment": {
     "messageformat": "Betaling"
@@ -5624,6 +5627,24 @@
   "icu:PlaintextExport--Error--DiskPermssions--Detail": {
     "messageformat": "Je chatgeschiedenis kan niet worden geëxporteerd omdat Signal geen toestemming heeft om bestanden naar de schijf te schrijven. Probeer de rechten van je schijf te wijzigen of je systeeminstellingen bij te werken en exporteer dan opnieuw."
   },
+  "icu:LocalBackupExport--ProgressDialog--Header": {
+    "messageformat": "Back-up exporteren"
+  },
+  "icu:LocalBackupExport--CompleteDialog--Header": {
+    "messageformat": "Back-up exporteren voltooid"
+  },
+  "icu:LocalBackupExport--CompleteDialog--RestoreInstructionsHeader": {
+    "messageformat": "Om deze back-up te herstellen:"
+  },
+  "icu:LocalBackupExport--CompleteDialog--RestoreInstructionsTransfer": {
+    "messageformat": "Zet je back-upmap over naar de opslag van je telefoon"
+  },
+  "icu:LocalBackupExport--CompleteDialog--RestoreInstructionsInstall": {
+    "messageformat": "Installeer Signal opnieuw op je telefoon"
+  },
+  "icu:LocalBackupExport--CompleteDialog--RestoreInstructionsRestore": {
+    "messageformat": "Tik op ‘Herstellen of overzetten’ en kies ‘Lokale back-up’"
+  },
   "icu:NotificationProfile--moon-icon": {
     "messageformat": "Maanpictogram"
   },
@@ -5980,6 +6001,15 @@
   },
   "icu:Preferences--local-backups-see-backup-key-again": {
     "messageformat": "Sleutel opnieuw weergeven"
+  },
+  "icu:Preferences__local-backups-last-backup": {
+    "messageformat": "Laatste back-up"
+  },
+  "icu:Preferences__local-backups-last-backup-never": {
+    "messageformat": "Nooit"
+  },
+  "icu:Preferences__local-backups-backup-now": {
+    "messageformat": "Nu back-up maken"
   },
   "icu:Preferences__local-backups-folder": {
     "messageformat": "Back-uplocatie"
@@ -7581,6 +7611,9 @@
   "icu:CallQualitySurvey__ConfirmSubmission__PageDescription": {
     "messageformat": "Dit helpt ons om oproepen in Signal te verbeteren. Je kunt je foutopsporingslog bekijken voordat je het indient."
   },
+  "icu:CallQualitySurvey__ConfirmSubmission__PageDescriptionWithDiagnosticLink": {
+    "messageformat": "Door te versturen ontvangen we jouw feedback samen met <diagnosticInfoLink>diagnostische informatie over je oproep</diagnosticInfoLink>. Optioneel kun je een foutopsporingslog delen om ons te helpen de gesprekskwaliteit te verbeteren."
+  },
   "icu:CallQualitySurvey__ConfirmSubmission__ShareDebugLog__Label": {
     "messageformat": "Foutopsporingslog delen"
   },
@@ -7589,6 +7622,12 @@
   },
   "icu:CallQualitySurvey__ConfirmSubmission__ShareDebugLog__HelpText": {
     "messageformat": "Foutopsporingslogs bevatten app-informatie op laag niveau en geven geen informatie over de inhoud van je berichten."
+  },
+  "icu:CallQualitySurvey__ConfirmSubmission__PrivacyNote": {
+    "messageformat": "De gegevens die je met ons deelt, bevatten app-informatie op laag niveau en geven geen informatie over de inhoud van je oproepen."
+  },
+  "icu:CallDiagnosticWindow__title": {
+    "messageformat": "Diagnostische informatie"
   },
   "icu:CallQualitySurvey__ConfirmSubmission__SubmitButton": {
     "messageformat": "Uploaden"
@@ -7604,6 +7643,9 @@
   },
   "icu:CallQualitySurvey__SubmissionSuccess": {
     "messageformat": "Bedankt voor je feedback!"
+  },
+  "icu:Megaphone__ExpandNarrowSidebar": {
+    "messageformat": "Zijbalk uitklappen om megafoon te bekijken"
   },
   "icu:WhatsNew__bugfixes": {
     "messageformat": "Deze versie bevat een aantal kleine foutoplossingen waardoor Signal voor nog meer mensen goed werkt.",
@@ -7633,10 +7675,10 @@
     "messageformat": "Kleine aanpassingen, bugfixes en prestatieverbeteringen. Bedankt dat je Signal gebruikt!",
     "ignoreUnused": true
   },
-  "icu:WhatsNew__7.84--0": {
-    "messageformat": "Peilingen in Signal Desktop hebben nu dezelfde subtiele animatie-effecten als op je telefoon."
-  },
   "icu:WhatsNew__7.86--0": {
     "messageformat": "We kunnen de ongemakkelijke stilte die daarop volgt niet verhelpen, maar we hebben wel een bug opgelost die er soms voor zorgde dat de opgestoken handindicator zichtbaar bleef (met een telling van nul) als iemand zijn hand heel snel opstak en weer liet zakken."
+  },
+  "icu:WhatsNew__7.87--0": {
+    "messageformat": "Zorg voor gemakkelijke toegang tot belangrijke informatie met vastgezette berichten. Je meestgestelde vragen, restaurantreserveringen en vakantieplannen staan al bovenaan je prioriteitenlijst. Ze kunnen nu ook bovenaan een chat staan."
   }
 }

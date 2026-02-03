@@ -1238,6 +1238,15 @@
   "icu:PinMessageDialog--HasMaxPinnedMessages__Continue": {
     "messageformat": "متابعة"
   },
+  "icu:PinMessageDisappearingMessagesWarningDialog__Title": {
+    "messageformat": "تثبيت الرسائل المؤقَّتة"
+  },
+  "icu:PinMessageDisappearingMessagesWarningDialog__Description": {
+    "messageformat": "سيُلغى تثبيت الرسائل المؤقَّتة عند انتهاء مؤقتها وإزالتها من الدردشة."
+  },
+  "icu:PinMessageDisappearingMessagesWarningDialog__Okay": {
+    "messageformat": "حسنًا"
+  },
   "icu:PinnedMessagesBar__AccessibilityLabel": {
     "messageformat": "{pinsCount, plural, zero {رسائل مُثبَّتة} one {رسالة مُثبَّتة} two {رسالتان مُثبَّتتان} few {رسائل مُثبَّتة} many {رسائل مُثبَّتة} other {رسائل مُثبَّتة}}"
   },
@@ -1259,9 +1268,6 @@
   "icu:PinnedMessagesBar__ActionsMenu__SeeAllMessages": {
     "messageformat": "مشاهدة جميع الرسائل"
   },
-  "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--Address": {
-    "messageformat": "عنوان البريد"
-  },
   "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--VoiceMessage": {
     "messageformat": "رسالة صوتية"
   },
@@ -1270,9 +1276,6 @@
   },
   "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--File": {
     "messageformat": "ملف"
-  },
-  "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--Contact": {
-    "messageformat": "جهة الاتصال"
   },
   "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--Payment": {
     "messageformat": "عمليات الدفع"
@@ -5624,6 +5627,24 @@
   "icu:PlaintextExport--Error--DiskPermssions--Detail": {
     "messageformat": "يتعذَّر تصدير سجل الدردشة الخاص بك لأن سيجنال ليس لديه الإذن لكتابة الملفات على القرص. حاوِل تغيير أذونات قرصك أو حدِّث إعدادات نظامك ثم حاوِل التصدير من جديد."
   },
+  "icu:LocalBackupExport--ProgressDialog--Header": {
+    "messageformat": "جارٍ تصدير النسخة الاحتياطية"
+  },
+  "icu:LocalBackupExport--CompleteDialog--Header": {
+    "messageformat": "اِكتمل تصدير النسخة الاحتياطية"
+  },
+  "icu:LocalBackupExport--CompleteDialog--RestoreInstructionsHeader": {
+    "messageformat": "لاستعادة هذه النسخة الاحتياطية:"
+  },
+  "icu:LocalBackupExport--CompleteDialog--RestoreInstructionsTransfer": {
+    "messageformat": "انقل مجلد النسخة الاحتياطية إلى مساحة تخزين هاتفك"
+  },
+  "icu:LocalBackupExport--CompleteDialog--RestoreInstructionsInstall": {
+    "messageformat": "ثبِّت نسخة جديدة من سيجنال على هاتفك"
+  },
+  "icu:LocalBackupExport--CompleteDialog--RestoreInstructionsRestore": {
+    "messageformat": "انقر على \"الاستعادة أو النقل\" واختر \"النسخة الاحتياطية على الجهاز\""
+  },
   "icu:NotificationProfile--moon-icon": {
     "messageformat": "أيقونة القمر"
   },
@@ -5980,6 +6001,15 @@
   },
   "icu:Preferences--local-backups-see-backup-key-again": {
     "messageformat": "اطَّلِع على المفتاح مُجدَّدًا"
+  },
+  "icu:Preferences__local-backups-last-backup": {
+    "messageformat": "آخِر نسخة احتياطية"
+  },
+  "icu:Preferences__local-backups-last-backup-never": {
+    "messageformat": "أبدًا"
+  },
+  "icu:Preferences__local-backups-backup-now": {
+    "messageformat": "إنشاء نسخة احتياطية الآن"
   },
   "icu:Preferences__local-backups-folder": {
     "messageformat": "مجلد النسخ الاحتياطية"
@@ -7581,6 +7611,9 @@
   "icu:CallQualitySurvey__ConfirmSubmission__PageDescription": {
     "messageformat": "يساعدنا هذا على معرفة المزيد بخصوص الاتصالات وما يعمل وما لا يعمل. يمكنك عرض سِجل الأخطاء الخاص بك قبل الإرسال."
   },
+  "icu:CallQualitySurvey__ConfirmSubmission__PageDescriptionWithDiagnosticLink": {
+    "messageformat": "بإرسال السِجل، سيتم مشاركة ملاحظاتك مع <diagnosticInfoLink>معلومات التشخيص المتعلقة باتصالك</diagnosticInfoLink>. يمكنك اختياريًا مشاركة سِجل تصحيح الأخطاء لمساعدتنا في تحسين جودة المكالمات."
+  },
   "icu:CallQualitySurvey__ConfirmSubmission__ShareDebugLog__Label": {
     "messageformat": "مشاركة سجل الأخطاء"
   },
@@ -7589,6 +7622,12 @@
   },
   "icu:CallQualitySurvey__ConfirmSubmission__ShareDebugLog__HelpText": {
     "messageformat": "تحتوي سجلات الأخطاء على معلومات التطبيق منخفضة المستوى ولا تكشف عن أي من محتويات رسالتك."
+  },
+  "icu:CallQualitySurvey__ConfirmSubmission__PrivacyNote": {
+    "messageformat": "المعلومات التي تتم مشاركتها معنا تقتصر على بيانات تقنية منخفضة المستوى خاصة بالتطبيق، ولا تشمل محتوى مكالماتك."
+  },
+  "icu:CallDiagnosticWindow__title": {
+    "messageformat": "معلومات التشخيص"
   },
   "icu:CallQualitySurvey__ConfirmSubmission__SubmitButton": {
     "messageformat": "إرسال"
@@ -7604,6 +7643,9 @@
   },
   "icu:CallQualitySurvey__SubmissionSuccess": {
     "messageformat": "شكرًا على ملاحظاتك!"
+  },
+  "icu:Megaphone__ExpandNarrowSidebar": {
+    "messageformat": "افتح الشريط الجانبي للتفاعُل مع مُكبِّر الصوت"
   },
   "icu:WhatsNew__bugfixes": {
     "messageformat": "يحتوي هذا الإصدار على عدد من التعديلات الصغيرة وإصلاحات الأخطاء للحفاظ على عمل سيجنال بسلاسة.",
@@ -7633,10 +7675,10 @@
     "messageformat": "تعديلات صغيرة، وإصلاح أعطال، وتحسينات للأداء. شكرًا على استخدامك سيجنال!",
     "ignoreUnused": true
   },
-  "icu:WhatsNew__7.84--0": {
-    "messageformat": "تتضمن استطلاعات سيجنال على نسخة سطح المكتب الآن نفس تأثيرات الصور المتحركة التي كانت تظهر مُسبقًا على هاتفك. تابِع تقدُّم خيارك المُفضَّل لحظة بلحظة مع كل تصويت."
-  },
   "icu:WhatsNew__7.86--0": {
     "messageformat": "أصلحنا خللًا بسيطًا في عرض أيقونة رفع اليد أثناء المكالمات الجماعية."
+  },
+  "icu:WhatsNew__7.87--0": {
+    "messageformat": "تُسهّل الرسائل المُثبَّتة الوصول إلى المعلومات المهمة في أعلى الدردشة. أبقِ أسئلتك الأكثر شيوعًا، وحجوزات المطاعم، وخطط عطلاتك حاضرة دائمًا. الآن أصبحت حاضرة كلها في صدارة دردشاتك أيضًا."
   }
 }

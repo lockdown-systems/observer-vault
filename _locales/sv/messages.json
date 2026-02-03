@@ -1238,6 +1238,15 @@
   "icu:PinMessageDialog--HasMaxPinnedMessages__Continue": {
     "messageformat": "Fortsätt"
   },
+  "icu:PinMessageDisappearingMessagesWarningDialog__Title": {
+    "messageformat": "Fäster försvinnande meddelanden"
+  },
+  "icu:PinMessageDisappearingMessagesWarningDialog__Description": {
+    "messageformat": "Försvinnande meddelanden tas bort när timern löper ut och meddelandet tas bort från chatten."
+  },
+  "icu:PinMessageDisappearingMessagesWarningDialog__Okay": {
+    "messageformat": "Okej"
+  },
   "icu:PinnedMessagesBar__AccessibilityLabel": {
     "messageformat": "{pinsCount, plural, one {Fäst meddelande} other {Fästa meddelanden}}"
   },
@@ -1259,9 +1268,6 @@
   "icu:PinnedMessagesBar__ActionsMenu__SeeAllMessages": {
     "messageformat": "Se alla meddelanden"
   },
-  "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--Address": {
-    "messageformat": "Adress"
-  },
   "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--VoiceMessage": {
     "messageformat": "Röstmeddelande"
   },
@@ -1270,9 +1276,6 @@
   },
   "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--File": {
     "messageformat": "Fil"
-  },
-  "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--Contact": {
-    "messageformat": "Kontakt"
   },
   "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--Payment": {
     "messageformat": "Betalning"
@@ -5624,6 +5627,24 @@
   "icu:PlaintextExport--Error--DiskPermssions--Detail": {
     "messageformat": "Din chatthistorik kan inte exporteras eftersom Signal inte har behörighet att skriva filer till disk. Försök att ändra diskens behörigheter eller uppdatera dina systeminställningar och exportera sedan igen."
   },
+  "icu:LocalBackupExport--ProgressDialog--Header": {
+    "messageformat": "Exporterar säkerhetskopia"
+  },
+  "icu:LocalBackupExport--CompleteDialog--Header": {
+    "messageformat": "Export av säkerhetskopia har slutförts"
+  },
+  "icu:LocalBackupExport--CompleteDialog--RestoreInstructionsHeader": {
+    "messageformat": "För att återställa den här säkerhetskopian:"
+  },
+  "icu:LocalBackupExport--CompleteDialog--RestoreInstructionsTransfer": {
+    "messageformat": "Överför din säkerhetskopiamapp till telefonens lagringsutrymme"
+  },
+  "icu:LocalBackupExport--CompleteDialog--RestoreInstructionsInstall": {
+    "messageformat": "Installera en ny kopia av Signal på din telefon"
+  },
+  "icu:LocalBackupExport--CompleteDialog--RestoreInstructionsRestore": {
+    "messageformat": "Tryck på \"Återställ eller överför\" och välj \"Säkerhetskopiering på enheten\""
+  },
   "icu:NotificationProfile--moon-icon": {
     "messageformat": "Månikon"
   },
@@ -5980,6 +6001,15 @@
   },
   "icu:Preferences--local-backups-see-backup-key-again": {
     "messageformat": "Visa nyckel igen"
+  },
+  "icu:Preferences__local-backups-last-backup": {
+    "messageformat": "Senaste säkerhetskopia"
+  },
+  "icu:Preferences__local-backups-last-backup-never": {
+    "messageformat": "Aldrig"
+  },
+  "icu:Preferences__local-backups-backup-now": {
+    "messageformat": "Säkerhetskopiera nu"
   },
   "icu:Preferences__local-backups-folder": {
     "messageformat": "Mapp för säkerhetskopior"
@@ -7581,6 +7611,9 @@
   "icu:CallQualitySurvey__ConfirmSubmission__PageDescription": {
     "messageformat": "Detta hjälper oss att lära oss mer om samtal och vad som fungerar eller inte fungerar. Du kan visa din felsökningslogg innan du skickar in."
   },
+  "icu:CallQualitySurvey__ConfirmSubmission__PageDescriptionWithDiagnosticLink": {
+    "messageformat": "När du skickar in delas din feedback tillsammans med <diagnosticInfoLink>diagnostisk information om ditt samtal</diagnosticInfoLink>. Du kan välja att dela en felsökningslogg för att hjälpa oss att förbättra samtalskvaliteten."
+  },
   "icu:CallQualitySurvey__ConfirmSubmission__ShareDebugLog__Label": {
     "messageformat": "Dela felsökningslogg"
   },
@@ -7589,6 +7622,12 @@
   },
   "icu:CallQualitySurvey__ConfirmSubmission__ShareDebugLog__HelpText": {
     "messageformat": "Felsökningsloggar innehåller appinformation på låg nivå och avslöjar inget av innehållet i dina meddelanden."
+  },
+  "icu:CallQualitySurvey__ConfirmSubmission__PrivacyNote": {
+    "messageformat": "Information som delas med oss innehåller appinformation på låg nivå och inkluderar inte innehållet i dina samtal."
+  },
+  "icu:CallDiagnosticWindow__title": {
+    "messageformat": "Diagnostisk information"
   },
   "icu:CallQualitySurvey__ConfirmSubmission__SubmitButton": {
     "messageformat": "Skicka"
@@ -7604,6 +7643,9 @@
   },
   "icu:CallQualitySurvey__SubmissionSuccess": {
     "messageformat": "Tack för din feedback!"
+  },
+  "icu:Megaphone__ExpandNarrowSidebar": {
+    "messageformat": "Expandera sidofältet för att interagera med megafonen"
   },
   "icu:WhatsNew__bugfixes": {
     "messageformat": "Den här versionen innehåller ett antal små justeringar och felrättningar för att Signal ska fungera smidigt.",
@@ -7633,10 +7675,10 @@
     "messageformat": "Små justeringer, buggfixar och prestandaförbättringar. Tack för att du använder Signal!",
     "ignoreUnused": true
   },
-  "icu:WhatsNew__7.84--0": {
-    "messageformat": "Förbättrade animeringar för Signal-omröstningar."
-  },
   "icu:WhatsNew__7.86--0": {
     "messageformat": "Vi har åtgärdat ett mindre visningsproblem med indikatorn för handuppräckning i gruppsamtal."
+  },
+  "icu:WhatsNew__7.87--0": {
+    "messageformat": "Nålade meddelanden kan hjälpa dig att hålla viktig information lättillgänglig högst upp i en chatt."
   }
 }

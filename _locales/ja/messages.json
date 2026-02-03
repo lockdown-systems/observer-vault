@@ -1238,6 +1238,15 @@
   "icu:PinMessageDialog--HasMaxPinnedMessages__Continue": {
     "messageformat": "続ける"
   },
+  "icu:PinMessageDisappearingMessagesWarningDialog__Title": {
+    "messageformat": "消えるメッセージをピン留め"
+  },
+  "icu:PinMessageDisappearingMessagesWarningDialog__Description": {
+    "messageformat": "消えるメッセージは、期間が過ぎてチャットから消えた時にピン留めも解除されます。"
+  },
+  "icu:PinMessageDisappearingMessagesWarningDialog__Okay": {
+    "messageformat": "OK"
+  },
   "icu:PinnedMessagesBar__AccessibilityLabel": {
     "messageformat": "{pinsCount, plural, other {ピン留めされたメッセージ}}"
   },
@@ -1259,9 +1268,6 @@
   "icu:PinnedMessagesBar__ActionsMenu__SeeAllMessages": {
     "messageformat": "すべてのメッセージを見る"
   },
-  "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--Address": {
-    "messageformat": "住所"
-  },
   "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--VoiceMessage": {
     "messageformat": "音声メッセージ"
   },
@@ -1270,9 +1276,6 @@
   },
   "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--File": {
     "messageformat": "ファイル"
-  },
-  "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--Contact": {
-    "messageformat": "連絡先"
   },
   "icu:PinnedMessagesBar__MessagePreview__SymbolLabel--Payment": {
     "messageformat": "支払い"
@@ -5624,6 +5627,24 @@
   "icu:PlaintextExport--Error--DiskPermssions--Detail": {
     "messageformat": "Signalには、ディスクにファイルを書き込む権限がないため、チャット履歴をエクスポートできません。ディスクの権限を変更するか、システム設定を更新してからもう一度エクスポートしてください。"
   },
+  "icu:LocalBackupExport--ProgressDialog--Header": {
+    "messageformat": "バックアップをエクスポートしています"
+  },
+  "icu:LocalBackupExport--CompleteDialog--Header": {
+    "messageformat": "バックアップのエクスポートが完了しました"
+  },
+  "icu:LocalBackupExport--CompleteDialog--RestoreInstructionsHeader": {
+    "messageformat": "バックアップの復元方法"
+  },
+  "icu:LocalBackupExport--CompleteDialog--RestoreInstructionsTransfer": {
+    "messageformat": "バックアップフォルダをスマートフォンのストレージに移行します"
+  },
+  "icu:LocalBackupExport--CompleteDialog--RestoreInstructionsInstall": {
+    "messageformat": "ご利用のスマートフォンに、Signalを新規でインストールします"
+  },
+  "icu:LocalBackupExport--CompleteDialog--RestoreInstructionsRestore": {
+    "messageformat": "「復元または移行する」をタップして、「端末上のバックアップ」を選択します"
+  },
   "icu:NotificationProfile--moon-icon": {
     "messageformat": "月のアイコン"
   },
@@ -5980,6 +6001,15 @@
   },
   "icu:Preferences--local-backups-see-backup-key-again": {
     "messageformat": "キーをもう一度見る"
+  },
+  "icu:Preferences__local-backups-last-backup": {
+    "messageformat": "最終バックアップ"
+  },
+  "icu:Preferences__local-backups-last-backup-never": {
+    "messageformat": "なし"
+  },
+  "icu:Preferences__local-backups-backup-now": {
+    "messageformat": "いますぐバックアップ"
   },
   "icu:Preferences__local-backups-folder": {
     "messageformat": "バックアップフォルダ"
@@ -7581,6 +7611,9 @@
   "icu:CallQualitySurvey__ConfirmSubmission__PageDescription": {
     "messageformat": "デバッグログを共有していただくことで、通話状況、何が機能しているか、もしくは何が機能していないか、などを把握できます。送信前にデバッグログを表示することができます。"
   },
+  "icu:CallQualitySurvey__ConfirmSubmission__PageDescriptionWithDiagnosticLink": {
+    "messageformat": "提出すると、<diagnosticInfoLink>通話に関する診断情報</diagnosticInfoLink>とフィードバックが共有されます。デバッグログの共有（任意）は、通話品質の向上につながります。"
+  },
   "icu:CallQualitySurvey__ConfirmSubmission__ShareDebugLog__Label": {
     "messageformat": "デバッグログを共有する"
   },
@@ -7589,6 +7622,12 @@
   },
   "icu:CallQualitySurvey__ConfirmSubmission__ShareDebugLog__HelpText": {
     "messageformat": "デバッグログには最低限のアプリ情報のみが含まれ、メッセージ内容は一切明らかにされません。"
+  },
+  "icu:CallQualitySurvey__ConfirmSubmission__PrivacyNote": {
+    "messageformat": "私たちと共有されるのは最低限のアプリ情報であり、通話内容は含まれません。"
+  },
+  "icu:CallDiagnosticWindow__title": {
+    "messageformat": "診断情報"
   },
   "icu:CallQualitySurvey__ConfirmSubmission__SubmitButton": {
     "messageformat": "送信する"
@@ -7604,6 +7643,9 @@
   },
   "icu:CallQualitySurvey__SubmissionSuccess": {
     "messageformat": "フィードバックをありがとうございます！"
+  },
+  "icu:Megaphone__ExpandNarrowSidebar": {
+    "messageformat": "サイドバーを展開してメガホンを操作できます"
   },
   "icu:WhatsNew__bugfixes": {
     "messageformat": "Signalをスムーズに動作させるための微調整とバグ修正を行いました。",
@@ -7633,10 +7675,10 @@
     "messageformat": "細かな微調整、バグ修正、パフォーマンスの向上。 Signalをご利用いただきありがとうございます。",
     "ignoreUnused": true
   },
-  "icu:WhatsNew__7.84--0": {
-    "messageformat": "Signalの投票機能のアニメーションを改善しました。"
-  },
   "icu:WhatsNew__7.86--0": {
     "messageformat": "グループ通話中の、挙手回数表示に関する軽微なバグを修正しました。"
+  },
+  "icu:WhatsNew__7.87--0": {
+    "messageformat": "メッセージをピン留めすれば、重要な情報をチャットの上部ですぐに確認できます。"
   }
 }
