@@ -51,6 +51,7 @@ const FILES_TO_IGNORE = new Set(
     'sticker-creator/src/util/protos.d.ts',
     'sticker-creator/src/util/protos.js',
     // Observer Vault specific files with Lockdown Systems LLC copyright
+    '.github/workflows/deploy-docs.yml',
     '.github/workflows/linux-release.yml',
     'docs/UPSTREAM-MERGE-GUIDE.md',
     'scripts/audit-customizations.sh',
@@ -88,6 +89,11 @@ export async function forEachRelevantFile(
     async (file: string) => {
       const repoPath = path.relative(rootPath, file);
       if (FILES_TO_IGNORE.has(repoPath)) {
+        return;
+      }
+
+      // Skip docs folder
+      if (repoPath.startsWith(`docs${path.sep}`) || repoPath === 'docs') {
         return;
       }
 
