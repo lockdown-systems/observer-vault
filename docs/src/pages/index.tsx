@@ -25,21 +25,9 @@ function HomepageHeader() {
           your computer, end-to-end encrypted. Your footage is uploaded remotely
           to your computer immediately and isn't saved to your phone.
         </p>
-        <div
-          style={{
-            backgroundColor: 'rgba(0, 0, 0, 0.85)',
-            borderRadius: '8px',
-            padding: '1rem',
-            marginBottom: '2rem',
-            maxWidth: '600px',
-            margin: '0 auto 2rem auto',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '1rem',
-          }}
-        >
-          <div style={{ fontSize: '2rem', flexShrink: 0 }}>⚠️</div>
-          <div style={{ fontSize: '1.2rem', textAlign: 'left' }}>
+        <div className={styles.warningBox}>
+          <div className={styles.warningIcon}>⚠️</div>
+          <div className={styles.warningText}>
             Observer Vault is under active development and is not yet ready to
             be used in the field.
           </div>

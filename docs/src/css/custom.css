@@ -30,12 +30,52 @@
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
 
-/* Make hero text white in dark mode for better contrast */
+/* Light mode homepage: light background with dark text */
+.hero--primary {
+  --ifm-hero-background-color: #f8f9fa;
+  --ifm-hero-text-color: #1c1e21;
+  background-color: #f8f9fa;
+}
+
+.hero--primary .hero__title,
+.hero--primary .hero__subtitle {
+  color: #1c1e21;
+}
+
+/* Dark mode homepage: very dark background with white text */
 [data-theme='dark'] .hero--primary {
+  --ifm-hero-background-color: #0a0a0a;
   --ifm-hero-text-color: #ffffff;
+  background-color: #0a0a0a;
 }
 
 [data-theme='dark'] .hero--primary .hero__title,
 [data-theme='dark'] .hero--primary .hero__subtitle {
   color: #ffffff;
+}
+
+/* Light mode button styling on homepage */
+.hero--primary .button--secondary {
+  background-color: #0092b9;
+  color: #ffffff;
+  border-color: #0092b9;
+}
+
+.hero--primary .button--secondary:hover {
+  background-color: #007c9d;
+  color: #ffffff;
+  border-color: #007c9d;
+}
+
+/* Dark mode button styling on homepage */
+[data-theme='dark'] .hero--primary .button--secondary {
+  background-color: #0881a3;
+  color: #ffffff;
+  border-color: #0881a3;
+}
+
+[data-theme='dark'] .hero--primary .button--secondary:hover {
+  background-color: #098fb3;
+  color: #ffffff;
+  border-color: #098fb3;
 }
