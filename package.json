@@ -126,7 +126,7 @@
     "@indutny/simple-windows-notifications": "2.0.16",
     "@indutny/sneequals": "4.0.0",
     "@internationalized/date": "3.7.0",
-    "@lockdown-systems/ringrtc": "2.63.0-audiosink.2",
+    "@lockdown-systems/ringrtc": "2.64.1-audiosink.0",
     "@popperjs/core": "2.11.8",
     "@radix-ui/react-tooltip": "1.2.7",
     "@react-aria/focus": "3.19.1",
