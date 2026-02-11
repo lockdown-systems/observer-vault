@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import React, { type ReactElement, useState, useCallback } from 'react';
+import copyText from 'copy-text-to-clipboard';
 
 import { Button, ButtonVariant } from '../Button.dom.js';
 import { TitlebarDragArea } from '../TitlebarDragArea.dom.js';
@@ -30,14 +31,17 @@ export function InstallScreenCaptchaStep({
 }: Props): ReactElement {
   const [isWaitingForCaptcha, setIsWaitingForCaptcha] = useState(false);
   const [captchaError, setCaptchaError] = useState<string | null>(null);
+  const [isCopied, setIsCopied] = useState(false);
 
-  const handleOpenCaptcha = useCallback(async () => {
+  // Shared function to start waiting for captcha and register handler
+  const startWaitingForCaptcha = useCallback(async () => {
+    if (isWaitingForCaptcha) {
+      // Already waiting, don't start another handler
+      return;
+    }
+
     setIsWaitingForCaptcha(true);
     setCaptchaError(null);
-
-    // Open the captcha URL in external browser
-    // This will be intercepted by Electron's will-navigate handler
-    document.location.href = CAPTCHA_URL;
 
     try {
       // Wait for the captcha token to come back via the signalcaptcha:// URL
@@ -47,7 +51,25 @@ export function InstallScreenCaptchaStep({
       setCaptchaError('Failed to complete captcha. Please try again.');
       setIsWaitingForCaptcha(false);
     }
-  }, [requestCaptcha, onCaptchaComplete]);
+  }, [isWaitingForCaptcha, requestCaptcha, onCaptchaComplete]);
+
+  const handleOpenCaptcha = useCallback(async () => {
+    // Open the captcha URL in external browser
+    // This will be intercepted by Electron's will-navigate handler
+    document.location.href = CAPTCHA_URL;
+
+    // Start waiting for the captcha response
+    await startWaitingForCaptcha();
+  }, [startWaitingForCaptcha]);
+
+  const handleCopyUrl = useCallback(async () => {
+    copyText(CAPTCHA_URL);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
+
+    // Also start waiting for the captcha response
+    await startWaitingForCaptcha();
+  }, [startWaitingForCaptcha]);
 
   return (
     <div className="module-InstallScreenCaptchaStep">
@@ -74,7 +96,7 @@ export function InstallScreenCaptchaStep({
           <div className="module-InstallScreenCaptchaStep__waiting">
             <Spinner size="36px" svgSize="normal" />
             <span className="module-InstallScreenCaptchaStep__waiting-text">
-              Complete the captcha in your browser, then click &quot;Open
+              Complete the CAPTCHA in your browser, then click &quot;Open
               Signal&quot;
             </span>
           </div>
@@ -86,7 +108,14 @@ export function InstallScreenCaptchaStep({
             variant={ButtonVariant.Primary}
             disabled={isSubmitting || isWaitingForCaptcha}
           >
-            {isWaitingForCaptcha ? 'Waiting for captcha...' : 'Open Captcha'}
+            {isWaitingForCaptcha ? 'Waiting for CAPTCHA...' : 'Open CAPTCHA'}
+          </Button>
+          <Button
+            onClick={handleCopyUrl}
+            variant={ButtonVariant.Details}
+            disabled={isSubmitting}
+          >
+            {isCopied ? 'Copied!' : 'Copy URL'}
           </Button>
           <Button
             onClick={onBack}

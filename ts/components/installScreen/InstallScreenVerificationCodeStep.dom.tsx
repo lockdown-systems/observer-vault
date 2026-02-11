@@ -103,7 +103,7 @@ export function InstallScreenVerificationCodeStep({
           Enter verification code
         </h1>
         <p className="module-InstallScreenVerificationCodeStep__description">
-          We sent a code to <strong>{phoneNumber}</strong>
+          Signal sent a code to <strong>{phoneNumber}</strong>
         </p>
 
         {error && (

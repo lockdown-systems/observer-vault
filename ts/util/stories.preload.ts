@@ -8,8 +8,18 @@ export const getStoriesDisabled = (): boolean =>
 
 export const setStoriesDisabled = async (value: boolean): Promise<void> => {
   await itemStorage.put('hasStoriesDisabled', value);
-  const account = window.ConversationController.getOurConversationOrThrow();
-  account.captureChange('hasStoriesDisabled');
+
+  // Only update the conversation if it exists and the controller is ready
+  try {
+    const account = window.ConversationController.getOurConversation();
+    if (account) {
+      account.captureChange('hasStoriesDisabled');
+    }
+  } catch (error) {
+    // ConversationController may not be ready yet (e.g., during app startup)
+    // The setting is still saved to storage, so it will be applied when ready
+  }
+
   onHasStoriesDisabledChange(value);
 };
 
