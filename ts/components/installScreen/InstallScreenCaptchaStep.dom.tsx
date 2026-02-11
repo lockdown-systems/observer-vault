@@ -33,13 +33,15 @@ export function InstallScreenCaptchaStep({
   const [captchaError, setCaptchaError] = useState<string | null>(null);
   const [isCopied, setIsCopied] = useState(false);
 
-  const handleOpenCaptcha = useCallback(async () => {
+  // Shared function to start waiting for captcha and register handler
+  const startWaitingForCaptcha = useCallback(async () => {
+    if (isWaitingForCaptcha) {
+      // Already waiting, don't start another handler
+      return;
+    }
+
     setIsWaitingForCaptcha(true);
     setCaptchaError(null);
-
-    // Open the captcha URL in external browser
-    // This will be intercepted by Electron's will-navigate handler
-    document.location.href = CAPTCHA_URL;
 
     try {
       // Wait for the captcha token to come back via the signalcaptcha:// URL
@@ -49,13 +51,25 @@ export function InstallScreenCaptchaStep({
       setCaptchaError('Failed to complete captcha. Please try again.');
       setIsWaitingForCaptcha(false);
     }
-  }, [requestCaptcha, onCaptchaComplete]);
+  }, [isWaitingForCaptcha, requestCaptcha, onCaptchaComplete]);
 
-  const handleCopyUrl = useCallback(() => {
+  const handleOpenCaptcha = useCallback(async () => {
+    // Open the captcha URL in external browser
+    // This will be intercepted by Electron's will-navigate handler
+    document.location.href = CAPTCHA_URL;
+
+    // Start waiting for the captcha response
+    await startWaitingForCaptcha();
+  }, [startWaitingForCaptcha]);
+
+  const handleCopyUrl = useCallback(async () => {
     copyText(CAPTCHA_URL);
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2000);
-  }, []);
+
+    // Also start waiting for the captcha response
+    await startWaitingForCaptcha();
+  }, [startWaitingForCaptcha]);
 
   return (
     <div className="module-InstallScreenCaptchaStep">
@@ -94,12 +108,12 @@ export function InstallScreenCaptchaStep({
             variant={ButtonVariant.Primary}
             disabled={isSubmitting || isWaitingForCaptcha}
           >
-            {isWaitingForCaptcha ? 'Waiting for captcha...' : 'Open CAPTCHA'}
+            {isWaitingForCaptcha ? 'Waiting for CAPTCHA...' : 'Open CAPTCHA'}
           </Button>
           <Button
             onClick={handleCopyUrl}
             variant={ButtonVariant.Details}
-            disabled={isSubmitting || isWaitingForCaptcha}
+            disabled={isSubmitting}
           >
             {isCopied ? 'Copied!' : 'Copy URL'}
           </Button>

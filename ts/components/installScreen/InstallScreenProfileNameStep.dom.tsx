@@ -42,11 +42,12 @@ export function InstallScreenProfileNameStep({
 
       <div className="module-InstallScreenProfileNameStep__card">
         <h1 className="module-InstallScreenProfileNameStep__title">
-          Set up your profile
+          Set up your Observer Vault profile
         </h1>
         <p className="module-InstallScreenProfileNameStep__description">
-          Enter your name to complete registration. This is how you&apos;ll
-          appear to others.
+          Enter a name for your Observer Vault&apos;s Signal account. If
+          you&apos;re not sure what to use, just set the first name to
+          &quot;Observer Vault&quot;.
         </p>
 
         <form
