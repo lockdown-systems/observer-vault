@@ -1,0 +1,81 @@
+/**
+ * Any CSS included here will be global. The classic template
+ * bundles Infima by default. Infima is a CSS framework designed to
+ * work well for content-centric websites.
+ */
+
+/* You can override the default Infima variables here. */
+/* Observer Vault colors based on logo: #0092b9 (lighter blue), #06667d (darker blue) */
+:root {
+  --ifm-color-primary: #0092b9;
+  --ifm-color-primary-dark: #0083a7;
+  --ifm-color-primary-darker: #007c9d;
+  --ifm-color-primary-darkest: #06667d;
+  --ifm-color-primary-light: #00a1cb;
+  --ifm-color-primary-lighter: #00a8d5;
+  --ifm-color-primary-lightest: #1ab8e3;
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+}
+
+/* For readability concerns, you should choose a lighter palette in dark mode. */
+[data-theme='dark'] {
+  --ifm-color-primary: #0881a3;
+  --ifm-color-primary-dark: #077493;
+  --ifm-color-primary-darker: #06667d;
+  --ifm-color-primary-darkest: #055264;
+  --ifm-color-primary-light: #098fb3;
+  --ifm-color-primary-lighter: #0a9dc5;
+  --ifm-color-primary-lightest: #0ba6d1;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}
+
+/* Light mode homepage: light background with dark text */
+.hero--primary {
+  --ifm-hero-background-color: #f8f9fa;
+  --ifm-hero-text-color: #1c1e21;
+  background-color: #f8f9fa;
+}
+
+.hero--primary .hero__title,
+.hero--primary .hero__subtitle {
+  color: #1c1e21;
+}
+
+/* Dark mode homepage: very dark background with white text */
+[data-theme='dark'] .hero--primary {
+  --ifm-hero-background-color: #0a0a0a;
+  --ifm-hero-text-color: #ffffff;
+  background-color: #0a0a0a;
+}
+
+[data-theme='dark'] .hero--primary .hero__title,
+[data-theme='dark'] .hero--primary .hero__subtitle {
+  color: #ffffff;
+}
+
+/* Light mode button styling on homepage */
+.hero--primary .button--secondary {
+  background-color: #0092b9;
+  color: #ffffff;
+  border-color: #0092b9;
+}
+
+.hero--primary .button--secondary:hover {
+  background-color: #007c9d;
+  color: #ffffff;
+  border-color: #007c9d;
+}
+
+/* Dark mode button styling on homepage */
+[data-theme='dark'] .hero--primary .button--secondary {
+  background-color: #0881a3;
+  color: #ffffff;
+  border-color: #0881a3;
+}
+
+[data-theme='dark'] .hero--primary .button--secondary:hover {
+  background-color: #098fb3;
+  color: #ffffff;
+  border-color: #098fb3;
+}

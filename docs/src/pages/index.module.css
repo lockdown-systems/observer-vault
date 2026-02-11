@@ -1,0 +1,55 @@
+/**
+ * CSS files with the .module.css suffix will be treated as CSS modules
+ * and scoped locally.
+ */
+
+.heroBanner {
+  padding: 4rem 0;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+@media screen and (max-width: 996px) {
+  .heroBanner {
+    padding: 2rem;
+  }
+}
+
+.buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Warning box styling */
+.warningBox {
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  max-width: 600px;
+  margin: 0 auto 2rem auto;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background-color: rgba(255, 193, 7, 0.15);
+  border: 2px solid rgba(255, 193, 7, 0.6);
+  color: #856404;
+}
+
+.warningIcon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.warningText {
+  font-size: 1.2rem;
+  text-align: left;
+}
+
+/* Dark mode warning box */
+[data-theme='dark'] .warningBox {
+  background-color: rgba(255, 193, 7, 0.2);
+  border: 2px solid rgba(255, 193, 7, 0.5);
+  color: #ffc107;
+}
