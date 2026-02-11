@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import React, { type ReactElement, useState, useCallback } from 'react';
+import copyText from 'copy-text-to-clipboard';
 
 import { Button, ButtonVariant } from '../Button.dom.js';
 import { TitlebarDragArea } from '../TitlebarDragArea.dom.js';
@@ -30,6 +31,7 @@ export function InstallScreenCaptchaStep({
 }: Props): ReactElement {
   const [isWaitingForCaptcha, setIsWaitingForCaptcha] = useState(false);
   const [captchaError, setCaptchaError] = useState<string | null>(null);
+  const [isCopied, setIsCopied] = useState(false);
 
   const handleOpenCaptcha = useCallback(async () => {
     setIsWaitingForCaptcha(true);
@@ -48,6 +50,12 @@ export function InstallScreenCaptchaStep({
       setIsWaitingForCaptcha(false);
     }
   }, [requestCaptcha, onCaptchaComplete]);
+
+  const handleCopyUrl = useCallback(() => {
+    copyText(CAPTCHA_URL);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
+  }, []);
 
   return (
     <div className="module-InstallScreenCaptchaStep">
@@ -74,7 +82,7 @@ export function InstallScreenCaptchaStep({
           <div className="module-InstallScreenCaptchaStep__waiting">
             <Spinner size="36px" svgSize="normal" />
             <span className="module-InstallScreenCaptchaStep__waiting-text">
-              Complete the captcha in your browser, then click &quot;Open
+              Complete the CAPTCHA in your browser, then click &quot;Open
               Signal&quot;
             </span>
           </div>
@@ -86,7 +94,14 @@ export function InstallScreenCaptchaStep({
             variant={ButtonVariant.Primary}
             disabled={isSubmitting || isWaitingForCaptcha}
           >
-            {isWaitingForCaptcha ? 'Waiting for captcha...' : 'Open Captcha'}
+            {isWaitingForCaptcha ? 'Waiting for captcha...' : 'Open CAPTCHA'}
+          </Button>
+          <Button
+            onClick={handleCopyUrl}
+            variant={ButtonVariant.Details}
+            disabled={isSubmitting || isWaitingForCaptcha}
+          >
+            {isCopied ? 'Copied!' : 'Copy URL'}
           </Button>
           <Button
             onClick={onBack}
